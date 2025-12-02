@@ -1,0 +1,32 @@
+# VectorDB Development Requirements
+# Extends requirements.txt for development and testing
+
+-r requirements.txt
+
+# Additional testing tools
+pytest-benchmark>=4.0.0
+pytest-xdist>=3.5.0
+hypothesis>=6.92.0
+
+# Code quality
+mypy>=1.8.0
+pylint>=3.0.0
+
+# Profiling
+memory-profiler>=0.61.0
+py-spy>=0.3.0
+
+# Jupyter/Notebook integration
+jupyter>=1.0.0
+ipykernel>=6.29.0
+
+# Visualization for analysis
+matplotlib>=3.8.0
+seaborn>=0.13.0
+
+# C++ development
+conan>=2.0.0
+
+# Model conversion (ONNX export)
+torch>=2.1.0
+onnx>=1.15.0
