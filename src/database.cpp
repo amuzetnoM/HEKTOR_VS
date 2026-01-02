@@ -4,6 +4,8 @@
 
 #include "vdb/database.hpp"
 #include <fstream>
+#include <mutex>
+#include <unordered_set>
 #include <nlohmann/json.hpp>
 
 namespace vdb {
@@ -32,7 +34,7 @@ Result<void> DatabasePaths::ensure_dirs() const {
         fs::create_directories(models);
         return {};
     } catch (const std::exception& e) {
-        return Error{ErrorCode::IoError, e.what()};
+        return std::unexpected(Error{ErrorCode::IoError, e.what()});
     }
 }
 
@@ -176,7 +178,7 @@ Result<VectorId> VectorDatabase::add_text(
     [[maybe_unused]] const IngestOptions& options
 ) {
     if (!text_encoder_ || !text_encoder_->is_ready()) {
-        return Error{ErrorCode::ModelLoadError, "Text encoder not initialized"};
+        return std::unexpected(Error{ErrorCode::ModelLoadError, "Text encoder not initialized"});
     }
     
     std::unique_lock<std::shared_mutex> lock(mutex_);
@@ -248,7 +250,7 @@ Result<QueryResults> VectorDatabase::query_text(
     const QueryOptions& options
 ) {
     if (!text_encoder_ || !text_encoder_->is_ready()) {
-        return Error{ErrorCode::ModelLoadError, "Text encoder not initialized"};
+        return std::unexpected(Error{ErrorCode::ModelLoadError, "Text encoder not initialized"});
     }
     
     // Generate query embedding
@@ -275,7 +277,7 @@ Result<VectorId> VectorDatabase::add_image(
     [[maybe_unused]] const IngestOptions& options
 ) {
     if (!image_encoder_ || !image_encoder_->is_ready()) {
-        return Error{ErrorCode::ModelLoadError, "Image encoder not initialized"};
+        return std::unexpected(Error{ErrorCode::ModelLoadError, "Image encoder not initialized"});
     }
     
     std::unique_lock<std::shared_mutex> lock(mutex_);
@@ -348,7 +350,7 @@ Result<QueryResults> VectorDatabase::query_image(
     const QueryOptions& options
 ) {
     if (!image_encoder_ || !image_encoder_->is_ready()) {
-        return Error{ErrorCode::ModelLoadError, "Image encoder not initialized"};
+        return std::unexpected(Error{ErrorCode::ModelLoadError, "Image encoder not initialized"});
     }
     
     auto embed_result = image_encoder_->encode(image_path);
@@ -356,7 +358,8 @@ Result<QueryResults> VectorDatabase::query_image(
         return std::unexpected(embed_result.error());
     }
     
-    return query_vector(embed_result->view(), options);
+    Vector embedding(std::move(*embed_result));
+    return query_vector(embedding.view(), options);
 }
 
 // ============================================================================
@@ -368,7 +371,7 @@ Result<VectorId> VectorDatabase::add_vector(
     const Metadata& metadata
 ) {
     if (vector.dim() != config_.dimension) {
-        return Error{ErrorCode::InvalidDimension, "Dimension mismatch"};
+        return std::unexpected(Error{ErrorCode::InvalidDimension, "Dimension mismatch"});
     }
     
     std::unique_lock<std::shared_mutex> lock(mutex_);
@@ -404,7 +407,7 @@ Result<QueryResults> VectorDatabase::query_vector(
     const QueryOptions& options
 ) {
     if (query.dim() != config_.dimension) {
-        return Error{ErrorCode::InvalidDimension, "Query dimension mismatch"};
+        return std::unexpected(Error{ErrorCode::InvalidDimension, "Query dimension mismatch"});
     }
     
     std::shared_lock<std::shared_mutex> lock(mutex_);
@@ -627,7 +630,7 @@ Result<void> VectorDatabase::export_training_data(const fs::path& output_path) c
     
     std::ofstream file(output_path);
     if (!file) {
-        return Error{ErrorCode::IoError, "Failed to create output file"};
+        return std::unexpected(Error{ErrorCode::IoError, "Failed to create output file"});
     }
     
     for (const auto& meta : metadata_->all()) {
@@ -661,7 +664,6 @@ Result<VectorDatabase> create_gold_standard_db(const fs::path& path) {
     config.path = path;
     config.dimension = UNIFIED_DIM;
     config.metric = DistanceMetric::Cosine;
-    config.provider = ExecutionProvider::Auto;
     
     VectorDatabase db(config);
     auto result = db.init();
@@ -675,13 +677,13 @@ Result<VectorDatabase> create_gold_standard_db(const fs::path& path) {
 Result<VectorDatabase> open_database(const fs::path& path) {
     DatabasePaths paths(path);
     if (!paths.exists()) {
-        return Error{ErrorCode::IoError, "Database not found at path"};
+        return std::unexpected(Error{ErrorCode::IoError, "Database not found at path"});
     }
     
     // Load config
     std::ifstream config_file(paths.config);
     if (!config_file) {
-        return Error{ErrorCode::IoError, "Failed to read config file"};
+        return std::unexpected(Error{ErrorCode::IoError, "Failed to read config file"});
     }
     
     json config_json = json::parse(config_file);

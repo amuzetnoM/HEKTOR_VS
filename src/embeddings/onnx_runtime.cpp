@@ -19,7 +19,7 @@
 #define STBI_ONLY_PNG
 #define STBI_ONLY_JPEG
 #define STBI_NO_STDIO
-#include "stb_image.h"
+#include "vdb/embeddings/stb_image.h"
 
 namespace vdb::embeddings {
 

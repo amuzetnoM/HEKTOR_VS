@@ -15,6 +15,11 @@ namespace vdb {
 
 namespace fs = std::filesystem;
 
+// Import embeddings types
+using embeddings::TextEncoder;
+using embeddings::ImageEncoder;
+using embeddings::Device;
+
 // ============================================================================
 // Database Configuration
 // ============================================================================
@@ -37,7 +42,6 @@ struct DatabaseConfig {
     bool auto_download_models = true;       // Download if missing
     
     // Execution
-    ExecutionProvider provider = ExecutionProvider::Auto;
     int num_threads = 0;                    // 0 = auto
     
     // Storage

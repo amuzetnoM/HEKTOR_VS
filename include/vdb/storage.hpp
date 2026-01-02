@@ -6,6 +6,7 @@
 #include "core.hpp"
 #include <fstream>
 #include <filesystem>
+#include <unordered_map>
 
 namespace vdb {
 

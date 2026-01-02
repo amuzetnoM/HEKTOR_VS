@@ -34,8 +34,8 @@ Result<void> DatabasePaths::ensure_dirs() const {
         fs::create_directories(models);
         return {};
     } catch (const fs::filesystem_error& e) {
-        return Error{ErrorCode::IoError, 
-                    std::string("Failed to create directories: ") + e.what()};
+        return std::unexpected(Error{ErrorCode::IoError, 
+                    std::string("Failed to create directories: ") + e.what()});
     }
 }
 
