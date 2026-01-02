@@ -419,12 +419,12 @@ struct VectorFileHeader {
     uint64_t vector_count;    // Number of vectors stored
     uint64_t capacity;        // Total slot capacity
     uint64_t free_list_head;  // Head of free slot linked list (or UINT64_MAX if none)
-    uint8_t  padding[32];     // Future use, align to 64 bytes
+    uint8_t  padding[24];     // Future use, align to 64 bytes
     
     static constexpr uint32_t MAGIC = 0x00424456;  // "VDB\0"
     static constexpr uint32_t CURRENT_VERSION = 1;
     static constexpr size_t SIZE = 64;
-});
+};
 
 static_assert(sizeof(VectorFileHeader) == VectorFileHeader::SIZE, 
               "Header size must be 64 bytes");

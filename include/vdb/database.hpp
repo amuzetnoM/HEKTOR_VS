@@ -305,9 +305,9 @@ private:
 // ============================================================================
 
 /// Create database with default settings for Gold Standard
-[[nodiscard]] Result<VectorDatabase> create_gold_standard_db(const fs::path& path);
+[[nodiscard]] Result<std::unique_ptr<VectorDatabase>> create_gold_standard_db(const fs::path& path);
 
 /// Open existing database
-[[nodiscard]] Result<VectorDatabase> open_database(const fs::path& path);
+[[nodiscard]] Result<std::unique_ptr<VectorDatabase>> open_database(const fs::path& path);
 
 } // namespace vdb

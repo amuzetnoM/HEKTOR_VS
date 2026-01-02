@@ -11,6 +11,8 @@
 namespace vdb {
 
 using json = nlohmann::json;
+using embeddings::TextEncoderConfig;
+using embeddings::ImageEncoderConfig;
 
 // ============================================================================
 // Database Paths
@@ -84,7 +86,7 @@ Result<void> VectorDatabase::init() {
     
     // Initialize vector storage
     VectorStoreConfig store_config;
-    store_config.base_path = paths_.root;
+    store_config.path = paths_.root;
     store_config.dimension = config_.dimension;
     store_config.memory_only = config_.memory_only;
     vectors_ = std::make_unique<VectorStore>(store_config);
@@ -110,8 +112,7 @@ Result<void> VectorDatabase::init() {
             ? paths_.text_model.string() 
             : config_.text_model_path;
         text_config.vocab_path = config_.vocab_path;
-        text_config.onnx_config.provider = config_.provider;
-        text_config.onnx_config.num_threads = config_.num_threads;
+        text_config.device = Device::CPU;  // Default to CPU
         
         text_encoder_ = std::make_unique<TextEncoder>();
         if (fs::exists(text_config.model_path)) {
@@ -135,8 +136,7 @@ Result<void> VectorDatabase::init() {
         image_config.model_path = config_.image_model_path.empty()
             ? paths_.image_model.string()
             : config_.image_model_path;
-        image_config.onnx_config.provider = config_.provider;
-        image_config.onnx_config.num_threads = config_.num_threads;
+        image_config.device = Device::CPU;  // Default to CPU
         
         image_encoder_ = std::make_unique<ImageEncoder>();
         if (fs::exists(image_config.model_path)) {
@@ -187,7 +187,7 @@ Result<VectorId> VectorDatabase::add_text(
     }
     
     // Project to unified dimension if needed
-    Vector embedding = std::move(*embed_result);
+    Vector embedding(std::move(*embed_result));
     if (text_projection_) {
         embedding = text_projection_->project(embedding.view());
     }
@@ -256,7 +256,7 @@ Result<QueryResults> VectorDatabase::query_text(
         return std::unexpected(embed_result.error());
     }
     
-    Vector embedding = std::move(*embed_result);
+    Vector embedding(std::move(*embed_result));
     if (text_projection_) {
         embedding = text_projection_->project(embedding.view());
     }
@@ -285,7 +285,7 @@ Result<VectorId> VectorDatabase::add_image(
         return std::unexpected(embed_result.error());
     }
     
-    Vector embedding = std::move(*embed_result);
+    Vector embedding(std::move(*embed_result));
     VectorId id = next_id();
     
     // Add to index
@@ -656,14 +656,14 @@ Result<void> VectorDatabase::export_training_data(const fs::path& output_path) c
 // Factory Functions
 // ============================================================================
 
-Result<VectorDatabase> create_gold_standard_db(const fs::path& path) {
+Result<std::unique_ptr<VectorDatabase>> create_gold_standard_db(const fs::path& path) {
     DatabaseConfig config;
     config.path = path;
     config.dimension = UNIFIED_DIM;
     config.metric = DistanceMetric::Cosine;
     
-    VectorDatabase db(config);
-    auto result = db.init();
+    auto db = std::make_unique<VectorDatabase>(config);
+    auto result = db->init();
     if (!result) {
         return std::unexpected(result.error());
     }
@@ -671,7 +671,7 @@ Result<VectorDatabase> create_gold_standard_db(const fs::path& path) {
     return db;
 }
 
-Result<VectorDatabase> open_database(const fs::path& path) {
+Result<std::unique_ptr<VectorDatabase>> open_database(const fs::path& path) {
     DatabasePaths paths(path);
     if (!paths.exists()) {
         return std::unexpected(Error{ErrorCode::IoError, "Database not found at path"});
@@ -691,8 +691,8 @@ Result<VectorDatabase> open_database(const fs::path& path) {
     config.metric = static_cast<DistanceMetric>(config_json.value("metric", 0));
     config.hnsw_m = config_json.value("hnsw_m", HNSW_M);
     
-    VectorDatabase db(config);
-    auto result = db.init();
+    auto db = std::make_unique<VectorDatabase>(config);
+    auto result = db->init();
     if (!result) {
         return std::unexpected(result.error());
     }
