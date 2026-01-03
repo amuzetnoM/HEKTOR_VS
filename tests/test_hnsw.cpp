@@ -83,7 +83,7 @@ TEST_F(HNSWTest, SearchReturnsClosest) {
     
     // Add first 100 vectors
     for (size_t i = 0; i < 100; ++i) {
-        index.add(i + 1, vectors_[i]);
+        ASSERT_TRUE(index.add(i + 1, vectors_[i]).has_value());
     }
     
     // Search for the first vector
@@ -102,7 +102,7 @@ TEST_F(HNSWTest, SearchReturnsKResults) {
     HnswIndex index(config);
     
     for (size_t i = 0; i < 100; ++i) {
-        index.add(i + 1, vectors_[i]);
+        ASSERT_TRUE(index.add(i + 1, vectors_[i]).has_value());
     }
     
     auto results = index.search(vectors_[0], 10);

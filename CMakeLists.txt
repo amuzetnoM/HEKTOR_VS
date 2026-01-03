@@ -12,6 +12,9 @@ set(CMAKE_CXX_STANDARD_REQUIRED ON)
 set(CMAKE_CXX_EXTENSIONS OFF)
 set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
 
+# Enable position independent code globally for shared library support
+set(CMAKE_POSITION_INDEPENDENT_CODE ON)
+
 # Build type defaults
 if(NOT CMAKE_BUILD_TYPE)
     set(CMAKE_BUILD_TYPE Release)
@@ -123,9 +126,6 @@ add_library(vdb_core STATIC
     src/ingest/markdown_parser.cpp
     src/ingest/gold_standard_ingest.cpp
 )
-
-# Enable position independent code for use in shared libraries
-set_target_properties(vdb_core PROPERTIES POSITION_INDEPENDENT_CODE ON)
 
 target_include_directories(vdb_core PUBLIC
     ${CMAKE_CURRENT_SOURCE_DIR}/include

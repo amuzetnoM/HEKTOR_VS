@@ -50,7 +50,7 @@ TEST_F(StorageTest, VectorStoreAddAndGet) {
     config.initial_capacity = 100;
     
     VectorStore store(config);
-    store.init();
+    ASSERT_TRUE(store.init().has_value());
     
     std::vector<Scalar> data = {1.0f, 2.0f, 3.0f, 4.0f};
     VectorView view(data.data(), 4);
@@ -72,11 +72,11 @@ TEST_F(StorageTest, VectorStoreRemove) {
     config.initial_capacity = 100;
     
     VectorStore store(config);
-    store.init();
+    ASSERT_TRUE(store.init().has_value());
     
     std::vector<Scalar> data = {1.0f, 2.0f, 3.0f, 4.0f};
-    store.add(1, VectorView(data.data(), 4));
-    store.add(2, VectorView(data.data(), 4));
+    ASSERT_TRUE(store.add(1, VectorView(data.data(), 4)).has_value());
+    ASSERT_TRUE(store.add(2, VectorView(data.data(), 4)).has_value());
     
     EXPECT_EQ(store.size(), 2);
     
@@ -101,7 +101,7 @@ TEST_F(StorageTest, MetadataStoreInit) {
 
 TEST_F(StorageTest, MetadataStoreAddAndGet) {
     MetadataStore store(test_dir_ / "metadata.jsonl");
-    store.init();
+    ASSERT_TRUE(store.init().has_value());
     
     Metadata meta;
     meta.id = 1;
@@ -127,21 +127,21 @@ TEST_F(StorageTest, MetadataStorePersistence) {
     // Write
     {
         MetadataStore store(meta_path);
-        store.init();
+        ASSERT_TRUE(store.init().has_value());
         
         Metadata meta;
         meta.id = 1;
         meta.type = DocumentType::Chart;
         meta.date = "2025-12-01";
         meta.asset = "GOLD";
-        store.add(meta);
-        store.sync();
+        ASSERT_TRUE(store.add(meta).has_value());
+        ASSERT_TRUE(store.sync().has_value());
     }
     
     // Read back
     {
         MetadataStore store(meta_path);
-        store.init();
+        ASSERT_TRUE(store.init().has_value());
         
         EXPECT_EQ(store.size(), 1);
         auto meta = store.get(1);
