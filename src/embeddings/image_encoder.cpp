@@ -18,13 +18,13 @@ namespace vdb::embeddings {
 
 Result<ImageData> load_image(const fs::path& path) {
     if (!fs::exists(path)) {
-        return Error{ErrorCode::IoError, "Image file not found: " + path.string()};
+        return std::unexpected(Error{ErrorCode::IoError, "Image file not found: " + path.string()});
     }
     
     // Read file into memory
     std::ifstream file(path, std::ios::binary | std::ios::ate);
     if (!file) {
-        return Error{ErrorCode::IoError, "Failed to open image: " + path.string()};
+        return std::unexpected(Error{ErrorCode::IoError, "Failed to open image: " + path.string()});
     }
     
     std::streamsize size = file.tellg();
@@ -32,7 +32,7 @@ Result<ImageData> load_image(const fs::path& path) {
     
     std::vector<char> buffer(size);
     if (!file.read(buffer.data(), size)) {
-        return Error{ErrorCode::IoError, "Failed to read image: " + path.string()};
+        return std::unexpected(Error{ErrorCode::IoError, "Failed to read image: " + path.string()});
     }
     
     return load_image_memory(std::span<const uint8_t>(
@@ -54,8 +54,8 @@ Result<ImageData> load_image_memory(std::span<const uint8_t> data) {
     );
     
     if (pixels == nullptr) {
-        return Error{ErrorCode::InvalidData, 
-                    std::string("Failed to decode image: ") + stbi_failure_reason()};
+        return std::unexpected(Error{ErrorCode::InvalidData, 
+                    std::string("Failed to decode image: ") + stbi_failure_reason()});
     }
     
     ImageData result;
@@ -75,7 +75,7 @@ Result<void> save_image(const fs::path& path, const ImageData& img) {
     
     std::ofstream file(path, std::ios::binary);
     if (!file) {
-        return Error{ErrorCode::IoError, "Failed to create image: " + path.string()};
+        return std::unexpected(Error{ErrorCode::IoError, "Failed to create image: " + path.string()});
     }
     
     // PPM header
@@ -116,8 +116,8 @@ Result<void> ImageEncoder::init(const ImageEncoderConfig& config) {
     
     // Validate model path
     if (!fs::exists(config_.model_path)) {
-        return Error{ErrorCode::IoError,
-                    "Image encoder model not found: " + config_.model_path.string()};
+        return std::unexpected(Error{ErrorCode::IoError,
+                    "Image encoder model not found: " + config_.model_path.string()});
     }
     
     // Create preprocessor with CLIP normalization values
@@ -131,8 +131,8 @@ Result<void> ImageEncoder::init(const ImageEncoderConfig& config) {
     try {
         session_ = std::make_unique<OnnxSession>(config_.model_path, config_.device);
     } catch (const std::exception& e) {
-        return Error{ErrorCode::InvalidData,
-                    std::string("Failed to load ONNX model: ") + e.what()};
+        return std::unexpected(Error{ErrorCode::InvalidData,
+                    std::string("Failed to load ONNX model: ") + e.what()});
     }
     
     ready_ = true;
@@ -150,11 +150,11 @@ Result<std::vector<float>> ImageEncoder::encode(const fs::path& image_path) {
 
 Result<std::vector<float>> ImageEncoder::encode(const ImageData& image) {
     if (!ready_) {
-        return Error{ErrorCode::InvalidState, "ImageEncoder not initialized"};
+        return std::unexpected(Error{ErrorCode::InvalidState, "ImageEncoder not initialized"});
     }
     
     if (!image.valid()) {
-        return Error{ErrorCode::InvalidData, "Invalid image data"};
+        return std::unexpected(Error{ErrorCode::InvalidData, "Invalid image data"});
     }
     
     // Preprocess image
@@ -183,7 +183,7 @@ Result<std::vector<float>> ImageEncoder::encode(const ImageData& image) {
         auto outputs = session_->run(inputs);
         
         if (outputs.empty()) {
-            return Error{ErrorCode::InvalidData, "Model returned no outputs"};
+            return std::unexpected(Error{ErrorCode::InvalidData, "Model returned no outputs"});
         }
         
         // Get output tensor
@@ -208,8 +208,8 @@ Result<std::vector<float>> ImageEncoder::encode(const ImageData& image) {
         return embedding;
         
     } catch (const Ort::Exception& e) {
-        return Error{ErrorCode::InvalidData,
-                    std::string("ONNX inference failed: ") + e.what()};
+        return std::unexpected(Error{ErrorCode::InvalidData,
+                    std::string("ONNX inference failed: ") + e.what()});
     }
 }
 

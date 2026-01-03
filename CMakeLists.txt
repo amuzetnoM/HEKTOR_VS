@@ -26,6 +26,8 @@ option(VDB_BUILD_PYTHON "Build Python bindings" ON)
 option(VDB_USE_AVX2 "Enable AVX2 SIMD optimizations" ON)
 option(VDB_USE_AVX512 "Enable AVX-512 SIMD optimizations" OFF)
 option(VDB_ENABLE_GPU "Enable GPU acceleration via ONNX DirectML/CUDA" OFF)
+option(VDB_USE_LLAMA_CPP "Enable llama.cpp for local LLM inference" ON)
+option(VDB_USE_ONNX_RUNTIME "Enable ONNX Runtime for text/image encoders (requires MSVC)" OFF)
 
 # ============================================================================
 # Compiler Flags
@@ -74,41 +76,92 @@ FetchContent_Declare(
 )
 FetchContent_MakeAvailable(fmt)
 
-# ONNX Runtime - Download pre-built binaries
+# ONNX Runtime - Download pre-built binaries (MSVC only)
 set(ONNX_VERSION "1.16.3")
-if(WIN32)
-    set(ONNX_PLATFORM "win-x64")
-    set(ONNX_EXT "zip")
-else()
-    set(ONNX_PLATFORM "linux-x64")
-    set(ONNX_EXT "tgz")
+if(VDB_USE_ONNX_RUNTIME)
+    if(NOT MSVC)
+        message(WARNING "ONNX Runtime pre-built binaries require MSVC. Disabling ONNX Runtime.")
+        set(VDB_USE_ONNX_RUNTIME OFF CACHE BOOL "" FORCE)
+    else()
+        if(WIN32)
+            set(ONNX_PLATFORM "win-x64")
+            set(ONNX_EXT "zip")
+        else()
+            set(ONNX_PLATFORM "linux-x64")
+            set(ONNX_EXT "tgz")
+        endif()
+
+        set(ONNX_URL "https://github.com/microsoft/onnxruntime/releases/download/v${ONNX_VERSION}/onnxruntime-${ONNX_PLATFORM}-${ONNX_VERSION}.${ONNX_EXT}")
+        set(ONNX_DIR "${CMAKE_BINARY_DIR}/onnxruntime")
+
+        if(NOT EXISTS "${ONNX_DIR}")
+            message(STATUS "Downloading ONNX Runtime ${ONNX_VERSION}...")
+            FetchContent_Declare(
+                onnxruntime
+                URL ${ONNX_URL}
+                SOURCE_DIR ${ONNX_DIR}
+            )
+            FetchContent_MakeAvailable(onnxruntime)
+        endif()
+
+        # Find ONNX Runtime
+        find_library(ONNX_RUNTIME_LIB 
+            NAMES onnxruntime
+            PATHS "${ONNX_DIR}/lib"
+            NO_DEFAULT_PATH
+        )
+        set(ONNX_RUNTIME_INCLUDE "${ONNX_DIR}/include")
+    endif()
 endif()
 
-set(ONNX_URL "https://github.com/microsoft/onnxruntime/releases/download/v${ONNX_VERSION}/onnxruntime-${ONNX_PLATFORM}-${ONNX_VERSION}.${ONNX_EXT}")
-set(ONNX_DIR "${CMAKE_BINARY_DIR}/onnxruntime")
-
-if(NOT EXISTS "${ONNX_DIR}")
-    message(STATUS "Downloading ONNX Runtime ${ONNX_VERSION}...")
+# ============================================================================
+# llama.cpp - Local LLM Inference
+# ============================================================================
+if(VDB_USE_LLAMA_CPP)
+    message(STATUS "Fetching llama.cpp...")
     FetchContent_Declare(
-        onnxruntime
-        URL ${ONNX_URL}
-        SOURCE_DIR ${ONNX_DIR}
+        llama_cpp
+        GIT_REPOSITORY https://github.com/ggerganov/llama.cpp.git
+        GIT_TAG b4399  # Use proper tag format
+        GIT_SHALLOW TRUE
     )
-    FetchContent_MakeAvailable(onnxruntime)
+    
+    # Configure llama.cpp options
+    set(LLAMA_BUILD_TESTS OFF CACHE BOOL "" FORCE)
+    set(LLAMA_BUILD_EXAMPLES OFF CACHE BOOL "" FORCE)
+    set(LLAMA_BUILD_SERVER OFF CACHE BOOL "" FORCE)
+    set(LLAMA_NATIVE ON CACHE BOOL "" FORCE)
+    
+    # GPU acceleration options
+    if(VDB_ENABLE_GPU)
+        if(WIN32)
+            # Use DirectML on Windows for broad GPU support
+            # Alternatively use CUDA if available
+            find_package(CUDAToolkit QUIET)
+            if(CUDAToolkit_FOUND)
+                set(GGML_CUDA ON CACHE BOOL "" FORCE)
+                message(STATUS "llama.cpp: Using CUDA acceleration")
+            else()
+                # DirectML not directly supported in llama.cpp yet
+                # Fall back to CPU with optimizations
+                message(STATUS "llama.cpp: GPU not available, using CPU")
+            endif()
+        else()
+            find_package(CUDAToolkit QUIET)
+            if(CUDAToolkit_FOUND)
+                set(GGML_CUDA ON CACHE BOOL "" FORCE)
+                message(STATUS "llama.cpp: Using CUDA acceleration")
+            endif()
+        endif()
+    endif()
+    
+    FetchContent_MakeAvailable(llama_cpp)
 endif()
-
-# Find ONNX Runtime
-find_library(ONNX_RUNTIME_LIB 
-    NAMES onnxruntime
-    PATHS "${ONNX_DIR}/lib"
-    NO_DEFAULT_PATH
-)
-set(ONNX_RUNTIME_INCLUDE "${ONNX_DIR}/include")
 
 # ============================================================================
 # Core Library
 # ============================================================================
-add_library(vdb_core STATIC
+set(VDB_CORE_SOURCES
     src/core/vector_ops.cpp
     src/core/distance.cpp
     src/core/thread_pool.cpp
@@ -116,24 +169,48 @@ add_library(vdb_core STATIC
     src/index/flat.cpp
     src/storage/mmap_store.cpp
     src/storage/metadata.cpp
-    src/embeddings/onnx_runtime.cpp
-    src/embeddings/text_encoder.cpp
-    src/embeddings/image_encoder.cpp
     src/database.cpp
     src/ingest/markdown_parser.cpp
     src/ingest/gold_standard_ingest.cpp
+    src/llm/llama_engine.cpp
 )
+
+# Add ONNX-dependent sources only if ONNX Runtime is enabled
+if(VDB_USE_ONNX_RUNTIME)
+    list(APPEND VDB_CORE_SOURCES
+        src/embeddings/onnx_runtime.cpp
+        src/embeddings/text_encoder.cpp
+        src/embeddings/image_encoder.cpp
+    )
+endif()
+
+add_library(vdb_core STATIC ${VDB_CORE_SOURCES})
 
 target_include_directories(vdb_core PUBLIC
     ${CMAKE_CURRENT_SOURCE_DIR}/include
-    ${ONNX_RUNTIME_INCLUDE}
 )
 
 target_link_libraries(vdb_core PUBLIC
     nlohmann_json::nlohmann_json
     fmt::fmt
-    ${ONNX_RUNTIME_LIB}
 )
+
+# ONNX Runtime linking
+if(VDB_USE_ONNX_RUNTIME)
+    target_include_directories(vdb_core PUBLIC ${ONNX_RUNTIME_INCLUDE})
+    target_link_libraries(vdb_core PUBLIC ${ONNX_RUNTIME_LIB})
+    target_compile_definitions(vdb_core PUBLIC VDB_USE_ONNX_RUNTIME)
+endif()
+
+# Link llama.cpp if enabled
+if(VDB_USE_LLAMA_CPP)
+    target_link_libraries(vdb_core PUBLIC llama common)
+    target_compile_definitions(vdb_core PUBLIC VDB_USE_LLAMA_CPP)
+    target_include_directories(vdb_core PUBLIC 
+        ${llama_cpp_SOURCE_DIR}/include
+        ${llama_cpp_SOURCE_DIR}/common
+    )
+endif()
 
 # Platform-specific threading
 if(WIN32)

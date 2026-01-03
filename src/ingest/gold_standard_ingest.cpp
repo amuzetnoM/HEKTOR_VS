@@ -128,7 +128,7 @@ std::string content_hash(std::string_view content) {
 Result<std::string> file_hash(const fs::path& path) {
     std::ifstream file(path, std::ios::binary);
     if (!file) {
-        return Error{ErrorCode::IoError, "Failed to open file"};
+        return std::unexpected(Error{ErrorCode::IoError, "Failed to open file"});
     }
     
     std::ostringstream buffer;
@@ -529,7 +529,7 @@ Metadata GoldStandardIngest::create_metadata(
 Result<VectorId> GoldStandardIngest::ingest_journal(const fs::path& path) {
     std::ifstream file(path);
     if (!file) {
-        return Error{ErrorCode::IoError, "Failed to open journal file"};
+        return std::unexpected(Error{ErrorCode::IoError, "Failed to open journal file"});
     }
     
     std::stringstream buffer;
@@ -587,7 +587,7 @@ Result<VectorId> GoldStandardIngest::ingest_chart(const fs::path& path) {
 Result<VectorId> GoldStandardIngest::ingest_report(const fs::path& path) {
     std::ifstream file(path);
     if (!file) {
-        return Error{ErrorCode::IoError, "Failed to open report file"};
+        return std::unexpected(Error{ErrorCode::IoError, "Failed to open report file"});
     }
     
     std::stringstream buffer;

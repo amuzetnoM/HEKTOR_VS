@@ -10,6 +10,10 @@
 #include "vdb/database.hpp"
 #include "vdb/ingest.hpp"
 
+#ifdef VDB_USE_LLAMA_CPP
+#include "vdb/llm/llm_engine.hpp"
+#endif
+
 namespace py = pybind11;
 using namespace vdb;
 
@@ -421,4 +425,95 @@ PYBIND11_MODULE(pyvdb, m) {
     
     m.def("is_provider_available", &is_provider_available, py::arg("provider"),
           "Check if a specific execution provider is available");
+    
+    // ========================================================================
+    // LLM Engine (llama.cpp integration)
+    // ========================================================================
+    
+#ifdef VDB_USE_LLAMA_CPP
+    using namespace vdb::llm;
+    
+    py::enum_<Role>(m, "Role")
+        .value("System", Role::System)
+        .value("User", Role::User)
+        .value("Assistant", Role::Assistant)
+        .export_values();
+    
+    py::class_<Message>(m, "Message")
+        .def(py::init<>())
+        .def(py::init([](Role role, const std::string& content) {
+            return Message{role, content};
+        }), py::arg("role"), py::arg("content"))
+        .def_readwrite("role", &Message::role)
+        .def_readwrite("content", &Message::content);
+    
+    py::class_<LLMConfig>(m, "LLMConfig")
+        .def(py::init<>())
+        .def_readwrite("model_path", &LLMConfig::model_path)
+        .def_readwrite("n_ctx", &LLMConfig::n_ctx)
+        .def_readwrite("n_batch", &LLMConfig::n_batch)
+        .def_readwrite("n_threads", &LLMConfig::n_threads)
+        .def_readwrite("n_gpu_layers", &LLMConfig::n_gpu_layers)
+        .def_readwrite("use_mmap", &LLMConfig::use_mmap)
+        .def_readwrite("use_mlock", &LLMConfig::use_mlock);
+    
+    py::class_<GenerationParams>(m, "GenerationParams")
+        .def(py::init<>())
+        .def_readwrite("max_tokens", &GenerationParams::max_tokens)
+        .def_readwrite("temperature", &GenerationParams::temperature)
+        .def_readwrite("top_p", &GenerationParams::top_p)
+        .def_readwrite("top_k", &GenerationParams::top_k)
+        .def_readwrite("repeat_penalty", &GenerationParams::repeat_penalty)
+        .def_readwrite("stop_sequences", &GenerationParams::stop_sequences);
+    
+    py::class_<ChatCompletionResult>(m, "ChatCompletionResult")
+        .def_readonly("content", &ChatCompletionResult::content)
+        .def_readonly("tokens_generated", &ChatCompletionResult::tokens_generated)
+        .def_readonly("tokens_prompt", &ChatCompletionResult::tokens_prompt)
+        .def_readonly("generation_time_ms", &ChatCompletionResult::generation_time_ms)
+        .def_readonly("stopped_by_eos", &ChatCompletionResult::stopped_by_eos)
+        .def_readonly("stop_reason", &ChatCompletionResult::stop_reason);
+    
+    py::class_<GGUFMetadata>(m, "GGUFMetadata")
+        .def_readonly("name", &GGUFMetadata::name)
+        .def_readonly("architecture", &GGUFMetadata::architecture)
+        .def_readonly("context_length", &GGUFMetadata::context_length)
+        .def_readonly("embedding_length", &GGUFMetadata::embedding_length)
+        .def_readonly("vocab_size", &GGUFMetadata::vocab_size)
+        .def_readonly("quantization", &GGUFMetadata::quantization)
+        .def_readonly("file_size", &GGUFMetadata::file_size);
+    
+    py::class_<LLMEngine, std::unique_ptr<LLMEngine>>(m, "LLMEngine")
+        .def("load", &LLMEngine::load, py::arg("config"))
+        .def("is_loaded", &LLMEngine::is_loaded)
+        .def("unload", &LLMEngine::unload)
+        .def("model_name", &LLMEngine::model_name)
+        .def("context_size", &LLMEngine::context_size)
+        .def("vocab_size", &LLMEngine::vocab_size)
+        .def("generate", &LLMEngine::generate, 
+             py::arg("prompt"), py::arg("params") = GenerationParams())
+        .def("chat", &LLMEngine::chat,
+             py::arg("messages"), py::arg("params") = GenerationParams())
+        .def("count_tokens", &LLMEngine::count_tokens, py::arg("text"));
+    
+    m.def("create_llm_engine", &create_llm_engine,
+          "Create a new LLM engine instance (llama.cpp backend)");
+    
+    m.def("find_gguf_models", &find_gguf_models, py::arg("directory"),
+          "Find all GGUF model files in a directory");
+    
+    m.def("read_gguf_metadata", &read_gguf_metadata, py::arg("model_path"),
+          "Read metadata from a GGUF model file");
+    
+    m.def("apply_chat_template", &apply_chat_template,
+          py::arg("messages"), py::arg("template_name") = "chatml",
+          "Apply a chat template to messages (chatml, llama2, llama3, mistral)");
+    
+    // Convenience function: has_llm_support
+    m.def("has_llm_support", []() { return true; },
+          "Check if LLM support (llama.cpp) is compiled in");
+#else
+    m.def("has_llm_support", []() { return false; },
+          "Check if LLM support (llama.cpp) is compiled in");
+#endif
 }

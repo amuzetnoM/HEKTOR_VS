@@ -41,29 +41,29 @@ Result<void> TextEncoder::init(const TextEncoderConfig& config) {
     
     // Validate paths
     if (!fs::exists(config_.model_path)) {
-        return Error{ErrorCode::IoError, 
-                    "Text encoder model not found: " + config_.model_path.string()};
+        return std::unexpected(Error{ErrorCode::IoError, 
+                    "Text encoder model not found: " + config_.model_path.string()});
     }
     
     if (!fs::exists(config_.vocab_path)) {
-        return Error{ErrorCode::IoError,
-                    "Vocabulary file not found: " + config_.vocab_path.string()};
+        return std::unexpected(Error{ErrorCode::IoError,
+                    "Vocabulary file not found: " + config_.vocab_path.string()});
     }
     
     // Load tokenizer
     try {
         tokenizer_ = std::make_unique<Tokenizer>(config_.vocab_path);
     } catch (const std::exception& e) {
-        return Error{ErrorCode::InvalidData, 
-                    std::string("Failed to load tokenizer: ") + e.what()};
+        return std::unexpected(Error{ErrorCode::InvalidData, 
+                    std::string("Failed to load tokenizer: ") + e.what()});
     }
     
     // Load ONNX model
     try {
         session_ = std::make_unique<OnnxSession>(config_.model_path, config_.device);
     } catch (const std::exception& e) {
-        return Error{ErrorCode::InvalidData,
-                    std::string("Failed to load ONNX model: ") + e.what()};
+        return std::unexpected(Error{ErrorCode::InvalidData,
+                    std::string("Failed to load ONNX model: ") + e.what()});
     }
     
     ready_ = true;
@@ -72,7 +72,7 @@ Result<void> TextEncoder::init(const TextEncoderConfig& config) {
 
 Result<std::vector<float>> TextEncoder::encode(std::string_view text) {
     if (!ready_) {
-        return Error{ErrorCode::InvalidState, "TextEncoder not initialized"};
+        return std::unexpected(Error{ErrorCode::InvalidState, "TextEncoder not initialized"});
     }
     
     // Tokenize
@@ -123,7 +123,7 @@ Result<std::vector<float>> TextEncoder::encode(std::string_view text) {
         auto outputs = session_->run(inputs);
         
         if (outputs.empty()) {
-            return Error{ErrorCode::InvalidData, "Model returned no outputs"};
+            return std::unexpected(Error{ErrorCode::InvalidData, "Model returned no outputs"});
         }
         
         // Get output tensor info
@@ -133,7 +133,7 @@ Result<std::vector<float>> TextEncoder::encode(std::string_view text) {
         
         // Output shape should be [1, seq_len, hidden_dim]
         if (output_shape.size() != 3) {
-            return Error{ErrorCode::InvalidData, "Unexpected output shape"};
+            return std::unexpected(Error{ErrorCode::InvalidData, "Unexpected output shape"});
         }
         
         size_t seq_len = static_cast<size_t>(output_shape[1]);
@@ -152,8 +152,8 @@ Result<std::vector<float>> TextEncoder::encode(std::string_view text) {
         return embedding;
         
     } catch (const Ort::Exception& e) {
-        return Error{ErrorCode::InvalidData, 
-                    std::string("ONNX inference failed: ") + e.what()};
+        return std::unexpected(Error{ErrorCode::InvalidData, 
+                    std::string("ONNX inference failed: ") + e.what()});
     }
 }
 

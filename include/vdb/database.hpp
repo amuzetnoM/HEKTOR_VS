@@ -7,8 +7,10 @@
 #include "index.hpp"
 #include "storage.hpp"
 #include "distance.hpp"
+#ifdef VDB_USE_ONNX_RUNTIME
 #include "embeddings/text.hpp"
 #include "embeddings/image.hpp"
+#endif
 #include <filesystem>
 
 namespace vdb {
@@ -287,9 +289,11 @@ private:
     std::unique_ptr<HnswIndex> index_;
     std::unique_ptr<VectorStore> vectors_;
     std::unique_ptr<MetadataStore> metadata_;
+#ifdef VDB_USE_ONNX_RUNTIME
     std::unique_ptr<TextEncoder> text_encoder_;
     std::unique_ptr<ImageEncoder> image_encoder_;
     std::unique_ptr<ProjectionMatrix> text_projection_;
+#endif
     
     VectorId next_id_ = 1;
     bool ready_ = false;

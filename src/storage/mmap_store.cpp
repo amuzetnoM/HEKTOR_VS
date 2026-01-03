@@ -126,7 +126,7 @@ Result<void> MemoryMappedFile::open_read(const fs::path& path) {
     writable_ = false;
     
     if (!fs::exists(path)) {
-        return Error{ErrorCode::IoError, "File does not exist: " + path.string()};
+        return std::unexpected(Error{ErrorCode::IoError, "File does not exist: " + path.string()});
     }
     
     size_ = fs::file_size(path);
@@ -148,7 +148,7 @@ Result<void> MemoryMappedFile::open_read(const fs::path& path) {
     );
     
     if (file_handle_ == INVALID_HANDLE_VALUE) {
-        return Error{ErrorCode::IoError, "Failed to open file: " + path.string()};
+        return std::unexpected(Error{ErrorCode::IoError, "Failed to open file: " + path.string()});
     }
     
     mapping_handle_ = CreateFileMappingW(
@@ -162,7 +162,7 @@ Result<void> MemoryMappedFile::open_read(const fs::path& path) {
     if (mapping_handle_ == nullptr) {
         CloseHandle(file_handle_);
         file_handle_ = INVALID_HANDLE_VALUE;
-        return Error{ErrorCode::IoError, "Failed to create file mapping"};
+        return std::unexpected(Error{ErrorCode::IoError, "Failed to create file mapping"});
     }
     
     data_ = static_cast<uint8_t*>(MapViewOfFile(
@@ -176,12 +176,12 @@ Result<void> MemoryMappedFile::open_read(const fs::path& path) {
         CloseHandle(file_handle_);
         mapping_handle_ = nullptr;
         file_handle_ = INVALID_HANDLE_VALUE;
-        return Error{ErrorCode::IoError, "Failed to map view of file"};
+        return std::unexpected(Error{ErrorCode::IoError, "Failed to map view of file"});
     }
 #else
     fd_ = open(path.c_str(), O_RDONLY);
     if (fd_ < 0) {
-        return Error{ErrorCode::IoError, "Failed to open file: " + path.string()};
+        return std::unexpected(Error{ErrorCode::IoError, "Failed to open file: " + path.string()});
     }
     
     data_ = static_cast<uint8_t*>(mmap(
@@ -197,7 +197,7 @@ Result<void> MemoryMappedFile::open_read(const fs::path& path) {
         data_ = nullptr;
         ::close(fd_);
         fd_ = -1;
-        return Error{ErrorCode::IoError, "Failed to mmap file"};
+        return std::unexpected(Error{ErrorCode::IoError, "Failed to mmap file"});
     }
     
     // Advise kernel for sequential access
@@ -231,7 +231,7 @@ Result<void> MemoryMappedFile::open_write(const fs::path& path, size_t initial_s
     );
     
     if (file_handle_ == INVALID_HANDLE_VALUE) {
-        return Error{ErrorCode::IoError, "Failed to create file: " + path.string()};
+        return std::unexpected(Error{ErrorCode::IoError, "Failed to create file: " + path.string()});
     }
     
     // Set initial file size
@@ -241,7 +241,7 @@ Result<void> MemoryMappedFile::open_write(const fs::path& path, size_t initial_s
         !SetEndOfFile(file_handle_)) {
         CloseHandle(file_handle_);
         file_handle_ = INVALID_HANDLE_VALUE;
-        return Error{ErrorCode::IoError, "Failed to set file size"};
+        return std::unexpected(Error{ErrorCode::IoError, "Failed to set file size"});
     }
     
     mapping_handle_ = CreateFileMappingW(
@@ -256,7 +256,7 @@ Result<void> MemoryMappedFile::open_write(const fs::path& path, size_t initial_s
     if (mapping_handle_ == nullptr) {
         CloseHandle(file_handle_);
         file_handle_ = INVALID_HANDLE_VALUE;
-        return Error{ErrorCode::IoError, "Failed to create file mapping"};
+        return std::unexpected(Error{ErrorCode::IoError, "Failed to create file mapping"});
     }
     
     data_ = static_cast<uint8_t*>(MapViewOfFile(
@@ -270,19 +270,19 @@ Result<void> MemoryMappedFile::open_write(const fs::path& path, size_t initial_s
         CloseHandle(file_handle_);
         mapping_handle_ = nullptr;
         file_handle_ = INVALID_HANDLE_VALUE;
-        return Error{ErrorCode::IoError, "Failed to map view of file"};
+        return std::unexpected(Error{ErrorCode::IoError, "Failed to map view of file"});
     }
 #else
     fd_ = open(path.c_str(), O_RDWR | O_CREAT | O_TRUNC, 0644);
     if (fd_ < 0) {
-        return Error{ErrorCode::IoError, "Failed to create file: " + path.string()};
+        return std::unexpected(Error{ErrorCode::IoError, "Failed to create file: " + path.string()});
     }
     
     // Set file size
     if (ftruncate(fd_, static_cast<off_t>(initial_size)) < 0) {
         ::close(fd_);
         fd_ = -1;
-        return Error{ErrorCode::IoError, "Failed to set file size"};
+        return std::unexpected(Error{ErrorCode::IoError, "Failed to set file size"});
     }
     
     data_ = static_cast<uint8_t*>(mmap(
@@ -298,7 +298,7 @@ Result<void> MemoryMappedFile::open_write(const fs::path& path, size_t initial_s
         data_ = nullptr;
         ::close(fd_);
         fd_ = -1;
-        return Error{ErrorCode::IoError, "Failed to mmap file"};
+        return std::unexpected(Error{ErrorCode::IoError, "Failed to mmap file"});
     }
 #endif
     
@@ -307,7 +307,7 @@ Result<void> MemoryMappedFile::open_write(const fs::path& path, size_t initial_s
 
 Result<void> MemoryMappedFile::resize(size_t new_size) {
     if (!writable_) {
-        return Error{ErrorCode::IoError, "Cannot resize read-only mapping"};
+        return std::unexpected(Error{ErrorCode::IoError, "Cannot resize read-only mapping"});
     }
     
     if (new_size <= capacity_) {
@@ -329,7 +329,7 @@ Result<void> MemoryMappedFile::resize(size_t new_size) {
     li.QuadPart = static_cast<LONGLONG>(new_size);
     if (!SetFilePointerEx(file_handle_, li, nullptr, FILE_BEGIN) ||
         !SetEndOfFile(file_handle_)) {
-        return Error{ErrorCode::IoError, "Failed to extend file"};
+        return std::unexpected(Error{ErrorCode::IoError, "Failed to extend file"});
     }
     
     // Recreate mapping
@@ -343,7 +343,7 @@ Result<void> MemoryMappedFile::resize(size_t new_size) {
     );
     
     if (mapping_handle_ == nullptr) {
-        return Error{ErrorCode::IoError, "Failed to create file mapping after resize"};
+        return std::unexpected(Error{ErrorCode::IoError, "Failed to create file mapping after resize"});
     }
     
     data_ = static_cast<uint8_t*>(MapViewOfFile(
@@ -353,7 +353,7 @@ Result<void> MemoryMappedFile::resize(size_t new_size) {
     ));
     
     if (data_ == nullptr) {
-        return Error{ErrorCode::IoError, "Failed to map view after resize"};
+        return std::unexpected(Error{ErrorCode::IoError, "Failed to map view after resize"});
     }
 #else
     // Unmap current region
@@ -362,7 +362,7 @@ Result<void> MemoryMappedFile::resize(size_t new_size) {
     
     // Extend file
     if (ftruncate(fd_, static_cast<off_t>(new_size)) < 0) {
-        return Error{ErrorCode::IoError, "Failed to extend file"};
+        return std::unexpected(Error{ErrorCode::IoError, "Failed to extend file"});
     }
     
     // Remap with new size
@@ -377,7 +377,7 @@ Result<void> MemoryMappedFile::resize(size_t new_size) {
     
     if (data_ == MAP_FAILED) {
         data_ = nullptr;
-        return Error{ErrorCode::IoError, "Failed to remap file after resize"};
+        return std::unexpected(Error{ErrorCode::IoError, "Failed to remap file after resize"});
     }
 #endif
     
@@ -392,14 +392,14 @@ Result<void> MemoryMappedFile::sync() {
     
 #ifdef VDB_PLATFORM_WINDOWS
     if (!FlushViewOfFile(data_, 0)) {
-        return Error{ErrorCode::IoError, "Failed to flush file view"};
+        return std::unexpected(Error{ErrorCode::IoError, "Failed to flush file view"});
     }
     if (!FlushFileBuffers(file_handle_)) {
-        return Error{ErrorCode::IoError, "Failed to flush file buffers"};
+        return std::unexpected(Error{ErrorCode::IoError, "Failed to flush file buffers"});
     }
 #else
     if (msync(data_, capacity_, MS_SYNC) < 0) {
-        return Error{ErrorCode::IoError, "Failed to sync mmap"};
+        return std::unexpected(Error{ErrorCode::IoError, "Failed to sync mmap"});
     }
 #endif
     
@@ -473,20 +473,20 @@ Result<void> VectorStore::init() {
         
         // Validate header
         if (vectors_file_.size() < VectorFileHeader::SIZE) {
-            return Error{ErrorCode::IoError, "Vectors file too small"};
+            return std::unexpected(Error{ErrorCode::IoError, "Vectors file too small"});
         }
         
         auto* header = reinterpret_cast<const VectorFileHeader*>(vectors_file_.data());
         if (header->magic != VectorFileHeader::MAGIC) {
-            return Error{ErrorCode::IoError, "Invalid vectors file magic"};
+            return std::unexpected(Error{ErrorCode::IoError, "Invalid vectors file magic"});
         }
         if (header->version != VectorFileHeader::CURRENT_VERSION) {
-            return Error{ErrorCode::IoError, "Unsupported vectors file version"};
+            return std::unexpected(Error{ErrorCode::IoError, "Unsupported vectors file version"});
         }
         if (header->dimension != config_.dimension) {
-            return Error{ErrorCode::InvalidDimension, 
+            return std::unexpected(Error{ErrorCode::InvalidDimension, 
                         "Dimension mismatch: file has " + std::to_string(header->dimension) +
-                        " but config has " + std::to_string(config_.dimension)};
+                        " but config has " + std::to_string(config_.dimension)});
         }
         
         capacity_ = header->capacity;
@@ -568,25 +568,25 @@ const Scalar* VectorStore::get_slot_ptr(size_t slot) const {
 
 Result<void> VectorStore::add(VectorId id, VectorView vector) {
     if (vector.dim() != config_.dimension) {
-        return Error{ErrorCode::InvalidDimension, 
+        return std::unexpected(Error{ErrorCode::InvalidDimension, 
                     "Expected dimension " + std::to_string(config_.dimension) +
-                    " but got " + std::to_string(vector.dim())};
+                    " but got " + std::to_string(vector.dim())});
     }
     
     if (id_to_offset_.contains(id)) {
-        return Error{ErrorCode::InvalidVectorId, "Vector ID already exists"};
+        return std::unexpected(Error{ErrorCode::InvalidVectorId, "Vector ID already exists"});
     }
     
     // Allocate a slot
     size_t slot = allocate_slot();
     if (slot == SIZE_MAX) {
-        return Error{ErrorCode::IoError, "Failed to allocate vector slot"};
+        return std::unexpected(Error{ErrorCode::IoError, "Failed to allocate vector slot"});
     }
     
     // Copy vector data to the slot
     Scalar* slot_ptr = get_slot_ptr(slot);
     if (slot_ptr == nullptr) {
-        return Error{ErrorCode::IoError, "Failed to get slot pointer"};
+        return std::unexpected(Error{ErrorCode::IoError, "Failed to get slot pointer"});
     }
     
     std::memcpy(slot_ptr, vector.data(), vector_size_bytes_);
@@ -622,7 +622,7 @@ bool VectorStore::contains(VectorId id) const {
 Result<void> VectorStore::remove(VectorId id) {
     auto it = id_to_offset_.find(id);
     if (it == id_to_offset_.end()) {
-        return Error{ErrorCode::VectorNotFound, "Vector ID not found"};
+        return std::unexpected(Error{ErrorCode::VectorNotFound, "Vector ID not found"});
     }
     
     // Add slot to free list
@@ -720,7 +720,7 @@ Result<void> MetadataStore::init() {
 Result<void> MetadataStore::load() {
     std::ifstream file(path_);
     if (!file) {
-        return Error{ErrorCode::IoError, "Failed to open metadata file"};
+        return std::unexpected(Error{ErrorCode::IoError, "Failed to open metadata file"});
     }
     
     std::string line;
@@ -829,7 +829,7 @@ Result<void> MetadataStore::sync() {
     // Rewrite entire file
     std::ofstream file(path_);
     if (!file) {
-        return Error{ErrorCode::IoError, "Failed to open metadata file for writing"};
+        return std::unexpected(Error{ErrorCode::IoError, "Failed to open metadata file for writing"});
     }
     
     for (const auto& [_, meta] : metadata_) {
@@ -865,7 +865,7 @@ Result<void> MetadataStore::append_to_file(const Metadata& meta) {
     }
     
     if (!append_stream_) {
-        return Error{ErrorCode::IoError, "Failed to open metadata file for append"};
+        return std::unexpected(Error{ErrorCode::IoError, "Failed to open metadata file for append"});
     }
     
     json j;
