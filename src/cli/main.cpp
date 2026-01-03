@@ -117,7 +117,7 @@ int cmd_init(const std::string& path) {
     }
     
     fmt::print(fg(fmt::color::green), "Database initialized successfully!\n");
-    print_stats(result->stats());
+    print_stats((*result)->stats());
     return 0;
 }
 
@@ -130,7 +130,7 @@ int cmd_ingest(const std::string& db_path, const std::string& gs_output) {
         return 1;
     }
     
-    auto& db = *db_result;
+    auto& db = **db_result;
     GoldStandardIngest ingest(db);
     
     IngestConfig config;
@@ -159,7 +159,7 @@ int cmd_search(const std::string& db_path, const std::string& query, size_t k) {
         return 1;
     }
     
-    auto& db = *db_result;
+    auto& db = **db_result;
     
     QueryOptions opts;
     opts.k = k;
@@ -184,7 +184,7 @@ int cmd_stats(const std::string& db_path) {
         return 1;
     }
     
-    auto& db = *db_result;
+    auto& db = **db_result;
     print_stats(db.stats());
     
     // Count by type
@@ -214,7 +214,7 @@ int cmd_export(const std::string& db_path, const std::string& output_path) {
         return 1;
     }
     
-    auto& db = *db_result;
+    auto& db = **db_result;
     
     fmt::print("Exporting to: {}\n", output_path);
     

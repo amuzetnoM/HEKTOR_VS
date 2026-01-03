@@ -124,6 +124,9 @@ add_library(vdb_core STATIC
     src/ingest/gold_standard_ingest.cpp
 )
 
+# Enable position independent code for use in shared libraries
+set_target_properties(vdb_core PROPERTIES POSITION_INDEPENDENT_CODE ON)
+
 target_include_directories(vdb_core PUBLIC
     ${CMAKE_CURRENT_SOURCE_DIR}/include
     ${ONNX_RUNTIME_INCLUDE}
@@ -133,6 +136,7 @@ target_link_libraries(vdb_core PUBLIC
     nlohmann_json::nlohmann_json
     fmt::fmt
     ${ONNX_RUNTIME_LIB}
+    z  # zlib for PNG decompression in stb_image
 )
 
 # Platform-specific threading

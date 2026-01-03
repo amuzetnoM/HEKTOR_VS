@@ -37,21 +37,21 @@ protected:
 };
 
 TEST_F(HNSWTest, Construction) {
-    HNSWConfig config;
+    HnswConfig config;
     config.dimension = DIM;
     config.max_elements = NUM_VECTORS;
     
-    HNSWIndex index(config);
+    HnswIndex index(config);
     EXPECT_EQ(index.dimension(), DIM);
     EXPECT_EQ(index.size(), 0);
 }
 
 TEST_F(HNSWTest, AddSingleVector) {
-    HNSWConfig config;
+    HnswConfig config;
     config.dimension = DIM;
     config.max_elements = 100;
     
-    HNSWIndex index(config);
+    HnswIndex index(config);
     auto result = index.add(1, vectors_[0]);
     
     EXPECT_TRUE(result.has_value());
@@ -60,11 +60,11 @@ TEST_F(HNSWTest, AddSingleVector) {
 }
 
 TEST_F(HNSWTest, AddMultipleVectors) {
-    HNSWConfig config;
+    HnswConfig config;
     config.dimension = DIM;
     config.max_elements = NUM_VECTORS;
     
-    HNSWIndex index(config);
+    HnswIndex index(config);
     
     for (size_t i = 0; i < 100; ++i) {
         auto result = index.add(i + 1, vectors_[i]);
@@ -75,11 +75,11 @@ TEST_F(HNSWTest, AddMultipleVectors) {
 }
 
 TEST_F(HNSWTest, SearchReturnsClosest) {
-    HNSWConfig config;
+    HnswConfig config;
     config.dimension = DIM;
     config.max_elements = NUM_VECTORS;
     
-    HNSWIndex index(config);
+    HnswIndex index(config);
     
     // Add first 100 vectors
     for (size_t i = 0; i < 100; ++i) {
@@ -95,11 +95,11 @@ TEST_F(HNSWTest, SearchReturnsClosest) {
 }
 
 TEST_F(HNSWTest, SearchReturnsKResults) {
-    HNSWConfig config;
+    HnswConfig config;
     config.dimension = DIM;
     config.max_elements = NUM_VECTORS;
     
-    HNSWIndex index(config);
+    HnswIndex index(config);
     
     for (size_t i = 0; i < 100; ++i) {
         index.add(i + 1, vectors_[i]);

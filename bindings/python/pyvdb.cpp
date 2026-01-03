@@ -79,11 +79,11 @@ PYBIND11_MODULE(pyvdb, m) {
         .value("Unknown", DocumentType::Unknown)
         .export_values();
     
-    py::enum_<ExecutionProvider>(m, "ExecutionProvider")
-        .value("CPU", ExecutionProvider::CPU)
-        .value("CUDA", ExecutionProvider::CUDA)
-        .value("DirectML", ExecutionProvider::DirectML)
-        .value("Auto", ExecutionProvider::Auto)
+    // Device enum for execution (CPU/CUDA/DirectML)
+    py::enum_<embeddings::Device>(m, "Device")
+        .value("CPU", embeddings::Device::CPU)
+        .value("CUDA", embeddings::Device::CUDA)
+        .value("DirectML", embeddings::Device::DirectML)
         .export_values();
     
     // ========================================================================
@@ -153,7 +153,6 @@ PYBIND11_MODULE(pyvdb, m) {
         .def_readwrite("text_model_path", &DatabaseConfig::text_model_path)
         .def_readwrite("image_model_path", &DatabaseConfig::image_model_path)
         .def_readwrite("vocab_path", &DatabaseConfig::vocab_path)
-        .def_readwrite("provider", &DatabaseConfig::provider)
         .def_readwrite("num_threads", &DatabaseConfig::num_threads)
         .def_readwrite("memory_only", &DatabaseConfig::memory_only)
         .def_readwrite("auto_sync", &DatabaseConfig::auto_sync);
@@ -178,7 +177,7 @@ PYBIND11_MODULE(pyvdb, m) {
     // VectorDatabase
     // ========================================================================
     
-    py::class_<VectorDatabase>(m, "VectorDatabase")
+    py::class_<VectorDatabase, std::unique_ptr<VectorDatabase>>(m, "VectorDatabase")
         .def(py::init<const DatabaseConfig&>())
         .def("init", [](VectorDatabase& self) {
             auto result = self.init();
@@ -279,7 +278,7 @@ PYBIND11_MODULE(pyvdb, m) {
             if (!vec) {
                 return py::none();
             }
-            return py::cast(vector_to_numpy(*vec));
+            return vector_to_numpy(*vec);
         }, py::arg("id"))
         
         // Metadata
@@ -416,9 +415,9 @@ PYBIND11_MODULE(pyvdb, m) {
     // Utility Functions
     // ========================================================================
     
-    m.def("detect_best_provider", &detect_best_provider,
-          "Detect the best available execution provider (CPU/CUDA/DirectML)");
+    m.def("detect_best_device", &embeddings::detect_best_device,
+          "Detect the best available execution device (CPU/CUDA/DirectML)");
     
-    m.def("is_provider_available", &is_provider_available, py::arg("provider"),
-          "Check if a specific execution provider is available");
+    m.def("device_name", &embeddings::device_name, py::arg("device"),
+          "Get human-readable name for device");
 }
