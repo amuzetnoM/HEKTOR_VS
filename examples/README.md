@@ -16,15 +16,14 @@ These example files can be used to test the data ingestion adapters:
 
 using namespace vdb::adapters;
 
-// Auto-detect and parse any format
-DataAdapterManager manager;
-auto result = manager.auto_parse("examples/sample_data.xml");
+// Auto-parse
+auto data = manager.auto_parse("examples/sample_data.xml");
 
-if (result) {
-    std::cout << "Format: " << format_to_string(result->format) << "\n";
-    std::cout << "Chunks: " << result->chunks.size() << "\n";
+if (data) {
+    std::cout << "Format: " << format_to_string(data->format) << "\n";
+    std::cout << "Chunks: " << data->chunks.size() << "\n";
     
-    for (const auto& chunk : result->chunks) {
+    for (const auto& chunk : data->chunks) {
         std::cout << "Content: " << chunk.content << "\n";
     }
 }

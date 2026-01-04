@@ -64,26 +64,20 @@ LOG_ANOMALY(AnomalyType::PARSE_ERROR, "Invalid XML structure");
 #include "vdb/adapters/xml_adapter.hpp"
 
 // Read XML
-XMLAdapter adapter;
-auto result = adapter.parse("catalog.xml");
+XMLAdapter xml;
+auto data = xml.parse("catalog.xml");
 
-if (result) {
-    for (const auto& chunk : result->chunks) {
-        std::cout << "Content: " << chunk.content << "\n";
-        // Access XML attributes from metadata
+if (data) {
+    for (const auto& chunk : data->chunks) {
+        std::cout << chunk.content << "\n";
         for (const auto& [key, value] : chunk.metadata) {
-            std::cout << "  " << key << ": " << value << "\n";
+            std::cout << key << ": " << value << "\n";
         }
     }
 }
 
 // Write XML
-NormalizedData data;
-// ... populate data ...
-auto write_result = adapter.write(data, "output.xml");
-if (write_result) {
-    std::cout << "XML written successfully\n";
-}
+xml.write(data, "output.xml");
 ```
 
 ### 2. Apache Parquet Support 🔶
@@ -128,15 +122,13 @@ cmake .. -DVDB_USE_ARROW=ON
 
 SQLiteConfig config;
 config.tables = {"products", "customers"};
-config.row_based_chunks = true;
 
-SQLiteAdapter adapter(config);
-auto result = adapter.parse("store.db");
+SQLiteAdapter db(config);
+auto data = db.parse("store.db");
 
-if (result) {
-    for (const auto& chunk : result->chunks) {
-        std::cout << "Table: " << chunk.metadata.at("table") << "\n";
-        std::cout << "Data: " << chunk.content << "\n";
+if (data) {
+    for (const auto& chunk : data->chunks) {
+        std::cout << chunk.metadata.at("table") << ": " << chunk.content << "\n";
     }
 }
 ```
@@ -176,22 +168,15 @@ CREATE INDEX ON embeddings USING ivfflat (embedding vector_cosine_ops);
 ```cpp
 #include "vdb/adapters/pgvector_adapter.hpp"
 
-PgvectorConfig config;
-config.host = "localhost";
-config.database = "vector_db";
-config.table = "embeddings";
+PgvectorConfig config{.host = "localhost", .database = "vector_db", .table = "embeddings"};
+PgvectorAdapter pg(config);
+pg.connect();
 
-PgvectorAdapter adapter(config);
-adapter.connect();
+// Query
+auto results = pg.query_similar(query_vector, 10);
 
-// Query similar vectors
-std::vector<float> query = {0.1, 0.2, ...};
-auto results = adapter.query_similar(query, 10);
-
-// Insert vectors
-std::vector<std::vector<float>> vectors = {...};
-std::vector<std::string> contents = {...};
-auto inserted = adapter.insert_vectors(vectors, contents, {});
+// Insert
+pg.insert_vectors(vectors, contents, {});
 ```
 
 ## Integration
@@ -203,9 +188,9 @@ All new adapters are automatically registered with the DataAdapterManager:
 
 DataAdapterManager manager;
 
-// Auto-detect format and parse
-auto result = manager.auto_parse("data.xml");     // XML
-auto result = manager.auto_parse("data.parquet"); // Parquet
+// Auto-parse any format
+auto data = manager.auto_parse("data.xml");     // XML
+data = manager.auto_parse("data.parquet");      // Parquet
 auto result = manager.auto_parse("data.db");      // SQLite
 
 // pgvector requires explicit configuration

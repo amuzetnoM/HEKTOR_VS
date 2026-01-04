@@ -52,14 +52,13 @@ public:
     void ingestSECFilings(const std::string& filing_dir) {
         LOG_INFO("Starting SEC filings ingestion");
         
-        DataAdapterManager manager;
-        XMLAdapter xml_adapter;
+        XMLAdapter xml;
         
         for (const auto& entry : fs::directory_iterator(filing_dir)) {
             if (entry.path().extension() == ".xml") {
-                auto result = xml_adapter.parse(entry.path());
-                if (result) {
-                    for (const auto& chunk : result->chunks) {
+                auto data = xml.parse(entry.path());
+                if (data) {
+                    for (const auto& chunk : data->chunks) {
                         // Extract company, date, sentiment
                         db_->add_text(chunk.content, {
                             {"source", "SEC"},
@@ -150,17 +149,12 @@ private:
 class MedicalKnowledgeBase {
 public:
     void ingestPubMed(const std::string& pubmed_xml_dir) {
-        XMLAdapter xml_adapter;
-        
-        // Configure for medical XML structure
-        XMLConfig config;
-        config.text_elements = {"AbstractText", "ArticleTitle", "MeshHeading"};
-        config.extract_attributes = true;
+        XMLAdapter xml;
         
         for (const auto& entry : fs::directory_iterator(pubmed_xml_dir)) {
-            auto result = xml_adapter.parse(entry.path(), {});
-            if (result) {
-                for (const auto& chunk : result->chunks) {
+            auto data = xml.parse(entry.path(), {});
+            if (data) {
+                for (const auto& chunk : data->chunks) {
                     // Extract medical entities
                     std::string pmid = chunk.metadata.at("PMID");
                     std::string doi = chunk.metadata.at("DOI");
@@ -186,11 +180,11 @@ public:
         pg_config.vector_column = "embedding";
         pg_config.metadata_columns = {"nct_id", "phase", "condition", "status"};
         
-        PgvectorAdapter pg_adapter(pg_config);
-        auto conn = pg_adapter.connect();
+        PgvectorAdapter pg(pg_config);
+        pg.connect();
         
         // Bidirectional sync - read from PostgreSQL
-        auto trials = pg_adapter.parse({});
+        auto trials = pg.parse({});
         if (trials) {
             LOG_INFO("Synced " + std::to_string(trials->chunks.size()) + " clinical trials");
         }
@@ -272,27 +266,19 @@ public:
         SQLiteConfig sqlite_config;
         sqlite_config.tables = {"inventory", "prices"};
         
-        SQLiteAdapter sqlite_adapter(sqlite_config);
-        auto inventory = sqlite_adapter.parse("inventory.db");
+        SQLiteAdapter db(sqlite_config);
+        auto inventory = db.parse("inventory.db");
         
         // Real-time sync
         syncInventoryToPostgreSQL();
     }
     
     void syncInventoryToPostgreSQL() {
-        PgvectorConfig pg_config;
-        pg_config.host = "inventory-db";
-        pg_config.database = "ecommerce";
-        pg_config.table = "product_vectors";
-        
-        PgvectorAdapter pg_adapter(pg_config);
+        PgvectorConfig pg_config{.host = "inventory-db", .database = "ecommerce", .table = "product_vectors"};
+        PgvectorAdapter pg(pg_config);
         
         // Write product vectors to PostgreSQL for distributed access
-        auto result = pg_adapter.insert_vectors(
-            product_vectors_,
-            product_descriptions_,
-            product_metadata_
-        );
+        auto result = pg.insert_vectors(product_vectors_, product_descriptions_, product_metadata_);
         
         LOG_INFO("Synced " + std::to_string(*result) + " products to PostgreSQL");
     }
@@ -353,32 +339,31 @@ private:
 class LegalDiscoverySystem {
 public:
     void ingestContracts(const std::string& contract_dir) {
-        PDFAdapter pdf_adapter;
-        XMLAdapter xml_adapter;
+        PDFAdapter pdf;
+        XMLAdapter xml;
         
         for (const auto& entry : fs::recursive_directory_iterator(contract_dir)) {
             std::string ext = entry.path().extension().string();
             
             if (ext == ".pdf") {
-                auto result = pdf_adapter.parse(entry.path());
-                processLegalDocument(result, "contract");
+                auto data = pdf.parse(entry.path());
+                processLegalDocument(data, "contract");
             } else if (ext == ".xml") {
-                auto result = xml_adapter.parse(entry.path());
-                processLegalDocument(result, "regulatory");
+                auto data = xml.parse(entry.path());
+                processLegalDocument(data, "regulatory");
             }
         }
     }
     
-    void processLegalDocument(const Result<NormalizedData>& result,
+    void processLegalDocument(const Result<NormalizedData>& data,
                              const std::string& doc_type) {
-        if (!result) {
+        if (!data) {
             LOG_ERROR("Failed to parse legal document");
-            LOG_ANOMALY(AnomalyType::PARSE_ERROR, 
-                       "Legal document parsing failed");
+            LOG_ANOMALY(AnomalyType::PARSE_ERROR, "Legal document parsing failed");
             return;
         }
         
-        for (const auto& chunk : result->chunks) {
+        for (const auto& chunk : data->chunks) {
             // Extract legal clauses and entities
             db_->add_text(chunk.content, {
                 {"type", doc_type},
@@ -498,16 +483,16 @@ public:
         // Export to multiple formats for collaboration
         
         // SQLite for local analysis
-        SQLiteAdapter sqlite_adapter;
-        sqlite_adapter.write(analysis_results_, "results.db");
+        SQLiteAdapter db;
+        db.write(analysis_results_, "results.db");
         
         // XML for publication
-        XMLAdapter xml_adapter;
-        xml_adapter.write(analysis_results_, "results.xml");
+        XMLAdapter xml;
+        xml.write(analysis_results_, "results.xml");
         
         // Parquet for big data tools
-        ParquetAdapter parquet_adapter;
-        parquet_adapter.write(analysis_results_, "results.parquet");
+        ParquetAdapter parquet;
+        parquet.write(analysis_results_, "results.parquet");
         
         LOG_INFO("Exported analysis results in multiple formats");
     }
