@@ -1689,8 +1689,8 @@ struct ChunkConfig {
 
 ---
 
-**Version:** 1.0.0  
-**Last Updated:** 2024-01-15  
+**Version:** 2.0.0  
+**Last Updated:** 2026-01-04  
 **License:** MIT
 
 © 2024 Vector Studio Contributors

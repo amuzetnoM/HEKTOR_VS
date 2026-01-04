@@ -1,14 +1,19 @@
-# New Features: XML, Parquet, SQLite, pgvector Support + Logging System
+# New Features in v2.0: XML, Parquet, SQLite, pgvector Support + Logging System
+
+**Version 2.0.0 - January 2026**
 
 ## Overview
 
-Vector Studio now supports four additional data formats for universal data ingestion with **complete read and write capabilities**:
+Vector Studio v2.0 represents a major milestone with **complete bidirectional data support** and **comprehensive runtime monitoring**. This release adds four new data formats for universal data ingestion with full read/write capabilities and a sophisticated logging system that ensures nothing goes blind.
+
+**Supported Formats in v2.0:**
 - XML documents (.xml) ✅ Read & Write
-- Apache Parquet columnar files (.parquet) 🔶 Read & Write (requires Apache Arrow)
+- Apache Parquet columnar files (.parquet) ✅ Read & Write (with Apache Arrow C++ integration)
 - SQLite databases (.db, .sqlite, .sqlite3, .sql) ✅ Read & Write
 - PostgreSQL with pgvector extension (connection-based) ✅ Read & Write
+- PDF documents (.pdf) ✅ Read (Poppler) & Write (basic PDF 1.4)
 
-Plus a comprehensive **logging and anomaly detection system** that ensures nothing goes blind.
+Plus a comprehensive **logging and anomaly detection system** with 15 anomaly types that ensures nothing goes blind.
 
 ## Features Summary
 

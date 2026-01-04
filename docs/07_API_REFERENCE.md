@@ -1,7 +1,7 @@
 # Vector Studio API Reference
 ## Complete API Documentation
 
-**Version:** 1.0.0  
+**Version:** 2.0.0  
 **Language:** C++23  
 **License:** MIT
 
@@ -1114,12 +1114,13 @@ db.add_vector(vec, meta);  // Blocks until complete
 
 ## Versioning
 
-**API Version:** 1.0.0
+**API Version:** 2.0.0
 
 **Compatibility:**
 - Binary compatible within major version
 - Source compatible within minor version
 - Breaking changes only in major version
+- **v2.0 Breaking Changes**: Added write() method to IDataAdapter interface
 
 **Version Checking:**
 
@@ -1132,7 +1133,7 @@ std::cout << "API Level: " << VDB_API_LEVEL << std::endl;
 
 ---
 
-**Last Updated:** 2024-01-15  
+**Last Updated:** 2026-01-04  
 **Contributors:** Vector Studio Team  
 **License:** MIT
 
