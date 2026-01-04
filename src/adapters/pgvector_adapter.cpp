@@ -13,6 +13,42 @@
 
 namespace vdb::adapters {
 
+namespace {
+
+// Helper function to quote SQL identifiers to prevent SQL injection
+std::string quote_identifier(const std::string& identifier) {
+    // PostgreSQL uses double quotes for identifiers
+    // Escape any existing double quotes by doubling them
+    std::string quoted = "\"";
+    for (char c : identifier) {
+        if (c == '"') {
+            quoted += "\"\"";
+        } else {
+            quoted += c;
+        }
+    }
+    quoted += "\"";
+    return quoted;
+}
+
+// Helper function to escape string literals for SQL
+std::string escape_string_literal(const std::string& str) {
+    std::string escaped = "'";
+    for (char c : str) {
+        if (c == '\'') {
+            escaped += "''";  // Escape single quotes by doubling
+        } else if (c == '\\') {
+            escaped += "\\\\";  // Escape backslashes
+        } else {
+            escaped += c;
+        }
+    }
+    escaped += "'";
+    return escaped;
+}
+
+} // anonymous namespace
+
 // ============================================================================
 // PgvectorAdapter Implementation
 // ============================================================================
@@ -127,16 +163,16 @@ Result<void> PgvectorAdapter::create_table(size_t vector_dimension) {
     
     PGconn* conn = static_cast<PGconn*>(connection_);
     
-    // Build CREATE TABLE query
+    // Build CREATE TABLE query with properly quoted identifiers
     std::stringstream query;
-    query << "CREATE TABLE IF NOT EXISTS " << config_.table << " ("
+    query << "CREATE TABLE IF NOT EXISTS " << quote_identifier(config_.table) << " ("
           << "id SERIAL PRIMARY KEY, "
-          << config_.content_column << " TEXT, "
-          << config_.vector_column << " vector(" << vector_dimension << ")";
+          << quote_identifier(config_.content_column) << " TEXT, "
+          << quote_identifier(config_.vector_column) << " vector(" << vector_dimension << ")";
     
     // Add metadata columns
     for (const auto& col : config_.metadata_columns) {
-        query << ", " << col << " TEXT";
+        query << ", " << quote_identifier(col) << " TEXT";
     }
     
     query << ");";
@@ -153,8 +189,10 @@ Result<void> PgvectorAdapter::create_table(size_t vector_dimension) {
     
     // Create index on vector column for similarity search
     std::stringstream index_query;
-    index_query << "CREATE INDEX IF NOT EXISTS " << config_.table << "_" << config_.vector_column << "_idx "
-                << "ON " << config_.table << " USING ivfflat (" << config_.vector_column << " vector_cosine_ops);";
+    index_query << "CREATE INDEX IF NOT EXISTS " 
+                << quote_identifier(config_.table + "_" + config_.vector_column + "_idx") << " "
+                << "ON " << quote_identifier(config_.table) 
+                << " USING ivfflat (" << quote_identifier(config_.vector_column) << " vector_cosine_ops);";
     
     res = PQexec(conn, index_query.str().c_str());
     

@@ -523,6 +523,10 @@ if (result) {
 - Batch insert operations
 - Distance threshold filtering
 - Custom metadata columns
+- SQL identifier quoting for security
+
+**Security Note**:
+⚠️ All table and column names are automatically quoted to prevent SQL injection. However, always validate configuration values from untrusted sources. Never pass user-controlled custom SQL queries without proper validation.
 
 **Configuration Options**:
 ```cpp

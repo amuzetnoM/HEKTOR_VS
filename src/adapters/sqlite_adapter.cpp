@@ -13,6 +13,26 @@
 
 namespace vdb::adapters {
 
+namespace {
+
+// Helper function to quote SQL identifiers to prevent SQL injection
+std::string quote_identifier(const std::string& identifier) {
+    // SQLite uses double quotes for identifiers
+    // Escape any existing double quotes by doubling them
+    std::string quoted = "\"";
+    for (char c : identifier) {
+        if (c == '"') {
+            quoted += "\"\"";
+        } else {
+            quoted += c;
+        }
+    }
+    quoted += "\"";
+    return quoted;
+}
+
+} // anonymous namespace
+
 // ============================================================================
 // SQLiteAdapter Implementation
 // ============================================================================
@@ -85,8 +105,8 @@ Result<std::vector<DataChunk>> SQLiteAdapter::extract_table_data(
     sqlite3* db = static_cast<sqlite3*>(db_ptr);
     std::vector<DataChunk> chunks;
     
-    // Build query
-    std::string query = "SELECT * FROM " + table_name;
+    // Build query with properly quoted table name
+    std::string query = "SELECT * FROM " + quote_identifier(table_name);
     if (!config_.query.empty()) {
         query = config_.query;
     }

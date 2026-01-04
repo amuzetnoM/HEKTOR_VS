@@ -48,6 +48,12 @@ public:
                 
                 std::string_view tag = xml_content.substr(pos + 1, tag_end - pos - 1);
                 
+                // Handle empty tags
+                if (tag.empty()) {
+                    pos = tag_end + 1;
+                    continue;
+                }
+                
                 // Handle closing tag
                 if (tag[0] == '/') {
                     if (node_stack.size() > 1) {
@@ -58,7 +64,7 @@ public:
                 }
                 
                 // Handle self-closing or opening tag
-                bool self_closing = (tag.back() == '/');
+                bool self_closing = (!tag.empty() && tag.back() == '/');
                 if (self_closing) {
                     tag = tag.substr(0, tag.size() - 1);
                 }
@@ -68,9 +74,11 @@ public:
                 size_t space_pos = tag.find(' ');
                 if (space_pos != std::string_view::npos) {
                     node.name = std::string(tag.substr(0, space_pos));
-                    // Parse attributes (simplified)
+                    // Parse attributes (simplified - supports double quotes)
+                    // Note: This simplified parser only handles double-quoted attributes
+                    // For production, consider using libxml2 or pugixml
                     std::string attr_str(tag.substr(space_pos + 1));
-                    std::regex attr_regex(R"((\w+)=\"([^\"]*)\")");
+                    std::regex attr_regex(R"((\w+)="([^"]*)")");
                     std::smatch match;
                     std::string::const_iterator search_start(attr_str.cbegin());
                     while (std::regex_search(search_start, attr_str.cend(), match, attr_regex)) {
