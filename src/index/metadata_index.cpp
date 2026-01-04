@@ -216,7 +216,8 @@ std::string MetadataIndex::get_field_value(const Metadata& metadata,
     if (field == "type") return std::to_string(static_cast<int>(metadata.type));
     if (field == "asset") return metadata.asset;
     if (field == "bias") return metadata.bias;
-    if (field == "content") return metadata.content;
+    if (field == "source_file") return metadata.source_file;
+    if (field == "content_hash") return metadata.content_hash;
     return "";
 }
 

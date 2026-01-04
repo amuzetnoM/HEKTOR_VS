@@ -4,6 +4,7 @@
 
 #include "vdb/adapters/pgvector_adapter.hpp"
 #include <sstream>
+#include <cstring>
 
 // PostgreSQL libpq integration (conditional on availability)
 #ifdef HAVE_LIBPQ
@@ -45,7 +46,7 @@ Result<NormalizedData> PgvectorAdapter::parse_content(
     std::string_view source_hint
 ) {
     return std::unexpected(Error{
-        ErrorCode::InvalidArgument,
+        ErrorCode::InvalidInput,
         "pgvector adapter requires database connection, not content parsing"
     });
 }
@@ -180,7 +181,7 @@ Result<size_t> PgvectorAdapter::insert_vectors(
     }
     
     if (vectors.size() != contents.size()) {
-        return std::unexpected(Error{ErrorCode::InvalidArgument, "Vectors and contents must have same size"});
+        return std::unexpected(Error{ErrorCode::InvalidInput, "Vectors and contents must have same size"});
     }
     
     PGconn* conn = static_cast<PGconn*>(connection_);
