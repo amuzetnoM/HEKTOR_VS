@@ -6,6 +6,7 @@
 #include "vdb/storage.hpp"
 #include <filesystem>
 #include <random>
+#include <thread>
 
 namespace vdb::test {
 
@@ -14,7 +15,13 @@ namespace fs = std::filesystem;
 class StorageTest : public ::testing::Test {
 protected:
     void SetUp() override {
-        test_dir_ = fs::temp_directory_path() / "vdb_test";
+        // Use unique directory per test to avoid cross-test interference
+        auto* test_info = ::testing::UnitTest::GetInstance()->current_test_info();
+        std::string unique_name = std::string("vdb_test_") + test_info->name() + "_" +
+                                  std::to_string(std::hash<std::thread::id>{}(std::this_thread::get_id()));
+        test_dir_ = fs::temp_directory_path() / unique_name;
+        // Clean up any stale data first
+        fs::remove_all(test_dir_);
         fs::create_directories(test_dir_);
     }
     

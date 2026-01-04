@@ -368,10 +368,10 @@ endif()
 
 # Platform-specific threading
 if(WIN32)
-    target_compile_definitions(vdb_core PRIVATE VDB_PLATFORM_WINDOWS)
+    target_compile_definitions(vdb_core PUBLIC VDB_PLATFORM_WINDOWS)
 else()
     target_link_libraries(vdb_core PUBLIC pthread)
-    target_compile_definitions(vdb_core PRIVATE VDB_PLATFORM_UNIX)
+    target_compile_definitions(vdb_core PUBLIC VDB_PLATFORM_UNIX)
 endif()
 
 # GPU support

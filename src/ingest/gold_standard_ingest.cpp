@@ -425,7 +425,14 @@ std::vector<std::string> chunk_text(std::string_view text, const ChunkConfig& co
                 }
                 
                 chunks.push_back(content.substr(pos, end_pos - pos));
-                pos = end_pos - config.overlap;
+                
+                // Calculate next position with overlap
+                size_t next_pos = (end_pos > config.overlap) ? (end_pos - config.overlap) : end_pos;
+                // Ensure we always make forward progress
+                if (next_pos <= pos) {
+                    next_pos = end_pos;
+                }
+                pos = next_pos;
                 if (pos >= content.size()) break;
             }
             break;
