@@ -443,7 +443,11 @@ if(VDB_BUILD_TESTS)
     )
     
     include(GoogleTest)
-    gtest_discover_tests(vdb_tests)
+    # Use DISCOVERY_MODE PRE_TEST to avoid running executable at configure time
+    # This prevents issues with MinGW DLLs not being in PATH during cmake configure
+    gtest_discover_tests(vdb_tests
+        DISCOVERY_MODE PRE_TEST
+    )
 endif()
 
 # ============================================================================
