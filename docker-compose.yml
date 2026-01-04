@@ -1,0 +1,16 @@
+version: '3.8'
+
+services:
+  vector-studio:
+    image: ghcr.io/amuzetnoM/vector_studio:${VERSION:-latest}
+    build:
+      context: .
+      dockerfile: Dockerfile
+    restart: unless-stopped
+    volumes:
+      - ./data:/data
+    environment:
+      - LOG_LEVEL=info
+    # Expose ports as needed by the project
+    # ports:
+    #   - "8080:8080"
