@@ -1,4 +1,17 @@
-import { Injectable, signal, computed } from '@angular/core';
+import { Injectable, signal, computed, inject } from '@angular/core';
+import { HttpClient, HttpHeaders, HttpErrorResponse } from '@angular/common/http';
+import { firstValueFrom, catchError, throwError } from 'rxjs';
+
+// ============================================================================
+// Configuration
+// ============================================================================
+
+const API_BASE_URL = 'http://localhost:8080';
+const USE_MOCK_MODE = false; // Set to true for demo mode without backend
+
+// ============================================================================
+// Interfaces
+// ============================================================================
 
 export interface SchemaField {
   name: string;
@@ -13,7 +26,8 @@ export interface VectorDoc {
   vector: number[]; 
   projection: [number, number]; 
   projection3d: [number, number, number];
-  cluster?: number; // For visualization coloring
+  cluster?: number;
+  score?: number; // For search results
 }
 
 export interface Collection {
@@ -22,35 +36,41 @@ export interface Collection {
   metric: string;
   documents: VectorDoc[];
   schema: SchemaField[];
+  document_count?: number;
+  created_at?: string;
 }
+
+export interface SearchResult {
+  id: string;
+  score: number;
+  content?: string;
+  metadata: Record<string, any>;
+}
+
+export interface ApiStats {
+  total_vectors: number;
+  memory_usage_bytes: number;
+  index_size: number;
+  collections: number;
+}
+
+// ============================================================================
+// Service
+// ============================================================================
 
 @Injectable({
   providedIn: 'root'
 })
 export class VectorDbService {
-  collections = signal<Collection[]>([
-    {
-      name: 'knowledge-base-v1',
-      dimension: 1536,
-      metric: 'cosine',
-      schema: [
-        { name: 'source', type: 'string', required: true },
-        { name: 'created_at', type: 'date', required: true }
-      ],
-      documents: this.generateMockDocs(150)
-    },
-    {
-      name: 'user-profiles',
-      dimension: 768,
-      metric: 'euclidean',
-      schema: [
-        { name: 'user_id', type: 'string', required: true },
-        { name: 'interests', type: 'list', required: false }
-      ],
-      documents: this.generateMockDocs(50)
-    }
-  ]);
-
+  private http = inject(HttpClient);
+  private authToken = signal<string | null>(null);
+  
+  // State
+  collections = signal<Collection[]>([]);
+  isLoading = signal<boolean>(false);
+  error = signal<string | null>(null);
+  
+  // Computed stats
   stats = computed(() => {
     const cols = this.collections();
     const totalDocs = cols.reduce((acc, c) => acc + c.documents.length, 0);
@@ -61,7 +81,336 @@ export class VectorDbService {
     };
   });
 
-  async createCollection(name: string, dimension = 1536, metric = 'cosine') {
+  constructor() {
+    // Load auth token from localStorage
+    const savedToken = localStorage.getItem('vdb_auth_token');
+    if (savedToken) {
+      this.authToken.set(savedToken);
+    }
+    
+    // Initialize with mock data if in demo mode
+    if (USE_MOCK_MODE) {
+      this.initializeMockData();
+    } else {
+      // Load collections from backend
+      this.loadCollections();
+    }
+  }
+
+  // ============================================================================
+  // Authentication
+  // ============================================================================
+
+  async login(username: string, password: string): Promise<void> {
+    try {
+      const response = await firstValueFrom(
+        this.http.post<{ access_token: string; token_type: string }>(
+          `${API_BASE_URL}/auth/login`,
+          { username, password }
+        ).pipe(catchError(this.handleError))
+      );
+      
+      this.authToken.set(response.access_token);
+      localStorage.setItem('vdb_auth_token', response.access_token);
+      this.error.set(null);
+    } catch (err) {
+      this.error.set('Login failed: ' + (err as Error).message);
+      throw err;
+    }
+  }
+
+  logout(): void {
+    this.authToken.set(null);
+    localStorage.removeItem('vdb_auth_token');
+  }
+
+  // ============================================================================
+  // HTTP Helpers
+  // ============================================================================
+
+  private getHeaders(): HttpHeaders {
+    let headers = new HttpHeaders({
+      'Content-Type': 'application/json'
+    });
+    
+    const token = this.authToken();
+    if (token) {
+      headers = headers.set('Authorization', `Bearer ${token}`);
+    }
+    
+    return headers;
+  }
+
+  private handleError(error: HttpErrorResponse) {
+    let errorMessage = 'An error occurred';
+    
+    if (error.error instanceof ErrorEvent) {
+      // Client-side error
+      errorMessage = `Error: ${error.error.message}`;
+    } else {
+      // Server-side error
+      errorMessage = `Error ${error.status}: ${error.error?.detail || error.message}`;
+    }
+    
+    console.error(errorMessage);
+    return throwError(() => new Error(errorMessage));
+  }
+
+  // ============================================================================
+  // Collection Operations
+  // ============================================================================
+
+  async loadCollections(): Promise<void> {
+    if (USE_MOCK_MODE) {
+      this.initializeMockData();
+      return;
+    }
+
+    this.isLoading.set(true);
+    this.error.set(null);
+
+    try {
+      const response = await firstValueFrom(
+        this.http.get<Collection[]>(
+          `${API_BASE_URL}/collections`,
+          { headers: this.getHeaders() }
+        ).pipe(catchError(this.handleError))
+      );
+      
+      // Enrich collections with empty documents array if not present
+      const enrichedCollections = response.map(col => ({
+        ...col,
+        documents: col.documents || [],
+        schema: col.schema || []
+      }));
+      
+      this.collections.set(enrichedCollections);
+    } catch (err) {
+      this.error.set('Failed to load collections: ' + (err as Error).message);
+      // Fallback to mock data on error
+      this.initializeMockData();
+    } finally {
+      this.isLoading.set(false);
+    }
+  }
+
+  async createCollection(name: string, dimension = 1536, metric = 'cosine'): Promise<string> {
+    if (USE_MOCK_MODE) {
+      return this.createCollectionMock(name, dimension, metric);
+    }
+
+    this.isLoading.set(true);
+    this.error.set(null);
+
+    try {
+      const response = await firstValueFrom(
+        this.http.post<Collection>(
+          `${API_BASE_URL}/collections`,
+          { name, dimension, metric },
+          { headers: this.getHeaders() }
+        ).pipe(catchError(this.handleError))
+      );
+      
+      // Add to local state
+      this.collections.update(cols => [...cols, {
+        ...response,
+        documents: [],
+        schema: []
+      }]);
+      
+      return `Collection ${name} created successfully.`;
+    } catch (err) {
+      this.error.set('Failed to create collection: ' + (err as Error).message);
+      throw err;
+    } finally {
+      this.isLoading.set(false);
+    }
+  }
+
+  async deleteCollection(name: string): Promise<string> {
+    if (USE_MOCK_MODE) {
+      return this.deleteCollectionMock(name);
+    }
+
+    this.isLoading.set(true);
+    this.error.set(null);
+
+    try {
+      await firstValueFrom(
+        this.http.delete(
+          `${API_BASE_URL}/collections/${name}`,
+          { headers: this.getHeaders() }
+        ).pipe(catchError(this.handleError))
+      );
+      
+      // Remove from local state
+      this.collections.update(cols => cols.filter(c => c.name !== name));
+      
+      return `Collection ${name} deleted successfully.`;
+    } catch (err) {
+      this.error.set('Failed to delete collection: ' + (err as Error).message);
+      throw err;
+    } finally {
+      this.isLoading.set(false);
+    }
+  }
+
+  // ============================================================================
+  // Document Operations
+  // ============================================================================
+
+  async addDocuments(
+    collectionName: string,
+    docs: { content: string; metadata?: any }[]
+  ): Promise<string> {
+    if (USE_MOCK_MODE) {
+      return this.addDocumentsMock(collectionName, docs);
+    }
+
+    this.isLoading.set(true);
+    this.error.set(null);
+
+    try {
+      const response = await firstValueFrom(
+        this.http.post<{ ids: string[]; count: number; message: string }>(
+          `${API_BASE_URL}/collections/${collectionName}/documents/batch`,
+          { documents: docs },
+          { headers: this.getHeaders() }
+        ).pipe(catchError(this.handleError))
+      );
+      
+      // Reload collection to get updated documents
+      await this.loadCollections();
+      
+      return response.message;
+    } catch (err) {
+      this.error.set('Failed to add documents: ' + (err as Error).message);
+      throw err;
+    } finally {
+      this.isLoading.set(false);
+    }
+  }
+
+  // ============================================================================
+  // Search Operations
+  // ============================================================================
+
+  async query(collectionName: string, queryText: string, topK = 5): Promise<VectorDoc[]> {
+    if (USE_MOCK_MODE) {
+      return this.queryMock(collectionName, queryText, topK);
+    }
+
+    this.isLoading.set(true);
+    this.error.set(null);
+
+    try {
+      const response = await firstValueFrom(
+        this.http.post<SearchResult[]>(
+          `${API_BASE_URL}/collections/${collectionName}/search`,
+          { query: queryText, k: topK },
+          { headers: this.getHeaders() }
+        ).pipe(catchError(this.handleError))
+      );
+      
+      // Convert search results to VectorDoc format
+      return response.map(r => ({
+        id: r.id,
+        content: r.content || '',
+        metadata: r.metadata,
+        vector: [],
+        projection: [Math.random() * 800 - 400, Math.random() * 600 - 300] as [number, number],
+        projection3d: [
+          (Math.random() - 0.5) * 100,
+          (Math.random() - 0.5) * 100,
+          (Math.random() - 0.5) * 100
+        ] as [number, number, number],
+        score: r.score
+      }));
+    } catch (err) {
+      this.error.set('Search failed: ' + (err as Error).message);
+      throw err;
+    } finally {
+      this.isLoading.set(false);
+    }
+  }
+
+  // ============================================================================
+  // Schema Operations
+  // ============================================================================
+
+  updateSchema(collectionName: string, schema: SchemaField[]): void {
+    this.collections.update(cols => cols.map(c => {
+      if (c.name === collectionName) return { ...c, schema };
+      return c;
+    }));
+  }
+
+  reorderCollections(fromIndex: number, toIndex: number): void {
+    this.collections.update(cols => {
+      const newCols = [...cols];
+      const [moved] = newCols.splice(fromIndex, 1);
+      newCols.splice(toIndex, 0, moved);
+      return newCols;
+    });
+  }
+
+  // ============================================================================
+  // Stats
+  // ============================================================================
+
+  async getApiStats(): Promise<ApiStats> {
+    if (USE_MOCK_MODE) {
+      return {
+        total_vectors: this.stats().totalDocs,
+        memory_usage_bytes: parseFloat(this.stats().memoryUsage) * 1024 * 1024,
+        index_size: 0,
+        collections: this.collections().length
+      };
+    }
+
+    try {
+      return await firstValueFrom(
+        this.http.get<ApiStats>(
+          `${API_BASE_URL}/stats`,
+          { headers: this.getHeaders() }
+        ).pipe(catchError(this.handleError))
+      );
+    } catch (err) {
+      this.error.set('Failed to get stats: ' + (err as Error).message);
+      throw err;
+    }
+  }
+
+  // ============================================================================
+  // Mock Mode Implementations (Fallback)
+  // ============================================================================
+
+  private initializeMockData(): void {
+    this.collections.set([
+      {
+        name: 'knowledge-base-v1',
+        dimension: 1536,
+        metric: 'cosine',
+        schema: [
+          { name: 'source', type: 'string', required: true },
+          { name: 'created_at', type: 'date', required: true }
+        ],
+        documents: this.generateMockDocs(150)
+      },
+      {
+        name: 'user-profiles',
+        dimension: 768,
+        metric: 'euclidean',
+        schema: [
+          { name: 'user_id', type: 'string', required: true },
+          { name: 'interests', type: 'list', required: false }
+        ],
+        documents: this.generateMockDocs(50)
+      }
+    ]);
+  }
+
+  private async createCollectionMock(name: string, dimension: number, metric: string): Promise<string> {
     this.collections.update(cols => [...cols, {
       name,
       dimension,
@@ -72,13 +421,15 @@ export class VectorDbService {
     return `Collection ${name} created.`;
   }
 
-  async deleteCollection(name: string) {
+  private async deleteCollectionMock(name: string): Promise<string> {
     this.collections.update(cols => cols.filter(c => c.name !== name));
     return `Collection ${name} deleted.`;
   }
 
-  async addDocuments(collectionName: string, docs: { content: string, metadata?: any }[]) {
-    // Simulate embedding delay
+  private async addDocumentsMock(
+    collectionName: string,
+    docs: { content: string; metadata?: any }[]
+  ): Promise<string> {
     await new Promise(r => setTimeout(r, 800));
     
     this.collections.update(cols => cols.map(c => {
@@ -91,38 +442,18 @@ export class VectorDbService {
     return `Added ${docs.length} documents to ${collectionName}.`;
   }
 
-  async query(collectionName: string, queryText: string, topK = 5) {
+  private async queryMock(collectionName: string, queryText: string, topK: number): Promise<VectorDoc[]> {
     await new Promise(r => setTimeout(r, 300));
     const col = this.collections().find(c => c.name === collectionName);
     if (!col) throw new Error('Collection not found');
     
-    // Mock semantic search: just return random docs
     return col.documents
       .map(d => ({ ...d, score: Math.random() }))
-      .sort((a, b) => b.score - a.score)
+      .sort((a, b) => (b.score || 0) - (a.score || 0))
       .slice(0, topK);
   }
 
-  updateSchema(collectionName: string, schema: SchemaField[]) {
-    this.collections.update(cols => cols.map(c => {
-      if (c.name === collectionName) return { ...c, schema };
-      return c;
-    }));
-  }
-
-  reorderCollections(fromIndex: number, toIndex: number) {
-    this.collections.update(cols => {
-      const newCols = [...cols];
-      const [moved] = newCols.splice(fromIndex, 1);
-      newCols.splice(toIndex, 0, moved);
-      return newCols;
-    });
-  }
-
-  // --- Mock Data Generators ---
-
   private createSingleDoc(content: string, index: number, metadata: any = {}): VectorDoc {
-    // Create random position
     return {
       id: `vec_${Math.random().toString(36).substr(2, 9)}`,
       content: content,
@@ -163,7 +494,6 @@ export class VectorDbService {
       const clusterIdx = Math.floor(Math.random() * clusters.length);
       const cluster = clusters[clusterIdx];
       
-      // Add randomness around cluster center
       const spread2d = 100;
       const spread3d = 25;
 
@@ -185,7 +515,7 @@ export class VectorDbService {
             category: cluster.label,
             timestamp: Date.now() - Math.floor(Math.random() * 10000000)
         },
-        vector: [], // Stubbed
+        vector: [],
         projection: p2d,
         projection3d: p3d,
         cluster: clusterIdx

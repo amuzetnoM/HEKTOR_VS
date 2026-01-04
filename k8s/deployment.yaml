@@ -1,0 +1,123 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: vector-studio-api
+  namespace: vector-studio
+  labels:
+    app: vector-studio
+    component: api
+spec:
+  replicas: 3
+  selector:
+    matchLabels:
+      app: vector-studio
+      component: api
+  template:
+    metadata:
+      labels:
+        app: vector-studio
+        component: api
+      annotations:
+        prometheus.io/scrape: "true"
+        prometheus.io/port: "8080"
+        prometheus.io/path: "/metrics"
+    spec:
+      containers:
+      - name: api
+        image: ghcr.io/amuzetnom/vector_studio:latest
+        imagePullPolicy: Always
+        ports:
+        - name: http
+          containerPort: 8080
+          protocol: TCP
+        env:
+        - name: HOST
+          valueFrom:
+            configMapKeyRef:
+              name: vector-studio-config
+              key: HOST
+        - name: PORT
+          valueFrom:
+            configMapKeyRef:
+              name: vector-studio-config
+              key: PORT
+        - name: WORKERS
+          valueFrom:
+            configMapKeyRef:
+              name: vector-studio-config
+              key: WORKERS
+        - name: LOG_LEVEL
+          valueFrom:
+            configMapKeyRef:
+              name: vector-studio-config
+              key: LOG_LEVEL
+        - name: VDB_PATH
+          valueFrom:
+            configMapKeyRef:
+              name: vector-studio-config
+              key: VDB_PATH
+        - name: CORS_ORIGINS
+          valueFrom:
+            configMapKeyRef:
+              name: vector-studio-config
+              key: CORS_ORIGINS
+        - name: RATE_LIMIT_ENABLED
+          valueFrom:
+            configMapKeyRef:
+              name: vector-studio-config
+              key: RATE_LIMIT_ENABLED
+        - name: RATE_LIMIT_DEFAULT
+          valueFrom:
+            configMapKeyRef:
+              name: vector-studio-config
+              key: RATE_LIMIT_DEFAULT
+        - name: SECRET_KEY
+          valueFrom:
+            secretKeyRef:
+              name: vector-studio-secrets
+              key: SECRET_KEY
+        - name: ACCESS_TOKEN_EXPIRE_MINUTES
+          valueFrom:
+            configMapKeyRef:
+              name: vector-studio-config
+              key: ACCESS_TOKEN_EXPIRE_MINUTES
+        volumeMounts:
+        - name: data
+          mountPath: /data
+        resources:
+          requests:
+            memory: "2Gi"
+            cpu: "1000m"
+          limits:
+            memory: "4Gi"
+            cpu: "2000m"
+        livenessProbe:
+          httpGet:
+            path: /health
+            port: 8080
+          initialDelaySeconds: 30
+          periodSeconds: 10
+          timeoutSeconds: 5
+          failureThreshold: 3
+        readinessProbe:
+          httpGet:
+            path: /health
+            port: 8080
+          initialDelaySeconds: 10
+          periodSeconds: 5
+          timeoutSeconds: 3
+          failureThreshold: 3
+      volumes:
+      - name: data
+        persistentVolumeClaim:
+          claimName: vector-studio-data
+      # Optional: Add node affinity for GPU nodes if using GPU acceleration
+      # affinity:
+      #   nodeAffinity:
+      #     requiredDuringSchedulingIgnoredDuringExecution:
+      #       nodeSelectorTerms:
+      #       - matchExpressions:
+      #         - key: accelerator
+      #           operator: In
+      #           values:
+      #           - nvidia-gpu

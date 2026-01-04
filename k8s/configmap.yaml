@@ -1,0 +1,37 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: vector-studio-config
+  namespace: vector-studio
+data:
+  # API Configuration
+  HOST: "0.0.0.0"
+  PORT: "8080"
+  WORKERS: "4"
+  LOG_LEVEL: "INFO"
+  DEBUG: "false"
+  
+  # Database
+  VDB_PATH: "/data/vectors"
+  
+  # CORS
+  CORS_ORIGINS: "*"
+  
+  # Rate Limiting
+  RATE_LIMIT_ENABLED: "true"
+  RATE_LIMIT_DEFAULT: "100/minute"
+  
+  # Auth
+  ACCESS_TOKEN_EXPIRE_MINUTES: "60"
+---
+apiVersion: v1
+kind: Secret
+metadata:
+  name: vector-studio-secrets
+  namespace: vector-studio
+type: Opaque
+stringData:
+  # IMPORTANT: Change these in production!
+  SECRET_KEY: "change-this-secret-key-in-production-use-at-least-32-chars"
+  # Add database credentials if using PostgreSQL
+  # POSTGRES_PASSWORD: "your-postgres-password"

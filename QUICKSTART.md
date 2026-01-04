@@ -1,0 +1,341 @@
+# Vector Studio - Quick Start Guide
+
+Vector Studio can be run in **under 5 minutes**!
+
+---
+
+## Option 1: Docker Compose (Recommended)
+
+### Prerequisites
+- Docker 24.0+
+- Docker Compose 2.0+
+
+### Steps
+
+1. **Clone the repository**:
+   ```bash
+   git clone https://github.com/yourusername/vector_database.git
+   cd vector_database
+   ```
+
+2. **Set environment variables**:
+   ```bash
+   # Create .env file
+   cat > .env << EOF
+   SECRET_KEY=$(openssl rand -hex 32)
+   POSTGRES_PASSWORD=$(openssl rand -hex 16)
+   GRAFANA_PASSWORD=admin123
+   LOG_LEVEL=INFO
+   EOF
+   ```
+
+3. **Start the stack**:
+   ```bash
+   docker-compose up -d
+   ```
+
+4. **Wait for services to be ready** (~30 seconds):
+   ```bash
+   docker-compose logs -f api
+   # Wait for "Application startup complete"
+   ```
+
+5. **Verify deployment**:
+   ```bash
+   curl http://localhost:8080/health
+   ```
+
+### Access Services
+
+- **API Documentation**: http://localhost:8080/docs
+- **Grafana**: http://localhost:3000 (admin/admin123)
+- **Prometheus**: http://localhost:9090
+- **PostgreSQL**: localhost:5432
+
+### First API Call
+
+```bash
+# Login
+TOKEN=$(curl -X POST http://localhost:8080/auth/login \
+  -H "Content-Type: application/json" \
+  -d '{"username":"admin","password":"admin123"}' \
+  | jq -r '.access_token')
+
+# Create collection
+curl -X POST http://localhost:8080/collections \
+  -H "Authorization: Bearer $TOKEN" \
+  -H "Content-Type: application/json" \
+  -d '{"name":"test","dimension":384,"metric":"cosine"}'
+
+# Add documents
+curl -X POST http://localhost:8080/collections/test/documents/batch \
+  -H "Authorization: Bearer $TOKEN" \
+  -H "Content-Type: application/json" \
+  -d '{
+    "documents": [
+      {"content": "Machine learning is amazing"},
+      {"content": "Deep learning uses neural networks"},
+      {"content": "AI is transforming the world"}
+    ]
+  }'
+
+# Search
+curl -X POST http://localhost:8080/collections/test/search \
+  -H "Authorization: Bearer $TOKEN" \
+  -H "Content-Type: application/json" \
+  -d '{"query":"artificial intelligence","k":2}'
+```
+
+---
+
+## Option 2: Kubernetes
+
+### Prerequisites
+- Kubernetes cluster
+- kubectl configured
+- 8GB+ available RAM
+
+### Steps
+
+1. **Clone repository**:
+   ```bash
+   git clone https://github.com/yourusername/vector_database.git
+   cd vector_database
+   ```
+
+2. **Update secrets**:
+   ```bash
+   # Edit k8s/configmap.yaml
+   # Change SECRET_KEY to a secure value
+   nano k8s/configmap.yaml
+   ```
+
+3. **Deploy**:
+   ```bash
+   kubectl apply -f k8s/namespace.yaml
+   kubectl apply -f k8s/configmap.yaml
+   kubectl apply -f k8s/pvc.yaml
+   kubectl apply -f k8s/deployment.yaml
+   kubectl apply -f k8s/service.yaml
+   kubectl apply -f k8s/hpa.yaml
+   ```
+
+4. **Wait for pods**:
+   ```bash
+   kubectl get pods -n vector-studio -w
+   # Wait for all pods to be Running
+   ```
+
+5. **Access API**:
+   ```bash
+   kubectl port-forward -n vector-studio svc/vector-studio-api 8080:80
+   curl http://localhost:8080/health
+   ```
+
+---
+
+## Option 3: Local Development
+
+### Prerequisites
+- Python 3.11+
+- CMake 3.20+
+- C++20 compiler
+- 4GB+ RAM
+
+### Steps
+
+1. **Clone repository**:
+   ```bash
+   git clone https://github.com/yourusername/vector_database.git
+   cd vector_database
+   ```
+
+2. **Install dependencies**:
+   ```bash
+   # Ubuntu/Debian
+   sudo apt-get install -y build-essential cmake ninja-build \
+     libsqlite3-dev libpq-dev python3.11 python3-pip
+
+   # macOS
+   brew install cmake ninja sqlite postgresql python@3.11
+   ```
+
+3. **Build C++ backend**:
+   ```bash
+   cmake -B build -G Ninja -DCMAKE_BUILD_TYPE=Release
+   cmake --build build -j$(nproc)
+   cd build && pip install .
+   cd ..
+   ```
+
+4. **Install Python dependencies**:
+   ```bash
+   pip install -r requirements.txt
+   pip install -r api/requirements.txt
+   ```
+
+5. **Download models**:
+   ```bash
+   python scripts/download_models.py --all
+   ```
+
+6. **Run API server**:
+   ```bash
+   cd api
+   cp .env.example .env
+   # Edit .env with your SECRET_KEY
+   uvicorn main:app --reload --host 0.0.0.0 --port 8080
+   ```
+
+7. **Test**:
+   ```bash
+   curl http://localhost:8080/health
+   ```
+
+---
+
+## Next Steps
+
+### 1. Explore the API
+
+Visit http://localhost:8080/docs for interactive API documentation.
+
+### 2. Monitor Performance
+
+- **Grafana**: http://localhost:3000
+  - Import dashboard from `k8s/monitoring/grafana-dashboard.json`
+  - View real-time metrics
+
+- **Prometheus**: http://localhost:9090
+  - Query metrics directly
+  - Set up alerts
+
+### 3. Integrate with Your App
+
+**Python Example**:
+```python
+import requests
+
+# Login
+response = requests.post('http://localhost:8080/auth/login',
+    json={'username': 'admin', 'password': 'admin123'})
+token = response.json()['access_token']
+
+headers = {'Authorization': f'Bearer {token}'}
+
+# Create collection
+requests.post('http://localhost:8080/collections',
+    headers=headers,
+    json={'name': 'my-docs', 'dimension': 384, 'metric': 'cosine'})
+
+# Add documents
+requests.post('http://localhost:8080/collections/my-docs/documents/batch',
+    headers=headers,
+    json={'documents': [
+        {'content': 'Your document here'},
+        {'content': 'Another document'}
+    ]})
+
+# Search
+results = requests.post('http://localhost:8080/collections/my-docs/search',
+    headers=headers,
+    json={'query': 'search query', 'k': 5})
+
+print(results.json())
+```
+
+**JavaScript Example**:
+```javascript
+// Login
+const loginResponse = await fetch('http://localhost:8080/auth/login', {
+  method: 'POST',
+  headers: {'Content-Type': 'application/json'},
+  body: JSON.stringify({username: 'admin', password: 'admin123'})
+});
+const {access_token} = await loginResponse.json();
+
+const headers = {
+  'Authorization': `Bearer ${access_token}`,
+  'Content-Type': 'application/json'
+};
+
+// Create collection
+await fetch('http://localhost:8080/collections', {
+  method: 'POST',
+  headers,
+  body: JSON.stringify({name: 'my-docs', dimension: 384, metric: 'cosine'})
+});
+
+// Search
+const searchResponse = await fetch('http://localhost:8080/collections/my-docs/search', {
+  method: 'POST',
+  headers,
+  body: JSON.stringify({query: 'search query', k: 5})
+});
+const results = await searchResponse.json();
+console.log(results);
+```
+
+### 4. Configure for Production
+
+See [docs/DEPLOYMENT.md](docs/DEPLOYMENT.md) for:
+- Security hardening
+- Performance tuning
+- High availability setup
+- Backup procedures
+
+---
+
+## Troubleshooting
+
+### Port already in use
+```bash
+# Change port in docker-compose.yml or .env
+PORT=8081 docker-compose up -d
+```
+
+### Out of memory
+```bash
+# Reduce workers
+WORKERS=2 docker-compose up -d
+```
+
+### Can't connect to API
+```bash
+# Check logs
+docker-compose logs api
+
+# Restart services
+docker-compose restart
+```
+
+### Database errors
+```bash
+# Reset database
+docker-compose down -v
+docker-compose up -d
+```
+
+---
+
+## Resources
+
+- **Full Documentation**: [docs/](docs/)
+- **API Reference**: http://localhost:8080/docs
+- **Deployment Guide**: [docs/DEPLOYMENT.md](docs/DEPLOYMENT.md)
+- **API README**: [api/README.md](api/README.md)
+- **Issues**: https://github.com/yourusername/vector_database/issues
+
+---
+
+## Support
+
+Need help? 
+
+- 📖 Check the [documentation](docs/)
+- 🐛 Report [issues](https://github.com/yourusername/vector_database/issues)
+- 💬 Join our [Discord](https://discord.gg/vector-studio)
+
+---
+
+**Happy Vector Searching! 🚀**
