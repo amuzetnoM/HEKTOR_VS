@@ -1,4 +1,5 @@
-# Real-World Applications: Unleashing Vector Studio's Power
+# APPLICATION
+> Unleashing Hektor
 
 ## Overview
 

@@ -1,3 +1,5 @@
+### INTRODUCTION
+
 # HEKTOR 
 > Advance Vector Database
 

@@ -1,4 +1,4 @@
-# Vector Studio — User Guide
+# IGNITION   
 
 ## Table of Contents
 

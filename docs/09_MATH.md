@@ -1,4 +1,4 @@
-# Vector Studio — Mathematical Foundations
+# SCIENECE
 
 ## Table of Contents
 

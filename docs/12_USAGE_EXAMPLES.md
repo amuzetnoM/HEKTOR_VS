@@ -1,4 +1,4 @@
-# Vector Studio v2.0 - Quick Usage Examples
+# USAGE
 
 ## Auto-Parse Any Format
 

@@ -1,4 +1,5 @@
-# Vector Studio - Supported Data Types and Formats
+# FORMATS
+Vector Studio - Supported Data Types and Formats
 
 **Comprehensive guide to data formats, types, and structures supported by Vector Studio**
 

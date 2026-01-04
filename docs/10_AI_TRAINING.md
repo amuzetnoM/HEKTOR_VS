@@ -1,4 +1,4 @@
-# Vector Studio — AI Training Guide
+# TRAINING
 
 ## Table of Contents
 

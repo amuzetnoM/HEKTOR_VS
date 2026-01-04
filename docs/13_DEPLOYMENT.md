@@ -1,4 +1,4 @@
-# Vector Studio - Production Deployment Guide
+# DEPLOYMENTS
 
 ## Overview
 

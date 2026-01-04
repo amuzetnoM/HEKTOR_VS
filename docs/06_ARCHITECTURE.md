@@ -1,4 +1,4 @@
-# Vector Studio — System Architecture
+# ARCHITECTURE
 
 ## Table of Contents
 

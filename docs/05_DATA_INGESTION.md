@@ -1,4 +1,4 @@
-# Data Ingestion Module - Complete Guide
+# INGESTION
 
 **Universal data ingestion system with intelligent type detection, normalization, and support for multiple data formats**
 

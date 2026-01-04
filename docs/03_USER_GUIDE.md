@@ -1,5 +1,5 @@
-# Vector Studio - Complete User Guide
-## Professional Documentation for High-Performance Vector Database
+# GUIDE
+> High-Performance Vector Database
 
 ---
 

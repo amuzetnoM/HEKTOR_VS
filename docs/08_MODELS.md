@@ -1,4 +1,4 @@
-# Vector Studio — Model Reference
+# MODELS
 
 ## Table of Contents
 

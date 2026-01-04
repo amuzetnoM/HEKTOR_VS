@@ -1,4 +1,6 @@
-# Logging and Anomaly Detection System
+# LOGGING
+ > Comprehensive Anomaly Detection & logging Framework
+
 
 ## Overview
 

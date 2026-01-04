@@ -1,5 +1,4 @@
-# Vector Studio API Reference
-## Complete API Documentation
+# API 
 
 **Version:** 2.0.0  
 **Language:** C++23  
