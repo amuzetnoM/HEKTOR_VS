@@ -216,18 +216,108 @@ Result<std::vector<float>> ImageEncoder::encode(const ImageData& image) {
 Result<std::vector<std::vector<float>>> ImageEncoder::encode_batch(
     const std::vector<fs::path>& image_paths) {
     
-    std::vector<std::vector<float>> results;
-    results.reserve(image_paths.size());
-    
-    for (const auto& path : image_paths) {
-        auto result = encode(path);
-        if (!result) {
-            return std::unexpected(result.error());
-        }
-        results.push_back(std::move(*result));
+    if (!ready_) {
+        return std::unexpected(Error{ErrorCode::InvalidState, "ImageEncoder not initialized"});
     }
     
-    return results;
+    if (image_paths.empty()) {
+        return std::vector<std::vector<float>>{};
+    }
+    
+    // Load and preprocess all images
+    std::vector<std::vector<float>> preprocessed_images;
+    preprocessed_images.reserve(image_paths.size());
+    
+    for (const auto& path : image_paths) {
+        auto image_result = load_image(path);
+        if (!image_result) {
+            return std::unexpected(image_result.error());
+        }
+        
+        if (!image_result->valid()) {
+            return std::unexpected(Error{ErrorCode::InvalidData, 
+                "Invalid image data: " + path.string()});
+        }
+        
+        preprocessed_images.push_back(preprocess(*image_result));
+    }
+    
+    // Create batch tensor [batch_size, 3, height, width]
+    size_t batch_size = preprocessed_images.size();
+    size_t single_image_size = config_.input_size * config_.input_size * 3;
+    
+    std::vector<float> batch_data;
+    batch_data.reserve(batch_size * single_image_size);
+    
+    for (const auto& img : preprocessed_images) {
+        batch_data.insert(batch_data.end(), img.begin(), img.end());
+    }
+    
+    try {
+        // Create batch input tensor
+        auto& mem_info = session_->memory_info();
+        std::vector<int64_t> shape = {
+            static_cast<int64_t>(batch_size),
+            3,
+            static_cast<int64_t>(config_.input_size),
+            static_cast<int64_t>(config_.input_size)
+        };
+        
+        std::vector<Ort::Value> inputs;
+        inputs.push_back(Ort::Value::CreateTensor<float>(
+            mem_info,
+            batch_data.data(),
+            batch_data.size(),
+            shape.data(),
+            shape.size()
+        ));
+        
+        // Run batch inference
+        auto outputs = session_->run(inputs);
+        
+        if (outputs.empty()) {
+            return std::unexpected(Error{ErrorCode::InvalidData, "Model returned no outputs"});
+        }
+        
+        // Get output tensor
+        auto& output = outputs[0];
+        auto type_info = output.GetTensorTypeAndShapeInfo();
+        auto output_shape = type_info.GetShape();
+        
+        // Output shape should be [batch_size, embed_dim]
+        size_t output_batch_size = static_cast<size_t>(output_shape[0]);
+        size_t embed_dim = 1;
+        for (size_t i = 1; i < output_shape.size(); ++i) {
+            if (output_shape[i] > 1) {
+                embed_dim = static_cast<size_t>(output_shape[i]);
+            }
+        }
+        
+        const float* output_data = output.GetTensorData<float>();
+        
+        // Extract embeddings for each image
+        std::vector<std::vector<float>> results;
+        results.reserve(output_batch_size);
+        
+        for (size_t b = 0; b < output_batch_size; ++b) {
+            std::vector<float> embedding(
+                output_data + (b * embed_dim),
+                output_data + ((b + 1) * embed_dim)
+            );
+            
+            if (config_.normalize_embeddings) {
+                normalize(embedding);
+            }
+            
+            results.push_back(std::move(embedding));
+        }
+        
+        return results;
+        
+    } catch (const Ort::Exception& e) {
+        return std::unexpected(Error{ErrorCode::InvalidData,
+                    std::string("ONNX batch inference failed: ") + e.what()});
+    }
 }
 
 std::vector<float> ImageEncoder::preprocess(const ImageData& image) {

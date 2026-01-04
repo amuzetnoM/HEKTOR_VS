@@ -128,6 +128,7 @@ private:
         int level;
         std::vector<std::vector<VectorId>> connections;  // Per-level connections
         Vector vector;  // Store vector for distance computation
+        bool deleted = false;  // Lazy deletion flag
     };
     
     // Select random level for new node (exponential distribution)

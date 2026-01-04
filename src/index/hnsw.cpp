@@ -198,6 +198,11 @@ std::vector<VectorId> HnswIndex::search_layer(
             if (visited.contains(neighbor_id)) continue;
             visited.insert(neighbor_id);
             
+            // Skip deleted nodes
+            auto neighbor_it = id_to_index_.find(neighbor_id);
+            if (neighbor_it == id_to_index_.end()) continue;
+            if (nodes_[neighbor_it->second].deleted) continue;
+            
             Distance neighbor_dist = distance_to_node(query, neighbor_id);
             
             if (results.size() < ef || neighbor_dist < results.top().first) {
@@ -211,12 +216,18 @@ std::vector<VectorId> HnswIndex::search_layer(
         }
     }
     
-    // Extract results
+    // Extract results, filtering out deleted nodes
     std::vector<VectorId> result_ids;
     result_ids.reserve(results.size());
     while (!results.empty()) {
-        result_ids.push_back(results.top().second);
+        VectorId id = results.top().second;
         results.pop();
+        
+        // Double-check node is not deleted
+        auto it = id_to_index_.find(id);
+        if (it != id_to_index_.end() && !nodes_[it->second].deleted) {
+            result_ids.push_back(id);
+        }
     }
     std::reverse(result_ids.begin(), result_ids.end());
     
@@ -350,9 +361,12 @@ Result<void> HnswIndex::remove(VectorId id) {
     }
     
     // Mark as deleted (lazy deletion)
-    // Full removal would require reconnecting the graph
-    // TODO: Implement proper deletion
+    // The node remains in the graph but is skipped during search
+    // Full removal would require reconnecting the graph which is complex
+    size_t node_index = it->second;
+    nodes_[node_index].deleted = true;
     
+    // Remove from lookup map
     id_to_index_.erase(it);
     element_count_--;
     
@@ -407,9 +421,20 @@ void HnswIndex::set_ef_search(size_t ef) {
     config_.ef_search = ef;
 }
 
-Result<void> HnswIndex::resize([[maybe_unused]] size_t new_max_elements) {
-    // TODO: Implement resize
-    return std::unexpected(Error{ErrorCode::NotImplemented, "Resize not implemented"});
+Result<void> HnswIndex::resize(size_t new_max_elements) {
+    std::unique_lock<std::shared_mutex> lock(mutex_);
+    
+    if (new_max_elements < element_count_) {
+        return std::unexpected(Error{ErrorCode::InvalidInput, 
+            "New capacity must be at least current element count"});
+    }
+    
+    // Simply update the capacity - no need to rebuild the graph
+    // The nodes_ vector will grow as needed
+    config_.max_elements = new_max_elements;
+    nodes_.reserve(new_max_elements);
+    
+    return {};
 }
 
 void HnswIndex::optimize() {
@@ -574,12 +599,82 @@ std::optional<Vector> FlatIndex::get_vector(VectorId id) const {
     return vectors_[it->second];
 }
 
-Result<void> FlatIndex::save([[maybe_unused]] std::string_view path) const {
-    return std::unexpected(Error{ErrorCode::NotImplemented, "FlatIndex::save not implemented"});
+Result<void> FlatIndex::save(std::string_view path) const {
+    std::ofstream file(std::string(path), std::ios::binary);
+    if (!file) {
+        return std::unexpected(Error{ErrorCode::IoError, "Failed to open file for writing"});
+    }
+    
+    // Write header
+    uint32_t magic = 0x464C4154;  // "FLAT"
+    uint32_t version = 1;
+    file.write(reinterpret_cast<const char*>(&magic), sizeof(magic));
+    file.write(reinterpret_cast<const char*>(&version), sizeof(version));
+    
+    // Write config
+    file.write(reinterpret_cast<const char*>(&dimension_), sizeof(dimension_));
+    file.write(reinterpret_cast<const char*>(&metric_), sizeof(metric_));
+    
+    // Write vector count
+    uint64_t count = vectors_.size();
+    file.write(reinterpret_cast<const char*>(&count), sizeof(count));
+    
+    // Write vectors with IDs
+    for (size_t i = 0; i < vectors_.size(); ++i) {
+        VectorId id = ids_[i];
+        file.write(reinterpret_cast<const char*>(&id), sizeof(id));
+        file.write(reinterpret_cast<const char*>(vectors_[i].data()),
+                   vectors_[i].dim() * sizeof(Scalar));
+    }
+    
+    return {};
 }
 
-Result<FlatIndex> FlatIndex::load([[maybe_unused]] std::string_view path) {
-    return std::unexpected(Error{ErrorCode::NotImplemented, "FlatIndex::load not implemented"});
+Result<FlatIndex> FlatIndex::load(std::string_view path) {
+    std::ifstream file(std::string(path), std::ios::binary);
+    if (!file) {
+        return std::unexpected(Error{ErrorCode::IoError, "Failed to open file for reading"});
+    }
+    
+    // Read header
+    uint32_t magic, version;
+    file.read(reinterpret_cast<char*>(&magic), sizeof(magic));
+    file.read(reinterpret_cast<char*>(&version), sizeof(version));
+    
+    if (magic != 0x464C4154) {
+        return std::unexpected(Error{ErrorCode::IndexCorrupted, "Invalid file format"});
+    }
+    
+    // Read config
+    Dim dimension;
+    DistanceMetric metric;
+    file.read(reinterpret_cast<char*>(&dimension), sizeof(dimension));
+    file.read(reinterpret_cast<char*>(&metric), sizeof(metric));
+    
+    FlatIndex index(dimension, metric);
+    
+    // Read vector count
+    uint64_t count;
+    file.read(reinterpret_cast<char*>(&count), sizeof(count));
+    
+    // Read vectors
+    index.ids_.reserve(count);
+    index.vectors_.reserve(count);
+    
+    for (uint64_t i = 0; i < count; ++i) {
+        VectorId id;
+        file.read(reinterpret_cast<char*>(&id), sizeof(id));
+        
+        Vector vec(dimension);
+        file.read(reinterpret_cast<char*>(vec.data()),
+                  dimension * sizeof(Scalar));
+        
+        index.id_to_index_[id] = index.vectors_.size();
+        index.ids_.push_back(id);
+        index.vectors_.push_back(std::move(vec));
+    }
+    
+    return index;
 }
 
 } // namespace vdb
