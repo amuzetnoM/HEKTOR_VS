@@ -26,7 +26,7 @@
 
 ### What is Vector Studio?
 
-Vector Studio is a production-ready, high-performance vector database built with modern C++23. It provides:
+Vector Studio is a high-fidelity, high-performance vector database built with modern C++23. It provides:
 
 - **Sub-millisecond search** on millions of vectors
 - **Universal data ingestion** from CSV, JSON, APIs, and more
