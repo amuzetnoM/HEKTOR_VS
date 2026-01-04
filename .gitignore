@@ -8,6 +8,7 @@
 /build/
 /out/
 /cmake-build-*/
+/_codeql_build_dir/
 *.exe
 *.dll
 *.so

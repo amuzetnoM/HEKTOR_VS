@@ -224,8 +224,8 @@ MarketData extract_market_data(std::string_view text) {
     MarketData data;
     std::string content(text);
     
-    // Gold price: $4,220.50 or Gold: $4,220.50
-    std::regex gold_regex(R"((?:gold|GOLD)[:\s]*\$?([\d,]+\.?\d*))");
+    // Gold price: $4,220.50 or Gold: $4,220.50 (case-insensitive)
+    std::regex gold_regex(R"(gold[:\s]*\$?([\d,]+\.?\d*))", std::regex::icase);
     std::smatch match;
     if (std::regex_search(content, match, gold_regex)) {
         std::string price = match[1].str();
@@ -233,8 +233,8 @@ MarketData extract_market_data(std::string_view text) {
         data.gold_price = std::stof(price);
     }
     
-    // Silver price
-    std::regex silver_regex(R"((?:silver|SILVER)[:\s]*\$?([\d,]+\.?\d*))");
+    // Silver price (case-insensitive)
+    std::regex silver_regex(R"(silver[:\s]*\$?([\d,]+\.?\d*))", std::regex::icase);
     if (std::regex_search(content, match, silver_regex)) {
         std::string price = match[1].str();
         price.erase(std::remove(price.begin(), price.end(), ','), price.end());
@@ -265,8 +265,8 @@ MarketData extract_market_data(std::string_view text) {
         data.gsr = std::stof(match[1].str());
     }
     
-    // Bias
-    std::regex bias_regex(R"((?:bias|Bias|BIAS)[:\s]*(\w+))");
+    // Bias (case-insensitive)
+    std::regex bias_regex(R"(bias[:\s]*(\w+))", std::regex::icase);
     if (std::regex_search(content, match, bias_regex)) {
         std::string bias = match[1].str();
         std::transform(bias.begin(), bias.end(), bias.begin(), ::toupper);

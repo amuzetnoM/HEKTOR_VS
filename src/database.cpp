@@ -11,8 +11,10 @@
 namespace vdb {
 
 using json = nlohmann::json;
+#ifdef VDB_USE_ONNX_RUNTIME
 using embeddings::TextEncoderConfig;
 using embeddings::ImageEncoderConfig;
+#endif
 
 // ============================================================================
 // Database Paths
@@ -65,9 +67,11 @@ VectorDatabase::VectorDatabase(VectorDatabase&& other) noexcept
     , index_(std::move(other.index_))
     , vectors_(std::move(other.vectors_))
     , metadata_(std::move(other.metadata_))
+#ifdef VDB_USE_ONNX_RUNTIME
     , text_encoder_(std::move(other.text_encoder_))
     , image_encoder_(std::move(other.image_encoder_))
     , text_projection_(std::move(other.text_projection_))
+#endif
     , next_id_(other.next_id_)
     , ready_(other.ready_)
     // mutex_ is default-constructed (not moved, as mutexes aren't moveable)
@@ -88,9 +92,11 @@ VectorDatabase& VectorDatabase::operator=(VectorDatabase&& other) noexcept {
         index_ = std::move(other.index_);
         vectors_ = std::move(other.vectors_);
         metadata_ = std::move(other.metadata_);
+#ifdef VDB_USE_ONNX_RUNTIME
         text_encoder_ = std::move(other.text_encoder_);
         image_encoder_ = std::move(other.image_encoder_);
         text_projection_ = std::move(other.text_projection_);
+#endif
         next_id_ = other.next_id_;
         ready_ = other.ready_;
         // mutex_ remains in place (not moved)
@@ -147,6 +153,7 @@ Result<void> VectorDatabase::init() {
     // Load next ID from metadata count
     next_id_ = metadata_->size() + 1;
     
+#ifdef VDB_USE_ONNX_RUNTIME
     // Initialize embeddings if models are available
     if (!config_.text_model_path.empty() || fs::exists(paths_.text_model)) {
         TextEncoderConfig text_config;
@@ -188,6 +195,7 @@ Result<void> VectorDatabase::init() {
             }
         }
     }
+#endif
     
     // Save config
     json config_json;
@@ -211,6 +219,7 @@ VectorId VectorDatabase::next_id() {
 // Text Operations
 // ============================================================================
 
+#ifdef VDB_USE_ONNX_RUNTIME
 Result<VectorId> VectorDatabase::add_text(
     std::string_view text,
     const Metadata& metadata,
@@ -268,6 +277,16 @@ Result<VectorId> VectorDatabase::add_text(
     
     return id;
 }
+#else
+Result<VectorId> VectorDatabase::add_text(
+    [[maybe_unused]] std::string_view text,
+    [[maybe_unused]] const Metadata& metadata,
+    [[maybe_unused]] const IngestOptions& options
+) {
+    return std::unexpected(Error{ErrorCode::NotImplemented, 
+        "Text encoding requires ONNX Runtime (VDB_USE_ONNX_RUNTIME)"});
+}
+#endif
 
 Result<VectorId> VectorDatabase::add_text(
     std::string_view text,
@@ -284,6 +303,7 @@ Result<VectorId> VectorDatabase::add_text(
     return add_text(text, meta, options);
 }
 
+#ifdef VDB_USE_ONNX_RUNTIME
 Result<QueryResults> VectorDatabase::query_text(
     std::string_view query,
     const QueryOptions& options
@@ -305,11 +325,21 @@ Result<QueryResults> VectorDatabase::query_text(
     
     return query_vector(embedding.view(), options);
 }
+#else
+Result<QueryResults> VectorDatabase::query_text(
+    [[maybe_unused]] std::string_view query,
+    [[maybe_unused]] const QueryOptions& options
+) {
+    return std::unexpected(Error{ErrorCode::NotImplemented,
+        "Text query requires ONNX Runtime (VDB_USE_ONNX_RUNTIME)"});
+}
+#endif
 
 // ============================================================================
 // Image Operations
 // ============================================================================
 
+#ifdef VDB_USE_ONNX_RUNTIME
 Result<VectorId> VectorDatabase::add_image(
     const fs::path& image_path,
     const Metadata& metadata,
@@ -362,6 +392,16 @@ Result<VectorId> VectorDatabase::add_image(
     
     return id;
 }
+#else
+Result<VectorId> VectorDatabase::add_image(
+    [[maybe_unused]] const fs::path& image_path,
+    [[maybe_unused]] const Metadata& metadata,
+    [[maybe_unused]] const IngestOptions& options
+) {
+    return std::unexpected(Error{ErrorCode::NotImplemented,
+        "Image encoding requires ONNX Runtime (VDB_USE_ONNX_RUNTIME)"});
+}
+#endif
 
 Result<VectorId> VectorDatabase::add_image(
     const fs::path& image_path,
@@ -384,6 +424,7 @@ Result<VectorId> VectorDatabase::add_image(
     return add_image(image_path, meta, options);
 }
 
+#ifdef VDB_USE_ONNX_RUNTIME
 Result<QueryResults> VectorDatabase::query_image(
     const fs::path& image_path,
     const QueryOptions& options
@@ -400,6 +441,15 @@ Result<QueryResults> VectorDatabase::query_image(
     Vector embedding(std::move(*embed_result));
     return query_vector(embedding.view(), options);
 }
+#else
+Result<QueryResults> VectorDatabase::query_image(
+    [[maybe_unused]] const fs::path& image_path,
+    [[maybe_unused]] const QueryOptions& options
+) {
+    return std::unexpected(Error{ErrorCode::NotImplemented,
+        "Image query requires ONNX Runtime (VDB_USE_ONNX_RUNTIME)"});
+}
+#endif
 
 // ============================================================================
 // Vector Operations

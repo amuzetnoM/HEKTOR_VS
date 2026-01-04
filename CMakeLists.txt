@@ -270,7 +270,6 @@ set(VDB_CORE_SOURCES
     src/adapters/csv_adapter.cpp
     src/adapters/json_adapter.cpp
     src/adapters/fred_adapter.cpp
-    src/adapters/http_client.cpp
     src/adapters/pdf_adapter.cpp
     src/adapters/text_adapter.cpp
     src/adapters/excel_adapter.cpp
@@ -282,6 +281,11 @@ set(VDB_CORE_SOURCES
     src/quantization/product_quantizer.cpp
     src/quantization/scalar_quantizer.cpp
 )
+
+# Add CURL-dependent sources only if CURL is available
+if(CURL_FOUND)
+    list(APPEND VDB_CORE_SOURCES src/adapters/http_client.cpp)
+endif()
 
 # Add ONNX-dependent sources only if ONNX Runtime is enabled
 if(VDB_USE_ONNX_RUNTIME)

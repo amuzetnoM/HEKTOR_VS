@@ -3,12 +3,15 @@
 // ============================================================================
 
 #include <gtest/gtest.h>
+#ifdef VDB_USE_ONNX_RUNTIME
 #include "vdb/embeddings/onnx_runtime.hpp"
 #include "vdb/embeddings/text.hpp"
 #include "vdb/embeddings/image.hpp"
+#endif
 
 namespace vdb::test {
 
+#ifdef VDB_USE_ONNX_RUNTIME
 using namespace vdb::embeddings;
 
 // ============================================================================
@@ -69,5 +72,12 @@ TEST(DeviceTest, DeviceName) {
     EXPECT_EQ(device_name(Device::CUDA), "CUDA");
     EXPECT_EQ(device_name(Device::DirectML), "DirectML");
 }
+
+#else
+// Dummy test when ONNX Runtime is not available
+TEST(EmbeddingsTest, OnnxRuntimeNotAvailable) {
+    EXPECT_TRUE(true) << "ONNX Runtime tests disabled (VDB_USE_ONNX_RUNTIME not defined)";
+}
+#endif
 
 } // namespace vdb::test

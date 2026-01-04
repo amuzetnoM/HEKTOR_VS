@@ -280,4 +280,95 @@ TEST_F(HNSWTest, SearchReturnsKResults) {
         EXPECT_EQ(result.error().code, ErrorCode::InvalidInput);
     }
 
+TEST_F(HNSWTest, RemoveVector) {
+    HnswConfig config;
+    config.dimension = DIM;
+    config.max_elements = NUM_VECTORS;
+    
+    HnswIndex index(config);
+    
+    // Add vectors
+    for (size_t i = 0; i < 50; ++i) {
+        ASSERT_TRUE(index.add(i + 1, vectors_[i]).has_value());
+    }
+    
+    EXPECT_EQ(index.size(), 50);
+    EXPECT_TRUE(index.contains(10));
+    
+    // Remove a vector
+    auto remove_result = index.remove(10);
+    EXPECT_TRUE(remove_result.has_value());
+    EXPECT_EQ(index.size(), 49);
+    EXPECT_FALSE(index.contains(10));
+    
+    // Search should not return removed vector
+    auto results = index.search(vectors_[9], 50);
+    for (const auto& result : results) {
+        EXPECT_NE(result.id, 10);
+    }
+}
+
+TEST_F(HNSWTest, RemoveNonExistentVector) {
+    HnswConfig config;
+    config.dimension = DIM;
+    config.max_elements = NUM_VECTORS;
+    
+    HnswIndex index(config);
+    
+    for (size_t i = 0; i < 10; ++i) {
+        ASSERT_TRUE(index.add(i + 1, vectors_[i]).has_value());
+    }
+    
+    // Try to remove non-existent vector
+    auto result = index.remove(999);
+    EXPECT_FALSE(result.has_value());
+    EXPECT_EQ(result.error().code, ErrorCode::VectorNotFound);
+}
+
+TEST_F(HNSWTest, ResizeIndex) {
+    HnswConfig config;
+    config.dimension = DIM;
+    config.max_elements = 50;
+    
+    HnswIndex index(config);
+    
+    // Add vectors up to capacity
+    for (size_t i = 0; i < 50; ++i) {
+        ASSERT_TRUE(index.add(i + 1, vectors_[i]).has_value());
+    }
+    
+    EXPECT_EQ(index.size(), 50);
+    EXPECT_EQ(index.capacity(), 50);
+    
+    // Resize to larger capacity
+    auto resize_result = index.resize(100);
+    EXPECT_TRUE(resize_result.has_value());
+    EXPECT_EQ(index.capacity(), 100);
+    
+    // Should be able to add more vectors
+    for (size_t i = 50; i < 60; ++i) {
+        auto result = index.add(i + 1, vectors_[i]);
+        EXPECT_TRUE(result.has_value());
+    }
+    
+    EXPECT_EQ(index.size(), 60);
+}
+
+TEST_F(HNSWTest, ResizeToSmallerCapacityFails) {
+    HnswConfig config;
+    config.dimension = DIM;
+    config.max_elements = 100;
+    
+    HnswIndex index(config);
+    
+    for (size_t i = 0; i < 50; ++i) {
+        ASSERT_TRUE(index.add(i + 1, vectors_[i]).has_value());
+    }
+    
+    // Try to resize to smaller than current size
+    auto result = index.resize(30);
+    EXPECT_FALSE(result.has_value());
+    EXPECT_EQ(result.error().code, ErrorCode::InvalidInput);
+}
+
 } // namespace vdb::test

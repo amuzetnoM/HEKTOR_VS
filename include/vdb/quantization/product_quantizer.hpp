@@ -85,6 +85,7 @@ private:
     Vector extract_subvector(VectorView vector, uint32_t subq_idx) const;
     uint8_t find_nearest_centroid(const Vector& subvector, uint32_t subq_idx) const;
     [[nodiscard]] Result<void> validate_config() const;
+    [[nodiscard]] Result<void> validate_vector(VectorView vector) const;
 };
 
 }} // namespace vdb::quantization

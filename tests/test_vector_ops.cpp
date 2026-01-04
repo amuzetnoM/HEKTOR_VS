@@ -40,10 +40,10 @@ TEST(VectorTest, VectorViewConversion) {
 }
 
 // ============================================================================
-// Distance Operations
+// Distance Operations (Basic tests without fixture)
 // ============================================================================
 
-TEST(DistanceTest, DotProduct) {
+TEST(DistanceBasicTest, DotProduct) {
     std::vector<float> a = {1.0f, 0.0f, 0.0f, 0.0f};
     std::vector<float> b = {1.0f, 0.0f, 0.0f, 0.0f};
     
@@ -51,7 +51,7 @@ TEST(DistanceTest, DotProduct) {
     EXPECT_FLOAT_EQ(result, 1.0f);
 }
 
-TEST(DistanceTest, DotProductOrthogonal) {
+TEST(DistanceBasicTest, DotProductOrthogonal) {
     std::vector<float> a = {1.0f, 0.0f, 0.0f, 0.0f};
     std::vector<float> b = {0.0f, 1.0f, 0.0f, 0.0f};
     
@@ -59,7 +59,7 @@ TEST(DistanceTest, DotProductOrthogonal) {
     EXPECT_FLOAT_EQ(result, 0.0f);
 }
 
-TEST(DistanceTest, EuclideanDistance) {
+TEST(DistanceBasicTest, EuclideanDistance) {
     std::vector<float> a = {0.0f, 0.0f, 0.0f};
     std::vector<float> b = {3.0f, 4.0f, 0.0f};
     
@@ -67,7 +67,7 @@ TEST(DistanceTest, EuclideanDistance) {
     EXPECT_FLOAT_EQ(result, 5.0f);  // 3-4-5 triangle
 }
 
-TEST(DistanceTest, CosineSimilaritySame) {
+TEST(DistanceBasicTest, CosineSimilaritySame) {
     std::vector<float> a = {1.0f, 2.0f, 3.0f};
     std::vector<float> b = {1.0f, 2.0f, 3.0f};
     
@@ -75,7 +75,7 @@ TEST(DistanceTest, CosineSimilaritySame) {
     EXPECT_NEAR(result, 1.0f, 1e-6f);
 }
 
-TEST(DistanceTest, CosineSimilarityOpposite) {
+TEST(DistanceBasicTest, CosineSimilarityOpposite) {
     std::vector<float> a = {1.0f, 0.0f, 0.0f};
     std::vector<float> b = {-1.0f, 0.0f, 0.0f};
     
