@@ -81,10 +81,31 @@ FetchContent_MakeAvailable(fmt)
 
 # ONNX Runtime - Download pre-built binaries (MSVC only)
 # libcurl - HTTP client
-find_package(CURL REQUIRED)
+find_package(CURL)
+if(CURL_FOUND)
+    set(HAVE_CURL TRUE)
+    message(STATUS "CURL found - HTTP client enabled")
+else()
+    message(STATUS "CURL not found - HTTP client disabled")
+endif()
 
 # SQLite3 - Metadata and caching
-find_package(SQLite3 REQUIRED)
+find_package(SQLite3)
+if(SQLite3_FOUND)
+    set(HAVE_SQLITE3 TRUE)
+    message(STATUS "SQLite3 found - Metadata and caching enabled")
+else()
+    message(STATUS "SQLite3 not found - Metadata and caching disabled")
+endif()
+
+# ZLIB - For PNG decompression in stb_image
+find_package(ZLIB)
+if(ZLIB_FOUND)
+    set(HAVE_ZLIB TRUE)
+    message(STATUS "ZLIB found - PNG decompression enabled")
+else()
+    message(STATUS "ZLIB not found - PNG decompression disabled")
+endif()
 
 # Optional: Poppler for PDF support
 find_package(Poppler COMPONENTS cpp)
@@ -278,11 +299,20 @@ if(VDB_USE_LLAMA_CPP)
         ${llama_cpp_SOURCE_DIR}/include
         ${llama_cpp_SOURCE_DIR}/common
     )
-    ${ONNX_RUNTIME_LIB}
-    CURL::libcurl  # HTTP client
-    SQLite::SQLite3  # Metadata and caching
-    z  # zlib for PNG decompression in stb_image
-)
+endif()
+
+# Link core dependencies
+if(CURL_FOUND)
+    target_link_libraries(vdb_core PUBLIC CURL::libcurl)
+endif()
+
+if(SQLite3_FOUND)
+    target_link_libraries(vdb_core PUBLIC SQLite::SQLite3)
+endif()
+
+if(ZLIB_FOUND)
+    target_link_libraries(vdb_core PUBLIC ZLIB::ZLIB)
+endif()
 
 # Optional libraries for adapters
 if(ICU_FOUND)

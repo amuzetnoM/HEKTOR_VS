@@ -3,772 +3,694 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta name="description" content="Vector Studio - Production-Ready FOSS Vector Database with Premium Features">
-    <title>Vector Studio | Production FOSS Vector Database</title>
+    <meta name="description" content="Vector Studio - High-performance vector database with SIMD optimization, local embeddings, and production-ready features.">
+    <title>Vector Studio | High-Performance Vector Database</title>
     
-    <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>⚡</text></svg>">
-    
+    <!-- Fonts -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;600;800&family=Inter:wght@300;500;700;900&display=swap" rel="stylesheet">
-    <script src="https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.min.js"></script>
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
     
     <style>
         :root {
-            --cyber-black: #0a0a0f;
-            --cyber-dark: #12121a;
-            --cyber-gray: #1a1a25;
-            --cyber-purple: #b537f2;
-            --cyber-pink: #f72798;
-            --cyber-cyan: #00f0ff;
-            --cyber-yellow: #fffc00;
-            --text-bright: #ffffff;
-            --text-dim: #94a3b8;
-            --glow-purple: rgba(181, 55, 242, 0.5);
-            --glow-cyan: rgba(0, 240, 255, 0.5);
+            --primary: #0066FF;
+            --primary-dark: #0052CC;
+            --primary-light: #3385FF;
+            --secondary: #6366F1;
+            --accent: #10B981;
+            --background: #FFFFFF;
+            --surface: #F8FAFC;
+            --surface-hover: #F1F5F9;
+            --border: #E2E8F0;
+            --text-primary: #0F172A;
+            --text-secondary: #475569;
+            --text-tertiary: #94A3B8;
+            --shadow-sm: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
+            --shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+            --shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
+            --shadow-xl: 0 20px 25px -5px rgba(0, 0, 0, 0.1);
+            --radius-sm: 0.375rem;
+            --radius-md: 0.5rem;
+            --radius-lg: 0.75rem;
+            --radius-xl: 1rem;
         }
-
-        * { margin: 0; padding: 0; box-sizing: border-box; }
+        
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        html {
+            scroll-behavior: smooth;
+        }
         
         body {
-            font-family: 'Inter', -apple-system, sans-serif;
-            background: var(--cyber-black);
-            color: var(--text-bright);
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+            color: var(--text-primary);
+            background: var(--background);
             line-height: 1.6;
-            overflow-x: hidden;
+            -webkit-font-smoothing: antialiased;
+            -moz-osx-font-smoothing: grayscale;
         }
-
-        /* Cyberpunk Grid Background */
-        .cyber-grid {
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background-image: 
-                linear-gradient(var(--cyber-purple) 1px, transparent 1px),
-                linear-gradient(90deg, var(--cyber-purple) 1px, transparent 1px);
-            background-size: 50px 50px;
-            opacity: 0.03;
-            z-index: -1;
-            pointer-events: none;
+        
+        /* Typography */
+        h1, h2, h3, h4 {
+            font-weight: 700;
+            line-height: 1.2;
+            letter-spacing: -0.02em;
         }
-
-        /* Glowing Lines */
-        .glow-line {
-            position: fixed;
-            height: 2px;
-            width: 100%;
-            background: linear-gradient(90deg, 
-                transparent 0%, 
-                var(--cyber-cyan) 50%, 
-                transparent 100%);
-            box-shadow: 0 0 20px var(--glow-cyan);
-            animation: scan 4s linear infinite;
-            z-index: -1;
-        }
-
-        @keyframes scan {
-            0% { top: 0%; opacity: 0.5; }
-            50% { opacity: 1; }
-            100% { top: 100%; opacity: 0.5; }
-        }
-
+        
+        h1 { font-size: clamp(2.5rem, 5vw + 1rem, 3.5rem); }
+        h2 { font-size: clamp(2rem, 4vw + 0.5rem, 2.5rem); }
+        h3 { font-size: clamp(1.25rem, 2vw + 0.5rem, 1.5rem); }
+        
+        /* Navigation */
         nav {
             position: fixed;
             top: 0;
-            width: 100%;
-            background: rgba(10, 10, 15, 0.95);
-            border-bottom: 2px solid var(--cyber-purple);
-            box-shadow: 0 0 20px var(--glow-purple);
+            left: 0;
+            right: 0;
+            background: rgba(255, 255, 255, 0.95);
             backdrop-filter: blur(10px);
+            border-bottom: 1px solid var(--border);
             z-index: 1000;
-            padding: 1rem 2rem;
+            padding: 1rem 0;
         }
-
-        .nav-content {
-            max-width: 1400px;
+        
+        .nav-container {
+            max-width: 1200px;
             margin: 0 auto;
+            padding: 0 2rem;
             display: flex;
             justify-content: space-between;
             align-items: center;
         }
-
-        .nav-brand {
-            font-family: 'JetBrains Mono', monospace;
-            font-size: 1.5rem;
-            font-weight: 800;
-            text-transform: uppercase;
-            letter-spacing: 0.1em;
-            color: var(--text-bright);
-            text-shadow: 0 0 10px var(--glow-purple);
+        
+        .logo {
+            font-size: 1.25rem;
+            font-weight: 700;
+            color: var(--text-primary);
             text-decoration: none;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
         }
-
-        .nav-brand span {
-            color: var(--cyber-cyan);
-            text-shadow: 0 0 10px var(--glow-cyan);
+        
+        .logo-icon {
+            width: 32px;
+            height: 32px;
+            background: linear-gradient(135deg, var(--primary), var(--secondary));
+            border-radius: var(--radius-md);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 1.25rem;
         }
-
+        
         .nav-links {
             display: flex;
             gap: 2rem;
             list-style: none;
-        }
-
-        .nav-links a {
-            color: var(--text-dim);
-            text-decoration: none;
-            font-weight: 600;
-            text-transform: uppercase;
-            font-size: 0.85rem;
-            letter-spacing: 0.05em;
-            transition: all 0.3s;
-            position: relative;
-        }
-
-        .nav-links a::after {
-            content: '';
-            position: absolute;
-            bottom: -5px;
-            left: 0;
-            width: 0;
-            height: 2px;
-            background: var(--cyber-cyan);
-            box-shadow: 0 0 10px var(--glow-cyan);
-            transition: width 0.3s;
-        }
-
-        .nav-links a:hover {
-            color: var(--cyber-cyan);
-            text-shadow: 0 0 10px var(--glow-cyan);
-        }
-
-        .nav-links a:hover::after {
-            width: 100%;
-        }
-
-        .btn-cyber {
-            padding: 0.75rem 1.5rem;
-            background: transparent;
-            border: 2px solid var(--cyber-purple);
-            color: var(--cyber-purple);
-            font-family: 'JetBrains Mono', monospace;
-            font-weight: 700;
-            text-transform: uppercase;
-            font-size: 0.85rem;
-            cursor: pointer;
-            position: relative;
-            overflow: hidden;
-            transition: all 0.3s;
-            text-decoration: none;
-            display: inline-block;
-        }
-
-        .btn-cyber::before {
-            content: '';
-            position: absolute;
-            top: 0;
-            left: -100%;
-            width: 100%;
-            height: 100%;
-            background: var(--cyber-purple);
-            transition: left 0.3s;
-            z-index: -1;
-        }
-
-        .btn-cyber:hover {
-            color: var(--cyber-black);
-            box-shadow: 0 0 20px var(--glow-purple);
-        }
-
-        .btn-cyber:hover::before {
-            left: 0;
-        }
-
-        main {
-            padding-top: 80px;
-        }
-
-        .hero {
-            min-height: 100vh;
-            display: flex;
             align-items: center;
-            justify-content: center;
+        }
+        
+        .nav-links a {
+            color: var(--text-secondary);
+            text-decoration: none;
+            font-weight: 500;
+            font-size: 0.9375rem;
+            transition: color 0.2s;
+        }
+        
+        .nav-links a:hover {
+            color: var(--primary);
+        }
+        
+        /* Buttons */
+        .btn {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            padding: 0.625rem 1.25rem;
+            border-radius: var(--radius-md);
+            font-weight: 600;
+            font-size: 0.9375rem;
+            text-decoration: none;
+            transition: all 0.2s;
+            border: none;
+            cursor: pointer;
+        }
+        
+        .btn-primary {
+            background: var(--primary);
+            color: white;
+            box-shadow: var(--shadow-sm);
+        }
+        
+        .btn-primary:hover {
+            background: var(--primary-dark);
+            box-shadow: var(--shadow-md);
+            transform: translateY(-1px);
+        }
+        
+        .btn-secondary {
+            background: var(--surface);
+            color: var(--text-primary);
+            border: 1px solid var(--border);
+        }
+        
+        .btn-secondary:hover {
+            background: var(--surface-hover);
+        }
+        
+        /* Hero Section */
+        .hero {
+            padding: 8rem 2rem 5rem;
+            max-width: 1200px;
+            margin: 0 auto;
             text-align: center;
-            padding: 4rem 2rem;
-            position: relative;
         }
-
-        .hero-glow {
-            position: absolute;
-            top: 50%;
-            left: 50%;
-            transform: translate(-50%, -50%);
-            width: 800px;
-            height: 800px;
-            background: radial-gradient(circle, var(--glow-purple) 0%, transparent 70%);
-            filter: blur(80px);
-            pointer-events: none;
-        }
-
-        .hero-content {
-            position: relative;
-            z-index: 1;
-            max-width: 1100px;
-        }
-
-        .status-badge {
-            display: inline-block;
-            padding: 0.5rem 1.5rem;
-            background: var(--cyber-dark);
-            border: 2px solid var(--cyber-cyan);
-            box-shadow: 0 0 20px var(--glow-cyan);
-            font-family: 'JetBrains Mono', monospace;
-            font-size: 0.75rem;
-            font-weight: 700;
-            text-transform: uppercase;
-            letter-spacing: 0.15em;
+        
+        .hero-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            padding: 0.375rem 0.875rem;
+            background: var(--surface);
+            border: 1px solid var(--border);
+            border-radius: 999px;
+            font-size: 0.875rem;
+            font-weight: 500;
+            color: var(--text-secondary);
             margin-bottom: 2rem;
-            animation: pulse-cyan 2s infinite;
         }
-
-        @keyframes pulse-cyan {
-            0%, 100% { box-shadow: 0 0 20px var(--glow-cyan); }
-            50% { box-shadow: 0 0 40px var(--glow-cyan); }
+        
+        .status-dot {
+            width: 8px;
+            height: 8px;
+            background: var(--accent);
+            border-radius: 50%;
+            animation: pulse 2s infinite;
         }
-
-        h1 {
-            font-size: clamp(3rem, 10vw, 7rem);
-            font-weight: 900;
-            line-height: 1;
+        
+        @keyframes pulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.5; }
+        }
+        
+        .hero h1 {
             margin-bottom: 1.5rem;
-            text-transform: uppercase;
-            letter-spacing: -0.02em;
-            background: linear-gradient(135deg, var(--text-bright) 0%, var(--cyber-cyan) 100%);
+            background: linear-gradient(135deg, var(--text-primary) 0%, var(--primary) 100%);
             -webkit-background-clip: text;
             -webkit-text-fill-color: transparent;
-            text-shadow: 0 0 80px var(--glow-cyan);
+            background-clip: text;
         }
-
-        .hero-subtitle {
-            font-size: 1.5rem;
-            color: var(--text-dim);
-            max-width: 800px;
-            margin: 0 auto 3rem;
-            line-height: 1.8;
+        
+        .hero-description {
+            font-size: 1.25rem;
+            color: var(--text-secondary);
+            max-width: 700px;
+            margin: 0 auto 2.5rem;
+            line-height: 1.7;
         }
-
-        .highlight {
-            color: var(--cyber-purple);
-            font-weight: 700;
-        }
-
-        .cta-row {
+        
+        .hero-actions {
             display: flex;
-            gap: 1.5rem;
+            gap: 1rem;
             justify-content: center;
             flex-wrap: wrap;
-            margin-bottom: 4rem;
+            margin-bottom: 3rem;
         }
-
-        .btn-primary {
-            padding: 1.25rem 2.5rem;
-            background: linear-gradient(135deg, var(--cyber-purple), var(--cyber-pink));
-            border: none;
-            color: var(--text-bright);
-            font-family: 'JetBrains Mono', monospace;
-            font-weight: 700;
-            text-transform: uppercase;
-            font-size: 1rem;
-            cursor: pointer;
-            box-shadow: 0 0 30px var(--glow-purple);
-            transition: all 0.3s;
-            text-decoration: none;
-            display: inline-block;
-        }
-
-        .btn-primary:hover {
-            transform: translateY(-3px);
-            box-shadow: 0 0 50px var(--glow-purple);
-        }
-
-        .stats-row {
+        
+        .hero-stats {
             display: flex;
+            justify-content: center;
             gap: 3rem;
-            justify-content: center;
             flex-wrap: wrap;
+            margin-top: 4rem;
         }
-
+        
         .stat {
             text-align: center;
         }
-
+        
         .stat-value {
-            font-family: 'JetBrains Mono', monospace;
-            font-size: 3rem;
-            font-weight: 800;
-            color: var(--cyber-cyan);
-            text-shadow: 0 0 20px var(--glow-cyan);
+            font-size: 2.5rem;
+            font-weight: 700;
+            color: var(--primary);
             line-height: 1;
         }
-
+        
         .stat-label {
-            font-size: 0.9rem;
-            color: var(--text-dim);
-            text-transform: uppercase;
-            letter-spacing: 0.1em;
+            font-size: 0.875rem;
+            color: var(--text-tertiary);
             margin-top: 0.5rem;
         }
-
+        
+        /* Sections */
         section {
-            max-width: 1400px;
+            padding: 5rem 2rem;
+            max-width: 1200px;
             margin: 0 auto;
-            padding: 6rem 2rem;
         }
-
+        
         .section-header {
             text-align: center;
             margin-bottom: 4rem;
         }
-
+        
         .section-label {
-            font-family: 'JetBrains Mono', monospace;
-            font-size: 0.8rem;
-            font-weight: 700;
-            text-transform: uppercase;
-            letter-spacing: 0.2em;
-            color: var(--cyber-purple);
-            text-shadow: 0 0 10px var(--glow-purple);
-        }
-
-        .section-title {
-            font-size: 3rem;
-            font-weight: 900;
-            text-transform: uppercase;
-            letter-spacing: -0.02em;
-            margin-top: 1rem;
-        }
-
-        .arch-diagram {
-            background: var(--cyber-dark);
-            border: 2px solid var(--cyber-purple);
-            border-radius: 8px;
-            padding: 2rem;
-            margin: 3rem 0;
-            box-shadow: 0 0 30px var(--glow-purple);
-        }
-
-        .mermaid {
-            background: transparent !important;
-        }
-
-        .feature-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
-            gap: 2rem;
-        }
-
-        .feature-card {
-            background: var(--cyber-dark);
-            border: 2px solid var(--cyber-gray);
-            border-radius: 8px;
-            padding: 2.5rem;
-            transition: all 0.3s;
-            position: relative;
-            overflow: hidden;
-        }
-
-        .feature-card::before {
-            content: '';
-            position: absolute;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 3px;
-            background: linear-gradient(90deg, var(--cyber-purple), var(--cyber-pink));
-            transform: scaleX(0);
-            transition: transform 0.3s;
-        }
-
-        .feature-card:hover {
-            border-color: var(--cyber-purple);
-            box-shadow: 0 0 30px var(--glow-purple);
-            transform: translateY(-5px);
-        }
-
-        .feature-card:hover::before {
-            transform: scaleX(1);
-        }
-
-        .feature-icon {
-            font-size: 3rem;
-            margin-bottom: 1.5rem;
-            filter: drop-shadow(0 0 10px var(--glow-purple));
-        }
-
-        .feature-card h3 {
-            font-family: 'JetBrains Mono', monospace;
-            font-size: 1.25rem;
-            font-weight: 700;
+            display: inline-block;
+            padding: 0.375rem 0.875rem;
+            background: var(--surface);
+            border: 1px solid var(--border);
+            border-radius: 999px;
+            font-size: 0.875rem;
+            font-weight: 600;
+            color: var(--primary);
+            margin-bottom: 1rem;
             text-transform: uppercase;
             letter-spacing: 0.05em;
+        }
+        
+        .section-header h2 {
             margin-bottom: 1rem;
-            color: var(--cyber-cyan);
         }
-
+        
+        .section-header p {
+            font-size: 1.125rem;
+            color: var(--text-secondary);
+            max-width: 700px;
+            margin: 0 auto;
+        }
+        
+        /* Feature Grid */
+        .feature-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+            gap: 2rem;
+        }
+        
+        .feature-card {
+            background: var(--surface);
+            border: 1px solid var(--border);
+            border-radius: var(--radius-lg);
+            padding: 2rem;
+            transition: all 0.3s;
+        }
+        
+        .feature-card:hover {
+            box-shadow: var(--shadow-lg);
+            transform: translateY(-4px);
+            border-color: var(--primary);
+        }
+        
+        .feature-icon {
+            width: 48px;
+            height: 48px;
+            background: linear-gradient(135deg, var(--primary), var(--secondary));
+            border-radius: var(--radius-md);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            margin-bottom: 1.25rem;
+        }
+        
+        .feature-icon svg {
+            width: 24px;
+            height: 24px;
+            fill: currentColor;
+        }
+        
+        .feature-card h3 {
+            margin-bottom: 0.75rem;
+            color: var(--text-primary);
+        }
+        
         .feature-card p {
-            color: var(--text-dim);
-            line-height: 1.8;
+            color: var(--text-secondary);
+            line-height: 1.7;
         }
-
+        
+        /* Code Block */
         .code-block {
-            background: var(--cyber-black);
-            border: 2px solid var(--cyber-purple);
-            border-radius: 8px;
-            padding: 1.5rem;
-            margin: 2rem 0;
-            font-family: 'JetBrains Mono', monospace;
-            font-size: 0.9rem;
+            background: var(--text-primary);
+            border-radius: var(--radius-lg);
+            padding: 2rem;
             overflow-x: auto;
-            box-shadow: 0 0 30px var(--glow-purple);
+            box-shadow: var(--shadow-xl);
         }
-
+        
         .code-block pre {
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 0.875rem;
+            line-height: 1.7;
+            color: #E2E8F0;
             margin: 0;
-            color: var(--cyber-cyan);
         }
-
-        footer {
+        
+        .code-block code {
+            font-family: inherit;
+        }
+        
+        .code-comment { color: #94A3B8; }
+        .code-keyword { color: #60A5FA; }
+        .code-string { color: #34D399; }
+        .code-function { color: #F59E0B; }
+        
+        /* Performance Section */
+        .perf-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 1.5rem;
+            margin-top: 3rem;
+        }
+        
+        .perf-card {
+            background: white;
+            border: 1px solid var(--border);
+            border-radius: var(--radius-lg);
+            padding: 2rem;
             text-align: center;
-            padding: 3rem 2rem;
-            border-top: 2px solid var(--cyber-purple);
-            box-shadow: 0 0 20px var(--glow-purple);
-            color: var(--text-dim);
-            font-size: 0.9rem;
         }
-
+        
+        .perf-value {
+            font-size: 2.5rem;
+            font-weight: 700;
+            color: var(--primary);
+            line-height: 1;
+            margin-bottom: 0.5rem;
+        }
+        
+        .perf-label {
+            color: var(--text-secondary);
+            font-size: 0.9375rem;
+        }
+        
+        /* Footer */
+        footer {
+            background: var(--surface);
+            border-top: 1px solid var(--border);
+            padding: 3rem 2rem;
+            text-align: center;
+            color: var(--text-tertiary);
+        }
+        
         footer a {
-            color: var(--cyber-cyan);
+            color: var(--primary);
             text-decoration: none;
         }
-
+        
         footer a:hover {
-            text-shadow: 0 0 10px var(--glow-cyan);
+            text-decoration: underline;
         }
-
+        
+        /* Responsive */
         @media (max-width: 768px) {
-            .nav-links { display: none; }
-            h1 { font-size: 3rem; }
-            .hero-subtitle { font-size: 1.2rem; }
-            .section-title { font-size: 2rem; }
-            .feature-grid { grid-template-columns: 1fr; }
+            /* Typography is now responsive via clamp() */
+            
+            .nav-links {
+                display: none;
+                /* Note: Mobile menu would typically be implemented with a hamburger icon
+                   For this simple landing page, users can scroll through all content or
+                   use the GitHub button which remains visible */
+            }
+            
+            .hero {
+                padding: 6rem 1.5rem 3rem;
+            }
+            
+            .hero-description {
+                font-size: 1.125rem;
+            }
+            
+            section {
+                padding: 3rem 1.5rem;
+            }
+            
+            .feature-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+        
+        /* Smooth animations */
+        @media (prefers-reduced-motion: no-preference) {
+            * {
+                scroll-behavior: smooth;
+            }
         }
     </style>
 </head>
 <body>
-    <div class="cyber-grid"></div>
-    <div class="glow-line"></div>
-
+    <!-- Navigation -->
     <nav>
-        <div class="nav-content">
-            <a href="#" class="nav-brand">VECTOR<span>STUDIO</span></a>
+        <div class="nav-container">
+            <a href="#" class="logo">
+                <div class="logo-icon">V</div>
+                Vector Studio
+            </a>
             <ul class="nav-links">
-                <li><a href="#architecture">Architecture</a></li>
                 <li><a href="#features">Features</a></li>
+                <li><a href="#quickstart">Quick Start</a></li>
                 <li><a href="#performance">Performance</a></li>
-                <li><a href="#start">Quick Start</a></li>
+                <li><a href="#docs">Documentation</a></li>
+                <li><a href="https://github.com/amuzetnoM/vector_studio" class="btn btn-secondary">GitHub</a></li>
             </ul>
-            <a href="https://github.com/amuzetnoM/vector_studio" class="btn-cyber">GitHub</a>
         </div>
     </nav>
 
-    <main>
-        <section class="hero">
-            <div class="hero-glow"></div>
-            <div class="hero-content">
-                <div class="status-badge">✓ Production Ready • 100% Complete</div>
-                <h1>VECTOR STUDIO</h1>
-                <p class="hero-subtitle">
-                    Production-ready <span class="highlight">FOSS vector database</span> with premium features:
-                    Product Quantization (8-32x compression), Metadata Filtering Indices (100x faster),
-                    Batch Operations, pgvector Integration, Replication & Sharding.
-                    <br><strong>Zero cost. Complete privacy.</strong>
-                </p>
-                <div class="cta-row">
-                    <a href="#start" class="btn-primary">Get Started</a>
-                    <a href="https://github.com/amuzetnoM/vector_studio" class="btn-cyber">View Source</a>
-                </div>
-                <div class="stats-row">
-                    <div class="stat">
-                        <div class="stat-value">1B+</div>
-                        <div class="stat-label">Vectors Supported</div>
-                    </div>
-                    <div class="stat">
-                        <div class="stat-value">8-32x</div>
-                        <div class="stat-label">Compression (PQ)</div>
-                    </div>
-                    <div class="stat">
-                        <div class="stat-value">100x</div>
-                        <div class="stat-label">Faster Filtering</div>
-                    </div>
-                    <div class="stat">
-                        <div class="stat-value">$0</div>
-                        <div class="stat-label">Total Cost</div>
-                    </div>
-                </div>
+    <!-- Hero Section -->
+    <section class="hero">
+        <div class="hero-badge">
+            <span class="status-dot"></span>
+            Production Ready
+        </div>
+        <h1>High-Performance<br>Vector Database</h1>
+        <p class="hero-description">
+            Professional-grade vector database engine with SIMD-optimized similarity search, 
+            local ONNX embeddings, and sub-millisecond queries on millions of vectors.
+        </p>
+        <div class="hero-actions">
+            <a href="#quickstart" class="btn btn-primary">Get Started</a>
+            <a href="https://github.com/amuzetnoM/vector_studio" class="btn btn-secondary">View on GitHub</a>
+        </div>
+        
+        <div class="hero-stats">
+            <div class="stat">
+                <div class="stat-value">&lt;3ms</div>
+                <div class="stat-label">Search Latency</div>
             </div>
-        </section>
+            <div class="stat">
+                <div class="stat-value">99.4%</div>
+                <div class="stat-label">Recall@10</div>
+            </div>
+            <div class="stat">
+                <div class="stat-value">100%</div>
+                <div class="stat-label">Open Source</div>
+            </div>
+            <div class="stat">
+                <div class="stat-value">C++20</div>
+                <div class="stat-label">Modern C++</div>
+            </div>
+        </div>
+    </section>
 
-        <section id="architecture">
-            <div class="section-header">
-                <div class="section-label">/// System Design</div>
-                <h2 class="section-title">Architecture</h2>
+    <!-- Features Section -->
+    <section id="features">
+        <div class="section-header">
+            <div class="section-label">Features</div>
+            <h2>Enterprise-Grade Capabilities</h2>
+            <p>Built for performance, scalability, and production workloads</p>
+        </div>
+        
+        <div class="feature-grid">
+            <div class="feature-card">
+                <div class="feature-icon">
+                    <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+                        <path d="M13 2L3 14h8l-1 8 10-12h-8l1-8z"/>
+                    </svg>
+                </div>
+                <h3>SIMD Optimization</h3>
+                <p>AVX2/AVX-512 accelerated distance computations for blazing-fast similarity search on modern CPUs.</p>
             </div>
             
-            <div class="arch-diagram">
-                <pre class="mermaid">
-graph TB
-    subgraph "Data Ingestion Layer"
-        CSV[CSV Adapter]
-        JSON[JSON Adapter]
-        PDF[PDF Adapter]
-        TXT[Text Adapter]
-        XLS[Excel Adapter]
-        FRED[FRED API]
-    end
-    
-    subgraph "Core Processing"
-        MGR[Data Adapter Manager]
-        PQ[Product Quantizer<br/>8-32x Compression]
-        IDX[Metadata Index<br/>B-tree + Inverted]
-    end
-    
-    subgraph "Vector Index"
-        HNSW[HNSW Index<br/>O log n  Search]
-        BATCH[Batch Operations API]
-    end
-    
-    subgraph "Storage Backends"
-        SQLITE[SQLite Cache<br/>LRU + TTL]
-        PG[pgvector<br/>PostgreSQL]
-        UNI[Unified Store<br/>Hybrid Mode]
-    end
-    
-    subgraph "Distributed"
-        REP[Replication Manager<br/>Sync/Async/Semi-Sync]
-        SHARD[Sharding Manager<br/>Hash/Range/Consistent]
-        DIST[Distributed DB<br/>Fault Tolerance]
-    end
-    
-    CSV & JSON & PDF & TXT & XLS & FRED --> MGR
-    MGR --> PQ
-    PQ --> HNSW
-    HNSW --> IDX
-    IDX --> BATCH
-    BATCH --> UNI
-    UNI --> SQLITE & PG
-    UNI --> REP
-    REP --> SHARD
-    SHARD --> DIST
-    
-    style HNSW fill:#b537f2,stroke:#00f0ff,stroke-width:3px
-    style PQ fill:#b537f2,stroke:#00f0ff,stroke-width:3px
-    style IDX fill:#b537f2,stroke:#00f0ff,stroke-width:3px
-    style UNI fill:#b537f2,stroke:#00f0ff,stroke-width:3px
-    style DIST fill:#f72798,stroke:#fffc00,stroke-width:3px
-                </pre>
-            </div>
-
-            <div class="arch-diagram">
-                <pre class="mermaid">
-sequenceDiagram
-    participant Client
-    participant API
-    participant PQ as Product Quantizer
-    participant IDX as Metadata Index
-    participant HNSW
-    participant Store as Unified Store
-    
-    Client->>API: Insert Batch 10K vectors 
-    API->>PQ: Compress vectors
-    PQ-->>API: 8-32x smaller
-    API->>IDX: Index metadata
-    API->>HNSW: Build graph
-    HNSW->>Store: Persist to SQLite/pgvector
-    Store-->>Client: Success
-    
-    Client->>API: Query: "Find similar with filters"
-    API->>IDX: Filter by metadata 100x faster 
-    IDX-->>API: Candidate set
-    API->>HNSW: ANN search O log n 
-    HNSW->>PQ: Compute distances with ADC
-    PQ-->>API: Top-K results
-    API-->>Client: Results  2-3ms latency 
-                </pre>
-            </div>
-        </section>
-
-        <section id="features">
-            <div class="section-header">
-                <div class="section-label">/// Capabilities</div>
-                <h2 class="section-title">Premium Features</h2>
+            <div class="feature-card">
+                <div class="feature-icon">
+                    <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+                        <path d="M15.5 14h-.79l-.28-.27A6.471 6.471 0 0016 9.5 6.5 6.5 0 109.5 16c1.61 0 3.09-.59 4.23-1.57l.27.28v.79l5 4.99L20.49 19l-4.99-5zm-6 0C7.01 14 5 11.99 5 9.5S7.01 5 9.5 5 14 7.01 14 9.5 11.99 14 9.5 14z"/>
+                    </svg>
+                </div>
+                <h3>HNSW Indexing</h3>
+                <p>Hierarchical Navigable Small World graph for O(log n) approximate nearest neighbor search with high recall.</p>
             </div>
             
-            <div class="feature-grid">
-                <div class="feature-card">
-                    <div class="feature-icon">🗜️</div>
-                    <h3>Product Quantization</h3>
-                    <p>K-means based vector compression achieving 8-32x reduction with <5% accuracy loss. Enables billion-scale deployments on modest hardware.</p>
+            <div class="feature-card">
+                <div class="feature-icon">
+                    <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+                        <path d="M22 9.24l-7.19-.62L12 2 9.19 8.63 2 9.24l5.46 4.73L5.82 21 12 17.27 18.18 21l-1.63-7.03L22 9.24zM12 15.4l-3.76 2.27 1-4.28-3.32-2.88 4.38-.38L12 6.1l1.71 4.04 4.38.38-3.32 2.88 1 4.28L12 15.4z"/>
+                    </svg>
                 </div>
-                
-                <div class="feature-card">
-                    <div class="feature-icon">⚡</div>
-                    <h3>Metadata Filtering</h3>
-                    <p>B-tree indices for numeric/date fields, inverted indices for categorical. 100x faster filtered queries (O(1) vs O(n)).</p>
-                </div>
-                
-                <div class="feature-card">
-                    <div class="feature-icon">📦</div>
-                    <h3>Batch Operations</h3>
-                    <p>Parallel bulk insert/delete/update with configurable threading. Transactional mode with all-or-nothing semantics. 10-100x faster.</p>
-                </div>
-                
-                <div class="feature-card">
-                    <div class="feature-icon">🐘</div>
-                    <h3>pgvector Integration</h3>
-                    <p>Hybrid storage: SQLite for caching + PostgreSQL pgvector for persistence. Automatic fallback, write-through caching, unified interface.</p>
-                </div>
-                
-                <div class="feature-card">
-                    <div class="feature-icon">🔄</div>
-                    <h3>Replication & Sharding</h3>
-                    <p>3 replication modes (Sync/Async/Semi-Sync), automatic failover, leader election. Hash/Range/Consistent sharding with auto-rebalancing.</p>
-                </div>
-                
-                <div class="feature-card">
-                    <div class="feature-icon">📄</div>
-                    <h3>Universal Data Ingest</h3>
-                    <p>6 adapters: CSV, JSON, PDF (poppler), Plain Text (ICU), Excel (xlsx), FRED API. Bidirectional read/write support.</p>
-                </div>
-                
-                <div class="feature-card">
-                    <div class="feature-icon">🔍</div>
-                    <h3>HNSW Index</h3>
-                    <p>Hierarchical Navigable Small World graph for O(log n) ANN search. 99.4% recall@10 with sub-3ms latency on 1M vectors.</p>
-                </div>
-                
-                <div class="feature-card">
-                    <div class="feature-icon">🔒</div>
-                    <h3>Security Hardened</h3>
-                    <p>SQL injection vulnerability fixed, prepared statements throughout, input validation, sanitization. Production-grade security.</p>
-                </div>
-                
-                <div class="feature-card">
-                    <div class="feature-icon">💾</div>
-                    <h3>SQLite Storage</h3>
-                    <p>Metadata storage, query caching (LRU + TTL), configuration persistence. WAL mode, thread-safe, ACID transactions.</p>
-                </div>
-            </div>
-        </section>
-
-        <section id="performance">
-            <div class="section-header">
-                <div class="section-label">/// Benchmarks</div>
-                <h2 class="section-title">Performance</h2>
+                <h3>Local Embeddings</h3>
+                <p>ONNX Runtime inference for text and images without API calls. Complete privacy and no latency overhead.</p>
             </div>
             
-            <div class="feature-grid">
-                <div class="feature-card">
-                    <h3>Insertion</h3>
-                    <p><strong>15,234 ops/sec</strong> - Up to 1.79x faster than commercial providers (Pinecone: 8.5K, Weaviate: 12.1K, Chroma: 10.8K)</p>
+            <div class="feature-card">
+                <div class="feature-icon">
+                    <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+                        <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-1 17.93c-3.95-.49-7-3.85-7-7.93 0-.62.08-1.21.21-1.79L9 15v1c0 1.1.9 2 2 2v1.93zm6.9-2.54c-.26-.81-1-1.39-1.9-1.39h-1v-3c0-.55-.45-1-1-1H8v-2h2c.55 0 1-.45 1-1V7h2c1.1 0 2-.9 2-2v-.41c2.93 1.19 5 4.06 5 7.41 0 2.08-.8 3.97-2.1 5.39z"/>
+                    </svg>
                 </div>
-                
-                <div class="feature-card">
-                    <h3>Query Latency</h3>
-                    <p><strong>2.3ms (p50)</strong>, 4.1ms (p95), 6.8ms (p99) - Fastest at all percentiles vs competitors</p>
-                </div>
-                
-                <div class="feature-card">
-                    <h3>Filtered Queries</h3>
-                    <p><strong>1,845 ops/sec</strong> - 5x-15x faster than commercial providers with metadata indices (Pinecone: 124, Weaviate: 342, Chroma: 156)</p>
-                </div>
-                
-                <div class="feature-card">
-                    <h3>Memory</h3>
-                    <p><strong>38 MB (with PQ)</strong> - 8x less memory than competitors (310-315 MB raw). Billion-scale support enabled.</p>
-                </div>
-                
-                <div class="feature-card">
-                    <h3>Batch Operations</h3>
-                    <p><strong>125K ops/sec</strong> - 1.6x-3x faster bulk processing than commercial providers</p>
-                </div>
-                
-                <div class="feature-card">
-                    <h3>Cost</h3>
-                    <p><strong>$0/month</strong> - 100% FREE vs Pinecone ($70), Weaviate ($50). Zero vendor lock-in, complete privacy.</p>
-                </div>
-            </div>
-        </section>
-
-        <section id="start">
-            <div class="section-header">
-                <div class="section-label">/// Quick Start</div>
-                <h2 class="section-title">Get Started</h2>
+                <h3>Cross-Modal Search</h3>
+                <p>Unified 512-dimensional space enables searching images with text queries and vice versa.</p>
             </div>
             
-            <div class="code-block">
-<pre># Clone repository
+            <div class="feature-card">
+                <div class="feature-icon">
+                    <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+                        <path d="M19 3H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zm-5 14H7v-2h7v2zm3-4H7v-2h10v2zm0-4H7V7h10v2z"/>
+                    </svg>
+                </div>
+                <h3>Memory-Mapped Storage</h3>
+                <p>Zero-copy vector access via mmap for efficient I/O and datasets larger than RAM.</p>
+            </div>
+            
+            <div class="feature-card">
+                <div class="feature-icon">
+                    <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+                        <path d="M9.4 16.6L4.8 12l4.6-4.6L8 6l-6 6 6 6 1.4-1.4zm5.2 0l4.6-4.6-4.6-4.6L16 6l6 6-6 6-1.4-1.4z"/>
+                    </svg>
+                </div>
+                <h3>Python Bindings</h3>
+                <p>Native Python API via pybind11 for seamless integration with data science workflows.</p>
+            </div>
+        </div>
+    </section>
+
+    <!-- Quick Start Section -->
+    <section id="quickstart">
+        <div class="section-header">
+            <div class="section-label">Quick Start</div>
+            <h2>Get Running in Minutes</h2>
+            <p>Automated setup for Windows, macOS, and Linux</p>
+        </div>
+        
+        <div class="code-block">
+<pre><code><span class="code-comment"># Clone repository</span>
 git clone https://github.com/amuzetnoM/vector_studio.git
 cd vector_studio
 
-# Build
+<span class="code-comment"># Build</span>
 cmake -B build -DCMAKE_BUILD_TYPE=Release
 cmake --build build
 
-# Python usage
-import pyvdb
+<span class="code-comment"># Python usage</span>
+<span class="code-keyword">import</span> pyvdb
 
-db = pyvdb.VectorDatabase("./vectors", 512)
-db.add_text("High-performance vector search")
-results = db.search("fast similarity search", k=10)
-</pre>
+<span class="code-comment"># Create database</span>
+db = pyvdb.<span class="code-function">create_database</span>(<span class="code-string">"./vectors"</span>)
+
+<span class="code-comment"># Add text with metadata</span>
+db.<span class="code-function">add_text</span>(<span class="code-string">"High-performance vector search"</span>, {
+    <span class="code-string">"type"</span>: <span class="code-string">"document"</span>,
+    <span class="code-string">"date"</span>: <span class="code-string">"2025-01-04"</span>
+})
+
+<span class="code-comment"># Search</span>
+results = db.<span class="code-function">search</span>(<span class="code-string">"fast similarity search"</span>, k=<span class="code-keyword">10</span>)
+<span class="code-keyword">for</span> r <span class="code-keyword">in</span> results:
+    <span class="code-function">print</span>(<span class="code-string">f"</span>{r.score:.4f}<span class="code-string">: </span>{r.text}<span class="code-string">"</span>)</code></pre>
+        </div>
+    </section>
+
+    <!-- Performance Section -->
+    <section id="performance">
+        <div class="section-header">
+            <div class="section-label">Performance</div>
+            <h2>Benchmarked Results</h2>
+            <p>Intel Core i7-12700H, 32GB RAM, NVMe SSD</p>
+        </div>
+        
+        <div class="perf-grid">
+            <div class="perf-card">
+                <div class="perf-value">2-3ms</div>
+                <div class="perf-label">Query Latency (1M vectors)</div>
             </div>
+            <div class="perf-card">
+                <div class="perf-value">500</div>
+                <div class="perf-label">Queries per Second</div>
+            </div>
+            <div class="perf-card">
+                <div class="perf-value">99.4%</div>
+                <div class="perf-label">Recall@10 Accuracy</div>
+            </div>
+            <div class="perf-card">
+                <div class="perf-value">2.4KB</div>
+                <div class="perf-label">Memory per Vector</div>
+            </div>
+        </div>
+    </section>
 
-            <p style="text-align: center; margin-top: 2rem; color: var(--text-dim);">
-                <a href="USER_GUIDE.md" style="color: var(--cyber-cyan); text-decoration: none; font-weight: 600;">Read Full Documentation →</a>
-            </p>
-        </section>
-    </main>
+    <!-- Documentation Section -->
+    <section id="docs">
+        <div class="section-header">
+            <div class="section-label">Documentation</div>
+            <h2>Comprehensive Guides</h2>
+            <p>Everything you need to build with Vector Studio</p>
+        </div>
+        
+        <div class="feature-grid">
+            <a href="ARCHITECTURE.md" class="feature-card" style="text-decoration: none; color: inherit;">
+                <div class="feature-icon">
+                    <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+                        <path d="M3 13h8V3H3v10zm0 8h8v-6H3v6zm10 0h8V11h-8v10zm0-18v6h8V3h-8z"/>
+                    </svg>
+                </div>
+                <h3>Architecture</h3>
+                <p>System design, data flow, and component diagrams</p>
+            </a>
+            
+            <a href="GUIDE.md" class="feature-card" style="text-decoration: none; color: inherit;">
+                <div class="feature-icon">
+                    <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+                        <path d="M18 2H6c-1.1 0-2 .9-2 2v16c0 1.1.9 2 2 2h12c1.1 0 2-.9 2-2V4c0-1.1-.9-2-2-2zM6 4h5v8l-2.5-1.5L6 12V4z"/>
+                    </svg>
+                </div>
+                <h3>User Guide</h3>
+                <p>Installation tutorials and Python API examples</p>
+            </a>
+            
+            <a href="MATH.md" class="feature-card" style="text-decoration: none; color: inherit;">
+                <div class="feature-icon">
+                    <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+                        <path d="M19 3H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zM9 17H7v-7h2v7zm4 0h-2V7h2v10zm4 0h-2v-4h2v4z"/>
+                    </svg>
+                </div>
+                <h3>Mathematics</h3>
+                <p>HNSW algorithm and vector space theory</p>
+            </a>
+            
+            <a href="../README.md" class="feature-card" style="text-decoration: none; color: inherit;">
+                <div class="feature-icon">
+                    <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+                        <path d="M14 2H6c-1.1 0-1.99.9-1.99 2L4 20c0 1.1.89 2 1.99 2H18c1.1 0 2-.9 2-2V8l-6-6zm2 16H8v-2h8v2zm0-4H8v-2h8v2zm-3-5V3.5L18.5 9H13z"/>
+                    </svg>
+                </div>
+                <h3>README</h3>
+                <p>Quick reference and project overview</p>
+            </a>
+        </div>
+    </section>
 
+    <!-- Footer -->
     <footer>
         <p>
-            Vector Studio • MIT License • 100% Open Source
+            Vector Studio is open source under the <a href="../LICENSE">MIT License</a>
             <br>
-            <a href="https://github.com/amuzetnoM/vector_studio">GitHub</a> • 
-            <a href="USER_GUIDE.md">Docs</a> • 
-            <a href="API_REFERENCE.md">API</a> • 
-            <a href="DATA_SCIENCE_GUIDE.md">Technical Guide</a>
+            Built with <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg" aria-hidden="true" style="width: 16px; height: 16px; fill: #ef4444; display: inline-block; vertical-align: text-bottom;"><path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z"/></svg> for the developer community
         </p>
     </footer>
-
-    <script>
-        mermaid.initialize({ 
-            startOnLoad: true,
-            theme: 'dark',
-            themeVariables: {
-                primaryColor: '#b537f2',
-                primaryTextColor: '#ffffff',
-                primaryBorderColor: '#00f0ff',
-                lineColor: '#00f0ff',
-                secondaryColor: '#1a1a25',
-                tertiaryColor: '#0a0a0f',
-                background: '#12121a',
-                mainBkg: '#1a1a25',
-                textColor: '#ffffff',
-                fontSize: '14px',
-                fontFamily: 'JetBrains Mono, monospace'
-            }
-        });
-    </script>
 </body>
 </html>
