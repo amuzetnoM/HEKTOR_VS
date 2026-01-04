@@ -4,53 +4,58 @@ Welcome to the Vector Studio documentation. This comprehensive guide covers ever
 
 ## Documentation Index
 
-| Document | Description | Audience |
-|----------|-------------|----------|
-| [**USER_GUIDE.md**](USER_GUIDE.md) | Complete user guide from installation to advanced usage | All users |
-| [**API_REFERENCE.md**](API_REFERENCE.md) | Detailed API documentation for all classes and functions | Developers |
-| [**ARCHITECTURE.md**](ARCHITECTURE.md) | System design, data flow, component diagrams | Architects, contributors |
-| [**DATA_INGESTION.md**](DATA_INGESTION.md) | Data ingestion module guide with adapters | Data engineers |
-| [**GUIDE.md**](GUIDE.md) | Installation, usage tutorials, CLI reference | Beginners |
-| [**MATH.md**](MATH.md) | Mathematical foundations, HNSW algorithm, distance metrics | ML engineers |
-| [**AI_TRAINING.md**](AI_TRAINING.md) | Training custom models, fine-tuning, contrastive learning | AI researchers |
-| [**MODELS.md**](MODELS.md) | Model specifications, benchmarks, integration | ML practitioners |
+| # | Document | Description | Audience |
+|---|----------|-------------|----------|
+| 01 | [**README**](01_README.md) | This file - documentation overview and quick start | All users |
+| 02 | [**GETTING_STARTED**](02_GETTING_STARTED.md) | Installation, quick start, basic usage, CLI reference | Beginners |
+| 03 | [**USER_GUIDE**](03_USER_GUIDE.md) | Complete user guide from installation to advanced usage | All users |
+| 04 | [**DATA_FORMATS**](04_DATA_FORMATS.md) | **NEW** - Supported data types, formats, and specifications | Data engineers, developers |
+| 05 | [**DATA_INGESTION**](05_DATA_INGESTION.md) | Data ingestion module with adapters (CSV, JSON, PDF, Excel, Text) | Data engineers |
+| 06 | [**ARCHITECTURE**](06_ARCHITECTURE.md) | System design, data flow, component diagrams | Architects, contributors |
+| 07 | [**API_REFERENCE**](07_API_REFERENCE.md) | Detailed API documentation for all classes and functions | Developers |
+| 08 | [**MODELS**](08_MODELS.md) | Model specifications, benchmarks, integration | ML practitioners |
+| 09 | [**MATH**](09_MATH.md) | Mathematical foundations, HNSW algorithm, distance metrics | ML engineers |
+| 10 | [**AI_TRAINING**](10_AI_TRAINING.md) | Training custom models, fine-tuning, contrastive learning | AI researchers |
 
 ## Quick Links by Task
 
 ### Getting Started
-- [Installation Guide](USER_GUIDE.md#installation)
-- [Quick Start Tutorial](USER_GUIDE.md#getting-started)
-- [First Database](USER_GUIDE.md#first-steps)
+- [Installation Guide](03_USER_GUIDE.md#installation)
+- [Quick Start Tutorial](02_GETTING_STARTED.md#quick-start)
+- [First Database](02_GETTING_STARTED.md#first-database)
 
 ### Data Ingestion
-- [Universal Data Adapters](DATA_INGESTION.md)
-- [CSV Adapter](USER_GUIDE.md#csv-adapter)
-- [JSON Adapter](USER_GUIDE.md#json-adapter)
-- [FRED API Integration](USER_GUIDE.md#fred-api-adapter)
+- [Supported Data Formats](04_DATA_FORMATS.md) - **Complete format specifications**
+- [Universal Data Adapters](05_DATA_INGESTION.md)
+- [CSV Adapter](05_DATA_INGESTION.md#1-csv-adapter)
+- [JSON Adapter](05_DATA_INGESTION.md#2-json-adapter)
+- [Text Adapter](05_DATA_INGESTION.md#3-plain-text-adapter)
+- [PDF Adapter](05_DATA_INGESTION.md#4-pdf-adapter)
+- [Excel Adapter](05_DATA_INGESTION.md#5-excel-adapter)
 
 ### Core Operations
-- [Adding Vectors](USER_GUIDE.md#adding-vectors)
-- [Searching](USER_GUIDE.md#searching)
-- [Batch Operations](USER_GUIDE.md#batch-operations)
+- [Adding Vectors](03_USER_GUIDE.md#adding-vectors)
+- [Searching](03_USER_GUIDE.md#searching)
+- [Batch Operations](03_USER_GUIDE.md#batch-operations)
 
 ### API Reference
-- [VectorDatabase API](API_REFERENCE.md#vectordatabase)
-- [DataAdapterManager API](API_REFERENCE.md#dataadaptermanager)
-- [TextEncoder API](API_REFERENCE.md#textencoder)
-- [Python Bindings](API_REFERENCE.md#python-bindings-api)
+- [VectorDatabase API](07_API_REFERENCE.md#vectordatabase)
+- [DataAdapterManager API](07_API_REFERENCE.md#dataadaptermanager)
+- [TextEncoder API](07_API_REFERENCE.md#textencoder)
+- [Python Bindings](07_API_REFERENCE.md#python-bindings-api)
 
 ### Advanced Topics
-- [Performance Tuning](USER_GUIDE.md#performance-tuning)
-- [Custom Adapters](USER_GUIDE.md#custom-adapters)
-- [HNSW Configuration](USER_GUIDE.md#hnsw-index)
-- [Distributed Deployment](USER_GUIDE.md#distributed-deployment)
+- [Performance Tuning](03_USER_GUIDE.md#performance-tuning)
+- [Custom Adapters](05_DATA_INGESTION.md#custom-adapter-development)
+- [HNSW Configuration](03_USER_GUIDE.md#hnsw-index)
+- [Distributed Deployment](03_USER_GUIDE.md#distributed-deployment)
 
 ## What is Vector Studio?
 
 Vector Studio is a high-performance vector database and AI training platform designed for semantic search and machine learning applications. It provides:
 
 - **Fast Similarity Search**: Sub-millisecond queries on millions of vectors
-- **Universal Data Ingestion**: CSV, JSON, PDF, Excel, APIs (FRED, Yahoo Finance, Alpha Vantage, etc.)
+- **Universal Data Ingestion**: CSV, JSON, PDF, Excel, Plain Text formats with automatic detection
 - **Local Embedding Generation**: ONNX-based inference for text and images
 - **Gold Standard Integration**: Seamless connection with Gold Standard journal system
 - **AI Training Toolkit**: Tools for fine-tuning and training custom models
@@ -81,9 +86,9 @@ Vector Studio is a high-performance vector database and AI training platform des
 │  │  │  • JSON      │          │           │    │  Storage   │       │    │
 │  │  │  • PDF       │          │  O(log n) │    │            │       │    │
 │  │  │  • Excel     │          │  Search   │    │  vectors   │       │    │
-│  │  │  • APIs      │          │           │    │  .bin      │       │    │
-│  │  │  • SQLite    │          │  99%+     │    │  index     │       │    │
-│  │  └──────────────┘          │  Recall   │    │  .hnsw     │       │    │
+│  │  │  • Text      │          │           │    │  .bin      │       │    │
+│  │  └──────────────┘          │  99%+     │    │  index     │       │    │
+│  │                            │  Recall   │    │  .hnsw     │       │    │
 │  │                            └───────────┘    └────────────┘       │    │
 │  │                                                                     │    │
 │  │  EMBEDDINGS                                                        │    │
@@ -130,10 +135,11 @@ results = db.search("gold outlook", k=5)
 
 ### 3. Learn More
 
-- **Beginners**: Start with [GUIDE.md](GUIDE.md)
-- **Developers**: Read [ARCHITECTURE.md](ARCHITECTURE.md)
-- **Researchers**: Explore [MATH.md](MATH.md) and [AI_TRAINING.md](AI_TRAINING.md)
-- **Model Selection**: See [MODELS.md](MODELS.md)
+- **Beginners**: Start with [02_GETTING_STARTED.md](02_GETTING_STARTED.md)
+- **Data Formats**: Review [04_DATA_FORMATS.md](04_DATA_FORMATS.md) for complete format specifications
+- **Developers**: Read [06_ARCHITECTURE.md](06_ARCHITECTURE.md)
+- **Researchers**: Explore [09_MATH.md](09_MATH.md) and [10_AI_TRAINING.md](10_AI_TRAINING.md)
+- **Model Selection**: See [08_MODELS.md](08_MODELS.md)
 
 ## Key Features
 
@@ -162,7 +168,48 @@ results = db.search("gold outlook", k=5)
 
 ## Document Summaries
 
-### ARCHITECTURE.md
+### 02_GETTING_STARTED.md
+
+Practical quick start guide including:
+- Step-by-step installation
+- Building from source
+- First database creation
+- Python API tutorial
+- CLI reference
+- Basic troubleshooting
+
+### 03_USER_GUIDE.md
+
+Complete user guide covering:
+- Detailed installation and configuration
+- Core concepts and operations
+- Advanced usage patterns
+- Performance tuning
+- Best practices
+- Comprehensive troubleshooting
+
+### 04_DATA_FORMATS.md **(NEW)**
+
+**Comprehensive data format specifications:**
+- Complete list of supported formats (CSV, JSON, PDF, Excel, Text, Markdown)
+- Format requirements and constraints
+- Data type specifications
+- Metadata structure guidelines
+- Chunking strategy explanations
+- Data preparation best practices
+- Format-specific examples
+
+### 05_DATA_INGESTION.md **(UPDATED)**
+
+Data ingestion module guide:
+- Architecture overview
+- Implemented adapters (CSV, JSON, Text, PDF, Excel)
+- Usage examples and integration
+- Batch processing
+- Custom adapter development
+- Performance considerations
+
+### 06_ARCHITECTURE.md
 
 Comprehensive system design document covering:
 - Component diagrams and data flow
@@ -171,17 +218,7 @@ Comprehensive system design document covering:
 - API design patterns
 - Performance characteristics
 
-### GUIDE.md
-
-Practical usage guide including:
-- Step-by-step installation
-- Building from source
-- Python API tutorial
-- CLI reference
-- Configuration options
-- Troubleshooting
-
-### MATH.md
+### 09_MATH.md
 
 Mathematical foundations:
 - Vector spaces and embeddings
@@ -190,7 +227,7 @@ Mathematical foundations:
 - Complexity proofs
 - Quantization techniques
 
-### AI_TRAINING.md
+### 10_AI_TRAINING.md
 
 Complete AI training guide:
 - Pretrained model usage
@@ -200,7 +237,7 @@ Complete AI training guide:
 - Multi-modal training
 - ONNX deployment
 
-### MODELS.md
+### 08_MODELS.md
 
 Model reference:
 - Detailed specifications
