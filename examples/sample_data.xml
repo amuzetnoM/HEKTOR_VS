@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<catalog>
+    <book id="1" category="technical">
+        <title>Vector Databases: A Complete Guide</title>
+        <author>Jane Doe</author>
+        <year>2025</year>
+        <price currency="USD">49.99</price>
+        <description>
+            Comprehensive guide to building and deploying vector databases
+            for semantic search and AI applications. Covers HNSW indexing,
+            SIMD optimizations, and production deployment strategies.
+        </description>
+    </book>
+    <book id="2" category="finance">
+        <title>Gold Market Analysis</title>
+        <author>John Smith</author>
+        <year>2025</year>
+        <price currency="USD">39.99</price>
+        <description>
+            Deep dive into gold market dynamics, technical analysis,
+            and precious metals trading strategies.
+        </description>
+    </book>
+</catalog>
