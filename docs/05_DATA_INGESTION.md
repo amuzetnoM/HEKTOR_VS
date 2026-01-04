@@ -34,6 +34,9 @@ The Data Ingestion Module provides a unified interface for importing data from m
 - ✅ **Batch Processing**: Efficient handling of multiple files simultaneously
 - ✅ **Extensible Architecture**: Easy addition of custom adapters
 - ✅ **Type Safety**: Strong validation and sanitization
+- ✅ **Bidirectional Support**: Read and write capabilities for all adapters
+- ✅ **Comprehensive Logging**: Thread-safe runtime monitoring with anomaly detection
+- ✅ **Security Hardened**: SQL injection protection, input sanitization, and validation
 
 ### Design Principles
 
@@ -103,11 +106,22 @@ Base interface that all adapters implement:
 ```cpp
 class IDataAdapter {
 public:
+    // Format detection
     virtual bool can_handle(const fs::path& path) const = 0;
     virtual bool can_handle(std::string_view content) const = 0;
+    
+    // Read operations
     virtual Result<NormalizedData> parse(const fs::path& path, const ChunkConfig& config) = 0;
     virtual Result<NormalizedData> parse_content(std::string_view content, const ChunkConfig& config, std::string_view source_hint) = 0;
+    
+    // Write operations (NEW in v2.0)
+    virtual Result<void> write(const NormalizedData& data, const fs::path& path) = 0;
+    virtual bool supports_write() const = 0;
+    
+    // Data processing
     virtual Result<void> sanitize(NormalizedData& data) = 0;
+    
+    // Metadata
     virtual std::string name() const = 0;
     virtual std::vector<DataFormat> supported_formats() const = 0;
 };
@@ -467,13 +481,16 @@ enum class CellType {
 
 **Supported Files**: `.xml`
 
+**Capabilities**: ✅ Read | ✅ Write
+
 **Features**:
-- DOM-based XML parsing
+- DOM-based XML parsing and generation
 - Text content extraction from all nodes
 - Attribute extraction and metadata storage
 - Hierarchical path preservation
 - Namespace handling
 - CDATA support
+- **Write support**: Generate well-formed XML with proper escaping
 
 **Configuration**:
 ```cpp
@@ -484,9 +501,10 @@ config.preserve_hierarchy = true;      // Maintain XML structure in metadata
 config.flatten_namespaces = true;      // Remove namespace prefixes
 ```
 
-**Example**:
+**Read Example**:
 ```cpp
 #include "vdb/adapters/xml_adapter.hpp"
+#include "vdb/logging.hpp"
 
 using namespace vdb::adapters;
 
@@ -494,6 +512,8 @@ XMLAdapter adapter;
 auto result = adapter.parse("catalog.xml");
 
 if (result) {
+    LOG_INFO("Parsed XML file with " + std::to_string(result->chunks.size()) + " chunks");
+    
     for (const auto& chunk : result->chunks) {
         std::cout << "Root: " << chunk.title.value_or("unknown") << "\n";
         std::cout << "Content: " << chunk.content << "\n";
@@ -503,8 +523,51 @@ if (result) {
             std::cout << "  " << key << ": " << value << "\n";
         }
     }
+} else {
+    LOG_ERROR("Failed to parse XML: " + result.error().message);
 }
 ```
+
+**Write Example** (NEW in v2.0):
+```cpp
+#include "vdb/adapters/xml_adapter.hpp"
+
+// Create NormalizedData from your content
+NormalizedData data;
+DataChunk chunk;
+chunk.content = "Product information and specifications";
+chunk.metadata["product_id"] = "12345";
+chunk.metadata["category"] = "Electronics";
+chunk.title = "Product Catalog";
+data.chunks.push_back(chunk);
+
+// Write to XML file
+XMLAdapter adapter;
+auto write_result = adapter.write(data, "output.xml");
+
+if (write_result) {
+    LOG_INFO("Successfully exported to XML");
+} else {
+    LOG_ERROR("Export failed: " + write_result.error().message);
+}
+```
+
+**Generated XML Structure**:
+```xml
+<?xml version="1.0" encoding="UTF-8"?>
+<data>
+  <chunk index="0" total="1">
+    <title>Product Catalog</title>
+    <content>Product information and specifications</content>
+    <metadata>
+      <product_id>12345</product_id>
+      <category>Electronics</category>
+    </metadata>
+  </chunk>
+</data>
+```
+
+**Security**: Automatic XML escaping for special characters (&, <, >, ", ')
 
 **Use Cases**:
 - Configuration files (Maven, Spring)
@@ -512,68 +575,156 @@ if (result) {
 - Web service responses
 - SVG metadata extraction
 - Office document internals
+- Data interchange with legacy systems
 
 ---
 
-### 7. Parquet Adapter 🔶
+### 7. Parquet Adapter ✅
 
 **Purpose**: Columnar data storage, big data analytics
 
 **Supported Files**: `.parquet`
 
+**Capabilities**: ✅ Read | ✅ Write (with Apache Arrow)
+
 **Features**:
-- Columnar data reading (requires Apache Arrow)
+- **Full Apache Arrow C++ integration** (NEW in v2.0)
+- Columnar data reading and writing
 - Row-based or column-based chunking
-- Schema extraction
-- Batch processing
-- Type-aware parsing
+- Schema extraction and preservation
+- Batch processing for large files
+- Type-aware parsing (STRING, INT64, DOUBLE, FLOAT, BOOL)
+- Numerical feature extraction for embeddings
+- Comprehensive error handling
 
 **Configuration**:
 ```cpp
 ParquetConfig config;
-config.row_based_chunks = true;
-config.batch_size = 1000;
-config.extract_schema = true;
+config.row_based_chunks = true;        // Extract by row (vs. by column)
+config.batch_size = 10000;             // Process rows in batches
+config.extract_schema = true;          // Include schema metadata
+config.include_column_names = true;    // Include column names in content
 ```
 
-**Note**: Full Parquet support requires Apache Arrow library. Install:
+**Installation** (Required for full functionality):
 ```bash
-# Ubuntu
+# Ubuntu/Debian
 sudo apt-get install libarrow-dev libparquet-dev
 
 # macOS
 brew install apache-arrow
 
+# Windows (vcpkg)
+vcpkg install arrow:x64-windows
+
 # Build with Arrow support
-cmake .. -DVDB_USE_ARROW=ON
+cmake -B build -DCMAKE_BUILD_TYPE=Release
+cmake --build build
 ```
 
-**Example**:
+**Read Example**:
+```cpp
+#include "vdb/adapters/parquet_adapter.hpp"
+#include "vdb/logging.hpp"
+
+using namespace vdb::adapters;
+
+ParquetConfig config;
+config.row_based_chunks = true;
+config.batch_size = 1000;
+
+ParquetAdapter adapter(config);
+auto result = adapter.parse("analytics_data.parquet");
+
+if (result) {
+    LOG_INFO("Parsed Parquet file");
+    
+    // Access schema information
+    std::cout << "Schema: " << result->global_metadata.at("schema") << "\n";
+    std::cout << "Rows: " << result->global_metadata.at("num_rows") << "\n";
+    std::cout << "Columns: " << result->global_metadata.at("num_columns") << "\n";
+    
+    // Process data
+    for (const auto& chunk : result->chunks) {
+        std::cout << "Row " << chunk.metadata.at("row_number") << ": ";
+        std::cout << chunk.content << "\n";
+        
+        // Access numerical features (extracted automatically)
+        if (!chunk.numerical_features.empty()) {
+            std::cout << "  Numerical values: ";
+            for (float val : chunk.numerical_features) {
+                std::cout << val << " ";
+            }
+            std::cout << "\n";
+        }
+    }
+} else {
+    LOG_ERROR("Failed to parse Parquet: " + result.error().message);
+}
+```
+
+**Write Example** (NEW in v2.0):
 ```cpp
 #include "vdb/adapters/parquet_adapter.hpp"
 
-ParquetAdapter adapter;
-auto result = adapter.parse("data.parquet");
+// Create NormalizedData
+NormalizedData data;
+data.format = DataFormat::Parquet;
 
-if (result) {
-    std::cout << "Schema: " << result->global_metadata.at("schema") << "\n";
-    std::cout << "Rows: " << result->chunks.size() << "\n";
+// Add chunks (rows of data)
+for (int i = 0; i < 1000; ++i) {
+    DataChunk chunk;
+    chunk.content = "Row " + std::to_string(i) + " data";
+    chunk.chunk_index = i;
+    chunk.total_chunks = 1000;
+    chunk.metadata["id"] = std::to_string(i);
+    chunk.metadata["category"] = "test";
+    chunk.numerical_features = {1.0f, 2.5f, 3.7f};
+    data.chunks.push_back(chunk);
+}
+
+// Write to Parquet file with Apache Arrow
+ParquetAdapter adapter;
+auto write_result = adapter.write(data, "output.parquet");
+
+if (write_result) {
+    LOG_INFO("Successfully exported to Parquet format");
+    std::cout << "Written " << data.chunks.size() << " rows\n";
+} else {
+    LOG_ERROR("Export failed: " + write_result.error().message);
 }
 ```
+
+**Performance**:
+- Row-based: Ideal for record processing (e.g., logs, transactions)
+- Column-based: Ideal for analytics (e.g., aggregations, ML features)
+- Batch processing: Efficient memory usage for files > 1GB
+- Zero-copy with Arrow: Minimal memory overhead
+
+**Supported Types**:
+- `STRING` / `LARGE_STRING`: Text data
+- `INT64`: Integer values
+- `DOUBLE` / `FLOAT`: Floating-point numbers (auto-extracted for embeddings)
+- `BOOL`: Boolean values
+- Additional types supported via Arrow schema
 
 **Use Cases**:
 - Data lake exports (Databricks, Snowflake)
 - Pandas DataFrame storage
 - Apache Spark outputs
 - ML dataset storage
+- Analytics pipelines
+- Time-series data archives
 
 ---
 
 ### 8. SQLite Adapter ✅
 
-**Purpose**: Relational database data extraction
+**Purpose**: Relational database data extraction and creation
 
 **Supported Files**: `.db`, `.sqlite`, `.sqlite3`, `.sql`
+
+**Capabilities**: ✅ Read | ✅ Write
 
 **Features**:
 - Multiple table support
@@ -582,45 +733,113 @@ if (result) {
 - Row-based or table-based chunking
 - Type-aware column parsing
 - Batch reading
+- **Write support**: Create and populate databases (NEW in v2.0)
+- **Security**: SQL injection protection via identifier quoting and parameterized queries
 
 **Configuration**:
 ```cpp
 SQLiteConfig config;
-config.tables = {"products", "customers"};  // Specific tables
-config.row_based_chunks = true;
-config.batch_size = 1000;
-config.extract_column_names = true;
+config.tables = {"products", "customers"};  // Specific tables (empty = all tables)
+config.row_based_chunks = true;             // One chunk per row
+config.batch_size = 1000;                   // Batch size for reading
+config.extract_column_names = true;         // Include column names
+config.custom_query = "";                   // Optional custom SQL query
 ```
 
-**Example**:
+**Read Example**:
 ```cpp
 #include "vdb/adapters/sqlite_adapter.hpp"
+#include "vdb/logging.hpp"
 
 using namespace vdb::adapters;
 
 SQLiteConfig config;
-config.tables = {"users", "posts"};
+config.tables = {"users", "posts"};  // Read specific tables
 
 SQLiteAdapter adapter(config);
 auto result = adapter.parse("app.db");
 
 if (result) {
+    LOG_INFO("Parsed SQLite database");
+    
     std::cout << "Tables: " << result->global_metadata.at("num_tables") << "\n";
+    std::cout << "Rows: " << result->chunks.size() << "\n";
     
     for (const auto& chunk : result->chunks) {
         std::cout << "Table: " << chunk.metadata.at("table") << "\n";
         std::cout << "Row: " << chunk.metadata.at("row_number") << "\n";
         std::cout << "Data: " << chunk.content << "\n";
     }
+} else {
+    LOG_ERROR("Failed to parse SQLite: " + result.error().message);
 }
 ```
 
+**Read with Custom Query**:
+```cpp
+SQLiteConfig config;
+config.custom_query = "SELECT * FROM orders WHERE date > '2024-01-01' AND status = 'completed'";
+
+SQLiteAdapter adapter(config);
+auto result = adapter.parse("sales.db");
+
+if (result) {
+    std::cout << "Query returned " << result->chunks.size() << " rows\n";
+}
+```
+
+**Write Example** (NEW in v2.0):
+```cpp
+#include "vdb/adapters/sqlite_adapter.hpp"
+
+// Create NormalizedData with database records
+NormalizedData data;
+data.format = DataFormat::SQLite;
+
+// Add records
+for (int i = 0; i < 100; ++i) {
+    DataChunk chunk;
+    chunk.content = "User record " + std::to_string(i);
+    chunk.metadata["user_id"] = std::to_string(i);
+    chunk.metadata["username"] = "user" + std::to_string(i);
+    chunk.metadata["email"] = "user" + std::to_string(i) + "@example.com";
+    chunk.metadata["created_at"] = "2024-01-01";
+    chunk.metadata["table"] = "users";  // Specify target table
+    data.chunks.push_back(chunk);
+}
+
+// Write to SQLite database
+SQLiteAdapter adapter;
+auto write_result = adapter.write(data, "output.db");
+
+if (write_result) {
+    LOG_INFO("Successfully created SQLite database");
+    std::cout << "Written " << data.chunks.size() << " records\n";
+} else {
+    LOG_ERROR("Database creation failed: " + write_result.error().message);
+}
+```
+
+**Generated Database Structure**:
+- Automatically creates tables based on metadata keys
+- Uses parameterized INSERT statements (SQL injection safe)
+- Preserves data types from metadata
+- Supports multiple tables in single database
+
+**Security Features**:
+- **Identifier quoting**: Prevents SQL injection in table/column names
+- **Parameterized queries**: Prevents SQL injection in values
+- **Input validation**: Type checking and bounds validation
+- **Error handling**: Comprehensive error messages without exposing internals
+
 **Use Cases**:
-- Application databases
-- Mobile app data
+- Application databases (mobile apps, desktop apps)
 - Configuration databases
-- Data exports
-- Offline sync
+- Data exports and backups
+- Offline sync and caching
+- ETL pipelines
+- Data warehousing
+- Testing and development databases
 
 ---
 
@@ -630,12 +849,16 @@ if (result) {
 
 **Supported**: PostgreSQL connection with pgvector extension
 
+**Capabilities**: ✅ Read | ✅ Write (Bidirectional Sync)
+
 **Features**:
 - Bidirectional vector sync (read/write)
-- Native similarity search
+- Native similarity search (cosine, L2, inner product)
 - IVFFlat and HNSW indexes
-- Batch operations
+- Batch operations for high throughput
 - Custom metadata columns
+- Connection pooling support
+- **Security**: SQL injection protection via identifier quoting and literal escaping
 
 **Configuration**:
 ```cpp
@@ -644,10 +867,145 @@ config.host = "localhost";
 config.port = 5432;
 config.database = "vector_db";
 config.user = "postgres";
+config.password = "secure_password";  // Use environment variables in production
 config.table = "embeddings";
 config.vector_column = "embedding";
 config.content_column = "content";
-config.metadata_columns = {"author", "date"};
+config.metadata_columns = {"author", "date", "source"};
+config.dimension = 512;  // Vector dimension
+```
+
+**Setup** (One-time PostgreSQL configuration):
+```sql
+-- Install pgvector extension
+CREATE EXTENSION IF NOT EXISTS vector;
+
+-- Create table for vectors
+CREATE TABLE embeddings (
+    id SERIAL PRIMARY KEY,
+    embedding vector(512),  -- Adjust dimension as needed
+    content TEXT,
+    author TEXT,
+    date TEXT,
+    source TEXT,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
+
+-- Create HNSW index for fast similarity search
+CREATE INDEX ON embeddings USING hnsw (embedding vector_cosine_ops);
+
+-- Or use IVFFlat for larger datasets
+CREATE INDEX ON embeddings USING ivfflat (embedding vector_cosine_ops) WITH (lists = 100);
+```
+
+**Read Example** (Query similar vectors):
+```cpp
+#include "vdb/adapters/pgvector_adapter.hpp"
+#include "vdb/logging.hpp"
+
+using namespace vdb::adapters;
+
+PgvectorConfig config;
+config.host = "localhost";
+config.database = "vectors";
+config.user = "postgres";
+config.table = "embeddings";
+config.vector_column = "embedding";
+
+PgvectorAdapter adapter(config);
+
+// Connect to PostgreSQL
+auto conn = adapter.connect();
+if (!conn) {
+    LOG_ERROR("Failed to connect: " + conn.error().message);
+    return;
+}
+
+// Query similar vectors
+std::vector<float> query_vector(512, 0.0f);  // Your query embedding
+auto results = adapter.query_similar(query_vector, 10);  // Top 10 results
+
+if (results) {
+    LOG_INFO("Found " + std::to_string(results->chunks.size()) + " similar vectors");
+    
+    for (const auto& chunk : results->chunks) {
+        std::cout << "Content: " << chunk.content << "\n";
+        std::cout << "Distance: " << chunk.metadata.at("distance") << "\n";
+        std::cout << "Author: " << chunk.metadata.at("author") << "\n\n";
+    }
+}
+```
+
+**Write Example** (Insert vectors):
+```cpp
+#include "vdb/adapters/pgvector_adapter.hpp"
+
+PgvectorAdapter adapter(config);
+adapter.connect();
+
+// Prepare vectors to insert
+std::vector<std::vector<float>> vectors;
+std::vector<std::string> contents;
+std::vector<std::unordered_map<std::string, std::string>> metadata;
+
+for (int i = 0; i < 1000; ++i) {
+    // Generate or encode vectors
+    std::vector<float> vec(512);
+    // ... fill vector ...
+    vectors.push_back(vec);
+    
+    contents.push_back("Document " + std::to_string(i));
+    
+    metadata.push_back({
+        {"author", "user@example.com"},
+        {"date", "2024-01-01"},
+        {"source", "import_batch_1"}
+    });
+}
+
+// Batch insert
+auto result = adapter.insert_vectors(vectors, contents, metadata);
+
+if (result) {
+    LOG_INFO("Inserted " + std::to_string(*result) + " vectors");
+    std::cout << "Successfully synced to PostgreSQL\n";
+} else {
+    LOG_ERROR("Insert failed: " + result.error().message);
+}
+```
+
+**Similarity Search Options**:
+```cpp
+// Cosine similarity (default, normalized vectors)
+auto cosine_results = adapter.query_similar(query_vec, 10, "cosine");
+
+// L2 distance (Euclidean)
+auto l2_results = adapter.query_similar(query_vec, 10, "l2");
+
+// Inner product (for non-normalized vectors)
+auto ip_results = adapter.query_similar(query_vec, 10, "inner_product");
+```
+
+**Performance Tips**:
+- Use HNSW index for < 1M vectors
+- Use IVFFlat index for > 1M vectors
+- Batch inserts for better throughput (1000-10000 vectors per batch)
+- Use connection pooling for concurrent access
+- Tune `lists` parameter in IVFFlat based on dataset size
+
+**Security Features**:
+- **Identifier quoting**: Prevents SQL injection in table/column names
+- **Literal escaping**: Prevents SQL injection in string values
+- **Parameterized queries**: Safe value insertion
+- **Connection encryption**: SSL support via connection string
+
+**Use Cases**:
+- Distributed vector search across multiple nodes
+- Shared vector database for team/organization
+- Hybrid search (vector + metadata filtering)
+- Real-time vector updates and queries
+- Integration with existing PostgreSQL infrastructure
+- Multi-tenancy with row-level security
 ```
 
 **Setup PostgreSQL**:
@@ -723,6 +1081,251 @@ std::cout << "Inserted " << *inserted << " vectors\n";
 - Hybrid SQL + vector queries
 - Multi-tenant applications
 - Real-time analytics
+
+---
+
+### 10. PDF Adapter ✅
+
+**Purpose**: PDF document reading and creation
+
+**Supported Files**: `.pdf`
+
+**Capabilities**: ✅ Read (with Poppler) | ✅ Write (basic PDF 1.4)
+
+**Features**:
+- **Read**: Text extraction via Poppler library
+- **Write**: Generate valid PDF 1.4 documents (NEW in v2.0)
+- Word wrapping and multi-line support
+- PDF string escaping for special characters
+- Metadata preservation
+- Ready for libharu integration for advanced features
+
+**Read Example** (existing functionality):
+```cpp
+#include "vdb/adapters/pdf_adapter.hpp"
+
+PDFAdapter adapter;
+auto result = adapter.parse("document.pdf");
+
+if (result) {
+    for (const auto& chunk : result->chunks) {
+        std::cout << "Page " << chunk.metadata.at("page") << ": ";
+        std::cout << chunk.content << "\n";
+    }
+}
+```
+
+**Write Example** (NEW in v2.0):
+```cpp
+#include "vdb/adapters/pdf_adapter.hpp"
+#include "vdb/logging.hpp"
+
+// Create NormalizedData
+NormalizedData data;
+DataChunk chunk;
+chunk.title = "Research Report";
+chunk.content = "This is a comprehensive research report discussing "
+                "various topics related to data science and machine learning. "
+                "The document includes multiple sections with detailed analysis.";
+data.chunks.push_back(chunk);
+
+// Write to PDF
+PDFAdapter adapter;
+auto write_result = adapter.write(data, "report.pdf");
+
+if (write_result) {
+    LOG_INFO("Successfully created PDF document");
+} else {
+    LOG_ERROR("PDF creation failed: " + write_result.error().message);
+}
+```
+
+**Generated PDF Features**:
+- Valid PDF 1.4 format
+- Basic text rendering with automatic word wrapping
+- PDF string escaping for parentheses and backslashes
+- Simple page layout (can be enhanced with libharu)
+
+**Use Cases**:
+- Report generation
+- Document exports
+- Data visualization reports
+- Academic papers
+- Legal documents
+- Invoices and receipts
+
+---
+
+## Logging System Integration
+
+**NEW in v2.0**: Comprehensive runtime logging with anomaly detection
+
+All data ingestion operations are automatically logged for monitoring, debugging, and compliance. The logging system provides zero-blind-spot observability.
+
+### Logging Features
+
+- ✅ **Thread-safe**: Multi-level logging (DEBUG, INFO, WARN, ERROR, CRITICAL, ANOMALY)
+- ✅ **Dual output**: Console (with ANSI colors) and file logging
+- ✅ **Separate anomaly log**: Dedicated `anomalies.log` for unusual events
+- ✅ **Automatic log rotation**: Configurable file size limits
+- ✅ **Source location tracking**: File and line numbers in logs
+- ✅ **15 anomaly types**: Including PARSE_ERROR, SQL_INJECTION_ATTEMPT, DATA_CORRUPTION, PERFORMANCE_DEGRADATION, SECURITY_VIOLATION
+
+### Configuration
+
+```cpp
+#include "vdb/logging.hpp"
+
+// Initialize logging system (once at startup)
+LoggerConfig config;
+config.min_level = LogLevel::INFO;                           // Minimum log level
+config.log_to_console = true;                                // Console output
+config.log_to_file = true;                                   // File output
+config.log_file_path = "/var/log/vectordb/vectordb.log";    // Main log
+config.anomaly_log_path = "/var/log/vectordb/anomalies.log";// Anomaly log
+config.max_file_size = 100 * 1024 * 1024;                   // 100MB rotation
+config.enable_colors = true;                                 // ANSI colors
+
+Logger::instance().initialize(config);
+```
+
+### Usage in Adapters
+
+All adapters automatically log operations:
+
+```cpp
+#include "vdb/adapters/xml_adapter.hpp"
+#include "vdb/logging.hpp"
+
+XMLAdapter adapter;
+auto result = adapter.parse("data.xml");
+
+// Adapter automatically logs:
+// [INFO] Parsing XML file: data.xml
+// [INFO] Extracted 42 chunks from XML
+// [DEBUG] Processing element: <product>
+// [WARN] Empty element encountered: <description>
+
+if (!result) {
+    // Errors are automatically logged
+    LOG_ERROR("Parse failed: " + result.error().message);
+    
+    // Log anomaly for investigation
+    LOG_ANOMALY(AnomalyType::PARSE_ERROR, 
+               "XML parse error in data.xml: " + result.error().message);
+}
+```
+
+### Anomaly Detection
+
+The system automatically detects and logs anomalies:
+
+- **PARSE_ERROR**: Malformed file or unexpected structure
+- **DATA_CORRUPTION**: Inconsistent or corrupted data
+- **SQL_INJECTION_ATTEMPT**: Potential security violation
+- **MEMORY_ANOMALY**: Unusual memory usage patterns
+- **PERFORMANCE_DEGRADATION**: Slow operations
+- **SECURITY_VIOLATION**: Access control or privilege issues
+- **UNEXPECTED_SIZE**: File/data size outside expected range
+- **MISSING_DATA**: Required fields or data not found
+- **INVALID_FORMAT**: Format doesn't match specification
+- **CONNECTION_FAILURE**: Network or database connection issues
+
+### Monitoring Example
+
+```cpp
+#include "vdb/logging.hpp"
+
+// Log data ingestion start
+LOG_INFO("Starting batch data ingestion");
+
+// Process files
+for (const auto& file : files) {
+    LOG_DEBUG("Processing file: " + file.string());
+    
+    auto result = manager.auto_parse(file);
+    
+    if (result) {
+        LOG_INFO("Successfully parsed: " + file.string() + 
+                " (" + std::to_string(result->chunks.size()) + " chunks)");
+    } else {
+        LOG_ERROR("Failed to parse: " + file.string());
+        LOG_ANOMALY(AnomalyType::PARSE_ERROR, 
+                   "Parse failure: " + file.string());
+    }
+}
+
+LOG_INFO("Batch ingestion complete");
+```
+
+### Log Output Example
+
+**Console Output** (with colors):
+```
+[2024-01-04 10:30:45.123] [INFO] Starting batch data ingestion
+[2024-01-04 10:30:45.234] [DEBUG] Processing file: data.xml
+[2024-01-04 10:30:45.456] [INFO] Successfully parsed: data.xml (42 chunks)
+[2024-01-04 10:30:45.567] [WARN] Large file detected: data.parquet (2.5GB)
+[2024-01-04 10:30:46.789] [ERROR] Failed to parse: corrupt.db
+[2024-01-04 10:30:46.790] [ANOMALY] PARSE_ERROR: corrupt.db - invalid header
+```
+
+**Anomaly Log** (`anomalies.log`):
+```
+[2024-01-04 10:30:46.790] [ANOMALY] PARSE_ERROR
+  Message: Parse failure: corrupt.db - invalid header
+  Source: /home/user/project/src/adapters/sqlite_adapter.cpp:123
+  
+[2024-01-04 10:35:12.456] [ANOMALY] PERFORMANCE_DEGRADATION
+  Message: Slow parse operation: 15.2 seconds for 100MB file
+  Source: /home/runner/work/vector_studio/vector_studio/src/adapters/parquet_adapter.cpp:234
+```
+
+### Production Deployment
+
+**Recommended Configuration**:
+```cpp
+// Production environment
+LoggerConfig prod_config;
+prod_config.min_level = LogLevel::INFO;  // INFO and above
+prod_config.log_to_console = false;      // Disable console in production
+prod_config.log_to_file = true;          // Enable file logging
+prod_config.log_file_path = "/var/log/vectordb/vectordb.log";
+prod_config.anomaly_log_path = "/var/log/vectordb/anomalies.log";
+prod_config.max_file_size = 100 * 1024 * 1024;  // 100MB rotation
+prod_config.enable_colors = false;       // No ANSI colors in files
+
+Logger::instance().initialize(prod_config);
+```
+
+**Development Configuration**:
+```cpp
+// Development environment
+LoggerConfig dev_config;
+dev_config.min_level = LogLevel::DEBUG;  // All logs
+dev_config.log_to_console = true;        // Enable console
+dev_config.log_to_file = true;           // Also log to file
+dev_config.enable_colors = true;         // ANSI colors for readability
+
+Logger::instance().initialize(dev_config);
+```
+
+### Monitoring and Alerts
+
+Monitor the anomaly log for production issues:
+
+```bash
+# Tail anomaly log
+tail -f /var/log/vectordb/anomalies.log
+
+# Count anomalies by type
+grep -oP 'ANOMALY\] \K[A-Z_]+' /var/log/vectordb/anomalies.log | sort | uniq -c
+
+# Alert on critical anomalies
+watch -n 60 'grep -c "SECURITY_VIOLATION\|SQL_INJECTION_ATTEMPT" /var/log/vectordb/anomalies.log'
+```
+
+**See Also**: [docs/LOGGING.md](LOGGING.md) for complete logging system documentation
 
 ---
 
@@ -1525,16 +2128,29 @@ std::vector<DataChunk> chunk_text(
   - [06_ARCHITECTURE.md](06_ARCHITECTURE.md) - System design details
   - [07_API_REFERENCE.md](07_API_REFERENCE.md) - Full API documentation
   - [03_USER_GUIDE.md](03_USER_GUIDE.md) - User guide and tutorials
+  - [LOGGING.md](LOGGING.md) - Comprehensive logging system documentation
+  - [REAL_WORLD_APPLICATIONS.md](REAL_WORLD_APPLICATIONS.md) - Production use cases and examples
+
+- **Recently Implemented** (v2.0):
+  - ✅ Full Apache Arrow integration for Parquet
+  - ✅ XML adapter with read/write support
+  - ✅ SQLite adapter with read/write support
+  - ✅ pgvector adapter for distributed storage
+  - ✅ PDF write support (basic PDF 1.4)
+  - ✅ Comprehensive logging system with anomaly detection
+  - ✅ Security hardening (SQL injection protection, input sanitization)
+  - ✅ Bidirectional read/write for all adapters
 
 - **Future Enhancements**:
   - HTML/web scraping adapter
-  - Semantic chunking strategy
-  - Sentence-based chunking
+  - Semantic chunking strategy with embeddings
+  - Sentence-based chunking with NLP
   - Automatic language detection
   - OCR for scanned PDFs
-  - Full Apache Arrow integration for Parquet
   - Word document (.docx) adapter
   - PowerPoint (.pptx) adapter
+  - Video/audio metadata extraction
+  - Advanced PDF features with libharu integration
 
 ---
 
