@@ -1,7 +1,8 @@
 # VECTOR STUDIO
 
 > *Heckter* <br>
-> **High-Fidelity Vector Database Engine** — Semantic Search and AI Training Platform
+> **High-Fidelity Vector Database Engine** <br>
+> Semantic Search and AI Training Platform
 
 A performance C++ vector database with SIMD-optimized similarity search and local ONNX-based embeddings. Designed for sub-millisecond queries on millions of vectors.
 
