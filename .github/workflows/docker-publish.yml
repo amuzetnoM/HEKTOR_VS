@@ -39,8 +39,8 @@ jobs:
           context: .
           push: true
           tags: |
-            ghcr.io/${{ github.repository_owner }}/vector_studio:${{ github.ref_name }}
-            ghcr.io/${{ github.repository_owner }}/vector_studio:latest
+            ghcr.io/${{ toLower(github.repository_owner) }}/vector_studio:${{ github.ref_name }}
+            ghcr.io/${{ toLower(github.repository_owner) }}/vector_studio:latest
           platforms: linux/amd64,linux/arm64
 
       - name: Add image info to release
