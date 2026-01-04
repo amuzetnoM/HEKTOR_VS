@@ -1,6 +1,7 @@
-# Vector Studio Documentation
+# HEKTOR 
+> Advance Vector Database
 
-Welcome to the Vector Studio documentation. This comprehensive guide covers everything from basic usage to advanced topics and API reference.
+Meet Hecktor, the Almost AI, Vector Studio. This comprehensive guide covers everything from basic usage to advanced topics and API reference.
 
 ## Documentation Index
 
