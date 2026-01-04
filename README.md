@@ -2,7 +2,7 @@
 
 > **High-Performance Vector Database Engine** — Semantic Search and AI Training Platform
 
-A C++ vector database with SIMD-optimized similarity search, local ONNX-based embeddings, and native integration with the Gold Standard precious metals intelligence system. Designed for sub-millisecond queries on millions of vectors.
+A C++ vector database with SIMD-optimized similarity search and local ONNX-based embeddings. Designed for sub-millisecond queries on millions of vectors.
 
 ---
 
