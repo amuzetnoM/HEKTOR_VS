@@ -6,6 +6,7 @@
 #include <fstream>
 #include <sstream>
 #include <regex>
+#include <unordered_set>
 
 namespace vdb::adapters {
 

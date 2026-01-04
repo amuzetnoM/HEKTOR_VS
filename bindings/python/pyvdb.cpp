@@ -10,6 +10,10 @@
 #include "vdb/database.hpp"
 #include "vdb/ingest.hpp"
 
+#ifdef VDB_USE_ONNX_RUNTIME
+#include "vdb/embeddings/onnx_runtime.hpp"
+#endif
+
 #ifdef VDB_USE_LLAMA_CPP
 #include "vdb/llm/llm_engine.hpp"
 #endif
@@ -87,24 +91,16 @@ PYBIND11_MODULE(pyvdb, m)
         .value("PreMarket", DocumentType::PreMarket)
         .value("Unknown", DocumentType::Unknown)
         .export_values();
-<<<<<<< Updated upstream
-    
-=======
 
 #ifdef VDB_USE_ONNX_RUNTIME
->>>>>>> Stashed changes
     // Device enum for execution (CPU/CUDA/DirectML)
     py::enum_<embeddings::Device>(m, "Device")
         .value("CPU", embeddings::Device::CPU)
         .value("CUDA", embeddings::Device::CUDA)
         .value("DirectML", embeddings::Device::DirectML)
         .export_values();
-<<<<<<< Updated upstream
-    
-=======
 #endif
 
->>>>>>> Stashed changes
     // ========================================================================
     // Metadata
     // ========================================================================
@@ -424,27 +420,34 @@ PYBIND11_MODULE(pyvdb, m)
     // ========================================================================
 <<<<<<< Updated upstream
     
-=======
+<<<<<<< HEAD
+    == == == =
 
 #ifdef VDB_USE_ONNX_RUNTIME
->>>>>>> Stashed changes
-    m.def("detect_best_device", &embeddings::detect_best_device,
-          "Detect the best available execution device (CPU/CUDA/DirectML)");
+                 >>>>>>> Stashed changes == == == =
+#ifdef VDB_USE_ONNX_RUNTIME
+                                >>>>>>> origin/worktree-2026-01-04T00-02-11 m.def("detect_best_device", &embeddings::detect_best_device,
+                                        "Detect the best available execution device (CPU/CUDA/DirectML)");
 
     m.def("is_provider_available", &is_provider_available, py::arg("provider"),
           "Check if a specific execution provider is available");
+<<<<<<< HEAD
 <<<<<<< Updated upstream
-    
-=======
+    == == == =
+#endif
+                 >>>>>>> origin/worktree-2026-01-04T00-02-11
+
+                 == == ==
+        =
 #endif
 
->>>>>>> Stashed changes
+            >>>>>>> Stashed changes
     // ========================================================================
     // LLM Engine (llama.cpp integration)
     // ========================================================================
 
 #ifdef VDB_USE_LLAMA_CPP
-    using namespace vdb::llm;
+        using namespace vdb::llm;
 
     py::enum_<Role>(m, "Role")
         .value("System", Role::System)
@@ -526,11 +529,13 @@ PYBIND11_MODULE(pyvdb, m)
     m.def("has_llm_support", []()
           { return true; }, "Check if LLM support (llama.cpp) is compiled in");
 #else
-    m.def("has_llm_support", []()
-          { return false; }, "Check if LLM support (llama.cpp) is compiled in");
+        m.def("has_llm_support", []()
+              { return false; }, "Check if LLM support (llama.cpp) is compiled in");
 #endif
 
+#ifdef VDB_USE_ONNX_RUNTIME
     // Add device_name utility exposed to Python
     m.def("device_name", &embeddings::device_name, py::arg("device"),
           "Get human-readable name for device");
+#endif
 }

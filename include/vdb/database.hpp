@@ -17,10 +17,12 @@ namespace vdb {
 
 namespace fs = std::filesystem;
 
-// Import embeddings types
+#ifdef VDB_USE_ONNX_RUNTIME
+// Import embeddings types when ONNX Runtime is available
 using embeddings::TextEncoder;
 using embeddings::ImageEncoder;
 using embeddings::Device;
+#endif
 
 // ============================================================================
 // Database Configuration
