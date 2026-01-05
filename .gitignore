@@ -6,6 +6,7 @@
 # Build Outputs
 # ============================================================================
 /build/
+/build_*/
 /out/
 /cmake-build-*/
 /_codeql_build_dir/

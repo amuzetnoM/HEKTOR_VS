@@ -358,7 +358,7 @@ namespace vdb
         }
 
         // Extract title (first # heading)
-        std::regex title_regex(R"(^#\s+(.+)$)", std::regex::multiline);
+        std::regex title_regex(R"(^#\s+(.+)$)", std::regex_constants::ECMAScript);
         std::smatch match;
         std::string content_str(content);
         if (std::regex_search(content_str, match, title_regex))

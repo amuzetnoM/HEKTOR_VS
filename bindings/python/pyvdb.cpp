@@ -418,30 +418,15 @@ PYBIND11_MODULE(pyvdb, m)
     // ========================================================================
     // Utility Functions
     // ========================================================================
-<<<<<<< Updated upstream
-    
-<<<<<<< HEAD
-    == == == =
 
 #ifdef VDB_USE_ONNX_RUNTIME
-                 >>>>>>> Stashed changes == == == =
-#ifdef VDB_USE_ONNX_RUNTIME
-                                >>>>>>> origin/worktree-2026-01-04T00-02-11 m.def("detect_best_device", &embeddings::detect_best_device,
-                                        "Detect the best available execution device (CPU/CUDA/DirectML)");
+    m.def("detect_best_device", &embeddings::detect_best_device,
+          "Detect the best available execution device (CPU/CUDA/DirectML)");
 
     m.def("is_provider_available", &is_provider_available, py::arg("provider"),
           "Check if a specific execution provider is available");
-<<<<<<< HEAD
-<<<<<<< Updated upstream
-    == == == =
-#endif
-                 >>>>>>> origin/worktree-2026-01-04T00-02-11
-
-                 == == ==
-        =
 #endif
 
-            >>>>>>> Stashed changes
     // ========================================================================
     // LLM Engine (llama.cpp integration)
     // ========================================================================
