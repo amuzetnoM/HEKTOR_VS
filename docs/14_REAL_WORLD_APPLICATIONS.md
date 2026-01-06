@@ -8,7 +8,7 @@ sidebar_position: 14
 # APPLICATION
 > Unleashing Hektor
 
-![Version](https://img.shields.io/badge/version-2.0.0-blue?style=flat-square)
+![Version](https://img.shields.io/badge/version-2.2.0-blue?style=flat-square)
 ![Last Updated](https://img.shields.io/badge/updated-2026--01--06-green?style=flat-square)
 ![Use Cases](https://img.shields.io/badge/use__cases-6-success?style=flat-square)
 

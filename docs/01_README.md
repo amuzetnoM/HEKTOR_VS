@@ -10,7 +10,7 @@ sidebar_position: 1
 # HEKTOR 
 > Advance Vector Database
 
-![Version](https://img.shields.io/badge/version-2.0.0-blue?style=flat-square)
+![Version](https://img.shields.io/badge/version-2.2.0-blue?style=flat-square)
 ![Last Updated](https://img.shields.io/badge/updated-2026--01--06-green?style=flat-square)
 ![Docs](https://img.shields.io/badge/docs-17_files-orange?style=flat-square)
 

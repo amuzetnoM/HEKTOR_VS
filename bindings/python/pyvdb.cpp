@@ -9,6 +9,7 @@
 
 #include "vdb/database.hpp"
 #include "vdb/ingest.hpp"
+#include "vdb/hybrid_search.hpp"
 
 #ifdef VDB_USE_ONNX_RUNTIME
 #include "vdb/embeddings/onnx_runtime.hpp"
@@ -523,4 +524,128 @@ PYBIND11_MODULE(pyvdb, m)
     m.def("device_name", &embeddings::device_name, py::arg("device"),
           "Get human-readable name for device");
 #endif
+
+    // ========================================================================
+    // Hybrid Search Bindings
+    // ========================================================================
+    
+    // Import hybrid search types
+    using namespace hybrid;
+    
+    // BM25Config
+    py::class_<BM25Config>(m, "BM25Config")
+        .def(py::init<>())
+        .def_readwrite("k1", &BM25Config::k1, "Term frequency saturation parameter (default: 1.2)")
+        .def_readwrite("b", &BM25Config::b, "Length normalization parameter (default: 0.75)")
+        .def_readwrite("min_term_length", &BM25Config::min_term_length, "Minimum term length (default: 2)")
+        .def_readwrite("use_stemming", &BM25Config::use_stemming, "Enable Porter stemming (default: true)")
+        .def_readwrite("case_sensitive", &BM25Config::case_sensitive, "Case sensitive search (default: false)");
+    
+    // BM25Result
+    py::class_<BM25Result>(m, "BM25Result")
+        .def(py::init<>())
+        .def_readonly("id", &BM25Result::id, "Document ID")
+        .def_readonly("score", &BM25Result::score, "BM25 score")
+        .def_readonly("matched_terms", &BM25Result::matched_terms, "List of matched terms");
+    
+    // BM25Engine
+    py::class_<BM25Engine>(m, "BM25Engine")
+        .def(py::init<>(), "Create BM25 engine with default config")
+        .def(py::init<const BM25Config&>(), py::arg("config"), "Create BM25 engine with custom config")
+        .def("add_document", [](BM25Engine& self, VectorId id, const std::string& content) {
+            auto result = self.add_document(id, content);
+            if (!result) {
+                throw std::runtime_error(result.error().message);
+            }
+        }, py::arg("id"), py::arg("content"), "Add document to index")
+        .def("remove_document", [](BM25Engine& self, VectorId id) {
+            auto result = self.remove_document(id);
+            if (!result) {
+                throw std::runtime_error(result.error().message);
+            }
+        }, py::arg("id"), "Remove document from index")
+        .def("update_document", [](BM25Engine& self, VectorId id, const std::string& content) {
+            auto result = self.update_document(id, content);
+            if (!result) {
+                throw std::runtime_error(result.error().message);
+            }
+        }, py::arg("id"), py::arg("content"), "Update document in index")
+        .def("search", [](const BM25Engine& self, const std::string& query, size_t k, float min_score) {
+            auto result = self.search(query, k, min_score);
+            if (!result) {
+                throw std::runtime_error(result.error().message);
+            }
+            return *result;
+        }, py::arg("query"), py::arg("k") = 10, py::arg("min_score") = 0.0f, "Search documents")
+        .def("document_count", &BM25Engine::document_count, "Get number of indexed documents")
+        .def("term_count", &BM25Engine::term_count, "Get number of unique terms")
+        .def("average_document_length", &BM25Engine::average_document_length, "Get average document length")
+        .def("save", [](const BM25Engine& self, const std::string& path) {
+            auto result = self.save(path);
+            if (!result) {
+                throw std::runtime_error(result.error().message);
+            }
+        }, py::arg("path"), "Save index to file")
+        .def_static("load", [](const std::string& path) {
+            auto result = BM25Engine::load(path);
+            if (!result) {
+                throw std::runtime_error(result.error().message);
+            }
+            return *result;
+        }, py::arg("path"), "Load index from file");
+    
+    // FusionMethod enum
+    py::enum_<FusionMethod>(m, "FusionMethod")
+        .value("WeightedSum", FusionMethod::WeightedSum, "Weighted combination of scores")
+        .value("RRF", FusionMethod::RRF, "Reciprocal Rank Fusion")
+        .value("CombSUM", FusionMethod::CombSUM, "Sum of normalized scores")
+        .value("CombMNZ", FusionMethod::CombMNZ, "CombSUM * number of matching systems")
+        .value("Borda", FusionMethod::Borda, "Borda count voting")
+        .export_values();
+    
+    // HybridSearchConfig
+    py::class_<HybridSearchConfig>(m, "HybridSearchConfig")
+        .def(py::init<>())
+        .def_readwrite("vector_weight", &HybridSearchConfig::vector_weight, "Weight for vector search (default: 0.7)")
+        .def_readwrite("lexical_weight", &HybridSearchConfig::lexical_weight, "Weight for lexical search (default: 0.3)")
+        .def_readwrite("fusion", &HybridSearchConfig::fusion, "Fusion method (default: RRF)")
+        .def_readwrite("rrf_k", &HybridSearchConfig::rrf_k, "RRF constant (default: 60)")
+        .def_readwrite("rerank", &HybridSearchConfig::rerank, "Apply reranking (default: true)");
+    
+    // HybridResult
+    py::class_<HybridResult>(m, "HybridResult")
+        .def(py::init<>())
+        .def_readonly("id", &HybridResult::id, "Document ID")
+        .def_readonly("combined_score", &HybridResult::combined_score, "Combined score")
+        .def_readonly("vector_score", &HybridResult::vector_score, "Vector similarity score")
+        .def_readonly("lexical_score", &HybridResult::lexical_score, "Lexical (BM25) score")
+        .def_readonly("matched_keywords", &HybridResult::matched_keywords, "Matched keywords from lexical search");
+    
+    // HybridSearchEngine
+    py::class_<HybridSearchEngine>(m, "HybridSearchEngine")
+        .def(py::init<>(), "Create hybrid search engine with default config")
+        .def(py::init<const HybridSearchConfig&>(), py::arg("config"), "Create hybrid search engine with custom config")
+        .def("combine", [](const HybridSearchEngine& self, 
+                          const std::vector<QueryResult>& vector_results,
+                          const std::vector<BM25Result>& lexical_results,
+                          size_t k) {
+            auto result = self.combine(vector_results, lexical_results, k);
+            if (!result) {
+                throw std::runtime_error(result.error().message);
+            }
+            return *result;
+        }, py::arg("vector_results"), py::arg("lexical_results"), py::arg("k") = 10, 
+           "Combine vector and lexical search results")
+        .def_static("weighted_sum", &HybridSearchEngine::weighted_sum,
+                   py::arg("vec_score"), py::arg("lex_score"), py::arg("vec_weight"),
+                   "Calculate weighted sum fusion")
+        .def_static("reciprocal_rank_fusion", &HybridSearchEngine::reciprocal_rank_fusion,
+                   py::arg("vec_rank"), py::arg("lex_rank"), py::arg("k"),
+                   "Calculate RRF fusion")
+        .def_static("comb_sum", &HybridSearchEngine::comb_sum,
+                   py::arg("vec_score"), py::arg("lex_score"),
+                   "Calculate CombSUM fusion")
+        .def_static("comb_mnz", &HybridSearchEngine::comb_mnz,
+                   py::arg("vec_score"), py::arg("lex_score"), py::arg("num_systems"),
+                   "Calculate CombMNZ fusion");
 }

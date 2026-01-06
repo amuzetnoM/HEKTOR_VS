@@ -59,6 +59,23 @@ scipy>=1.14.0
 # libxlsxwriter OR xlnt (Excel support) - REQUIRED for Excel adapter
 
 # ============================================================================
+# Optional: Deep Learning Framework C++ APIs (Advanced Features)
+# ============================================================================
+# TensorFlow C++ API - For custom TensorFlow embeddings (~150MB)
+# NOTE: pip install tensorflow provides Python bindings only
+# For C++ API, see docs/FRAMEWORK_INTEGRATION.md for installation
+# Enable with: -DVDB_USE_TENSORFLOW=ON -DTensorFlow_ROOT=/path/to/tensorflow
+
+# PyTorch C++ API (LibTorch) - For custom PyTorch embeddings (~200MB)
+# NOTE: pip install torch provides Python bindings only
+# For C++ API (LibTorch), download from: https://pytorch.org/get-started/locally/
+# See docs/FRAMEWORK_INTEGRATION.md for installation instructions
+# Enable with: -DVDB_USE_TORCH=ON -DTorch_ROOT=/path/to/libtorch
+
+# BOTH ARE OPTIONAL. Vector Studio works without them using ONNX Runtime.
+# See docs/FRAMEWORK_INTEGRATION.md for complete installation instructions.
+
+# ============================================================================
 # Python Bindings
 # ============================================================================
 pybind11>=2.11.0
