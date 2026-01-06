@@ -81,7 +81,7 @@ Result<std::vector<Vector>> PyTorchEmbedder::embed_batch(const std::vector<std::
     return Error("PyTorchEmbedder not available - requires LibTorch C++ API");
 }
 
-/*static*/ Result<void> PyTorchEmbedder::export_for_training(
+Result<void> PyTorchEmbedder::export_for_training(
     const std::vector<Vector>& vectors,
     const std::vector<std::string>& labels,
     const std::string& output_path

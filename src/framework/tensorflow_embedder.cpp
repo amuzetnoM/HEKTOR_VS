@@ -76,7 +76,7 @@ Result<std::vector<Vector>> TensorFlowEmbedder::embed_batch(const std::vector<st
     return Error("TensorFlowEmbedder not available - requires TensorFlow C++ API");
 }
 
-/*static*/ Result<void> TensorFlowEmbedder::export_for_training(
+Result<void> TensorFlowEmbedder::export_for_training(
     const std::vector<Vector>& vectors,
     const std::vector<std::string>& labels,
     const std::string& output_path
