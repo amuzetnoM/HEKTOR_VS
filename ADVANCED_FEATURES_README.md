@@ -1,10 +1,10 @@
 # Advanced Features - Implementation Guide
 
-This document provides an overview of the newly implemented advanced features in Vector Studio v2.1.
+This document provides an overview of the newly implemented advanced features in Vector Studio v2.2.
 
 ## Overview
 
-Vector Studio v2.1 adds enterprise-grade features for production deployments:
+Vector Studio v2.2 adds enterprise-grade features for production deployments:
 
 1. **Multi-Node & Distributed Features** - Replication, sharding, distributed search
 2. **Hybrid Search** - Combine vector and lexical (BM25) search

@@ -7,7 +7,7 @@ sidebar_position: 2
 
 # IGNITION
 
-![Version](https://img.shields.io/badge/version-2.0.0-blue?style=flat-square)
+![Version](https://img.shields.io/badge/version-2.2.0-blue?style=flat-square)
 ![Last Updated](https://img.shields.io/badge/updated-2026--01--06-green?style=flat-square)
 ![Difficulty](https://img.shields.io/badge/difficulty-beginner-brightgreen?style=flat-square)
 

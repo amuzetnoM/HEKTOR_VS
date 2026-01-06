@@ -28,7 +28,7 @@ sidebar_position: 18
 
 ## Overview
 
-This document covers the advanced features added in Vector Studio v2.1, including:
+This document covers the advanced features added in Vector Studio v2.2, including:
 
 - **Multi-node support** with replication and sharding
 - **Hybrid search** combining vector and lexical search
