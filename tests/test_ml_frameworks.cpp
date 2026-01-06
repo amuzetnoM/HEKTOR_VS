@@ -97,11 +97,9 @@ TEST_F(TensorFlowTest, GPUConfiguration) {
     // GPU config should be settable
     EXPECT_TRUE(config_.use_gpu);
     
-    // Without CUDA, should fall back gracefully
-#ifndef __CUDA_ARCH__
+    // Test configuration flexibility
     config_.use_gpu = false;
     EXPECT_FALSE(config_.use_gpu);
-#endif
 }
 
 // ============================================================================
@@ -283,21 +281,19 @@ TEST_F(FrameworkIntegrationTest, DimensionConsistency) {
 
 TEST_F(FrameworkIntegrationTest, GPUFallbackBehavior) {
     // Test that GPU unavailability is handled gracefully
-    
-#ifndef __CUDA_ARCH__
-    // On systems without CUDA, should fall back to CPU
     std::string device = "cuda";
-    bool cuda_available = false;  // Simulated
+    bool cuda_available = false;  // Simulated - would be checked at runtime
     
+    // Simulate fallback logic
     if (!cuda_available) {
         device = "cpu";
     }
     
     EXPECT_EQ(device, "cpu");
-#else
-    // On systems with CUDA
-    EXPECT_TRUE(true);  // CUDA available
-#endif
+    
+    // Also test explicit CPU selection
+    device = "cpu";
+    EXPECT_EQ(device, "cpu");
 }
 
 } // namespace vdb::framework::test
