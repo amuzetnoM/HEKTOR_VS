@@ -280,6 +280,7 @@ set(VDB_CORE_SOURCES
     src/adapters/pgvector_adapter.cpp
     src/quantization/product_quantizer.cpp
     src/quantization/scalar_quantizer.cpp
+    src/hybrid/bm25_engine.cpp
 )
 
 # Add SQLite-dependent sources only if SQLite3 is available
