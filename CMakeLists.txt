@@ -31,6 +31,9 @@ option(VDB_USE_AVX512 "Enable AVX-512 SIMD optimizations" OFF)
 option(VDB_ENABLE_GPU "Enable GPU acceleration via ONNX DirectML/CUDA" OFF)
 option(VDB_USE_LLAMA_CPP "Enable llama.cpp for local LLM inference" ON)
 option(VDB_USE_ONNX_RUNTIME "Enable ONNX Runtime for text/image encoders (requires MSVC)" OFF)
+option(VDB_USE_TENSORFLOW "Enable TensorFlow C++ API for embeddings (requires ~150MB)" OFF)
+option(VDB_USE_TORCH "Enable PyTorch C++ API (LibTorch) for embeddings (requires ~200MB)" OFF)
+option(VDB_ENABLE_DISTRIBUTED "Enable distributed features (requires gRPC, deferred to v2.3.0)" OFF)
 
 # ============================================================================
 # Compiler Flags
@@ -62,6 +65,9 @@ endif()
 # Dependencies (FetchContent for header-only libs)
 # ============================================================================
 include(FetchContent)
+
+# Add custom Find modules directory
+list(APPEND CMAKE_MODULE_PATH "${CMAKE_CURRENT_SOURCE_DIR}/cmake")
 
 # nlohmann/json - JSON parsing
 FetchContent_Declare(
@@ -252,6 +258,46 @@ if(VDB_USE_LLAMA_CPP)
 endif()
 
 # ============================================================================
+# TensorFlow C++ API (Optional)
+# ============================================================================
+if(VDB_USE_TENSORFLOW)
+    message(STATUS "Searching for TensorFlow C++ API...")
+    find_package(TensorFlow)
+    if(TensorFlow_FOUND)
+        message(STATUS "TensorFlow found - ML embeddings enabled")
+        message(STATUS "  Include: ${TensorFlow_INCLUDE_DIRS}")
+        message(STATUS "  Library: ${TensorFlow_LIBRARIES}")
+        set(HAVE_TENSORFLOW TRUE)
+    else()
+        message(WARNING "TensorFlow not found - ML embeddings disabled")
+        message(WARNING "  Install TensorFlow C++ API:")
+        message(WARNING "    pip install tensorflow")
+        message(WARNING "    export TensorFlow_ROOT=/path/to/tensorflow")
+        set(VDB_USE_TENSORFLOW OFF CACHE BOOL "" FORCE)
+    endif()
+endif()
+
+# ============================================================================
+# PyTorch C++ API / LibTorch (Optional)
+# ============================================================================
+if(VDB_USE_TORCH)
+    message(STATUS "Searching for LibTorch...")
+    find_package(Torch)
+    if(Torch_FOUND)
+        message(STATUS "LibTorch found - PyTorch embeddings enabled")
+        message(STATUS "  Include: ${Torch_INCLUDE_DIRS}")
+        message(STATUS "  Libraries: ${Torch_LIBRARIES}")
+        set(HAVE_TORCH TRUE)
+    else()
+        message(WARNING "LibTorch not found - PyTorch embeddings disabled")
+        message(WARNING "  Download LibTorch from:")
+        message(WARNING "    https://pytorch.org/get-started/locally/")
+        message(WARNING "  Then set: export Torch_ROOT=/path/to/libtorch")
+        set(VDB_USE_TORCH OFF CACHE BOOL "" FORCE)
+    endif()
+endif()
+
+# ============================================================================
 # Core Library
 # ============================================================================
 set(VDB_CORE_SOURCES
@@ -302,6 +348,20 @@ if(VDB_USE_ONNX_RUNTIME)
         src/embeddings/onnx_runtime.cpp
         src/embeddings/text_encoder.cpp
         src/embeddings/image_encoder.cpp
+    )
+endif()
+
+# Add TensorFlow-dependent sources only if TensorFlow is enabled
+if(HAVE_TENSORFLOW)
+    list(APPEND VDB_CORE_SOURCES
+        src/framework/tensorflow_embedder.cpp
+    )
+endif()
+
+# Add PyTorch-dependent sources only if LibTorch is enabled
+if(HAVE_TORCH)
+    list(APPEND VDB_CORE_SOURCES
+        src/framework/pytorch_embedder.cpp
     )
 endif()
 
@@ -368,6 +428,20 @@ endif()
 # Link Apache Arrow if available
 if(HAVE_ARROW)
     target_link_libraries(vdb_core PUBLIC Arrow::arrow_shared Parquet::parquet_shared)
+endif()
+
+# Link TensorFlow if available
+if(HAVE_TENSORFLOW)
+    target_link_libraries(vdb_core PUBLIC TensorFlow::TensorFlow)
+    target_compile_definitions(vdb_core PUBLIC VDB_USE_TENSORFLOW)
+    target_include_directories(vdb_core PUBLIC ${TensorFlow_INCLUDE_DIRS})
+endif()
+
+# Link LibTorch if available
+if(HAVE_TORCH)
+    target_link_libraries(vdb_core PUBLIC Torch::Torch)
+    target_compile_definitions(vdb_core PUBLIC VDB_USE_TORCH)
+    target_include_directories(vdb_core PUBLIC ${Torch_INCLUDE_DIRS})
 endif()
 
 # Platform-specific threading
@@ -485,12 +559,19 @@ install(DIRECTORY include/vdb
 # ============================================================================
 message(STATUS "")
 message(STATUS "VectorDB Configuration:")
-message(STATUS "  Build Type:     ${CMAKE_BUILD_TYPE}")
-message(STATUS "  C++ Standard:   ${CMAKE_CXX_STANDARD}")
-message(STATUS "  AVX2:           ${VDB_USE_AVX2}")
-message(STATUS "  AVX-512:        ${VDB_USE_AVX512}")
-message(STATUS "  GPU Support:    ${VDB_ENABLE_GPU}")
-message(STATUS "  Python Bindings: ${VDB_BUILD_PYTHON}")
-message(STATUS "  Tests:          ${VDB_BUILD_TESTS}")
-message(STATUS "  Benchmarks:     ${VDB_BUILD_BENCHMARKS}")
+message(STATUS "  Build Type:         ${CMAKE_BUILD_TYPE}")
+message(STATUS "  C++ Standard:       ${CMAKE_CXX_STANDARD}")
+message(STATUS "  AVX2:               ${VDB_USE_AVX2}")
+message(STATUS "  AVX-512:            ${VDB_USE_AVX512}")
+message(STATUS "  GPU Support:        ${VDB_ENABLE_GPU}")
+message(STATUS "  Python Bindings:    ${VDB_BUILD_PYTHON}")
+message(STATUS "  Tests:              ${VDB_BUILD_TESTS}")
+message(STATUS "  Benchmarks:         ${VDB_BUILD_BENCHMARKS}")
+message(STATUS "")
+message(STATUS "Optional Features:")
+message(STATUS "  llama.cpp:          ${VDB_USE_LLAMA_CPP}")
+message(STATUS "  ONNX Runtime:       ${VDB_USE_ONNX_RUNTIME}")
+message(STATUS "  TensorFlow:         ${VDB_USE_TENSORFLOW}")
+message(STATUS "  PyTorch (LibTorch): ${VDB_USE_TORCH}")
+message(STATUS "  Distributed:        ${VDB_ENABLE_DISTRIBUTED}")
 message(STATUS "")
