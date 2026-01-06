@@ -30,7 +30,7 @@ public:
     
     // Embed single text/data
     Result<Vector> embed(const std::string& text) const;
-    Result<Vector> embed_batch(const std::vector<std::string>& texts) const;
+    Result<std::vector<Vector>> embed_batch(const std::vector<std::string>& texts) const;
     
     // Export vectors for TensorFlow training
     static Result<void> export_for_training(

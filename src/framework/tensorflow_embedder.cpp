@@ -69,7 +69,7 @@ Result<Vector> TensorFlowEmbedder::embed(const std::string& text) const {
     return Error("TensorFlowEmbedder not available - requires TensorFlow C++ API");
 }
 
-Result<Vector> TensorFlowEmbedder::embed_batch(const std::vector<std::string>& texts) const {
+Result<std::vector<Vector>> TensorFlowEmbedder::embed_batch(const std::vector<std::string>& texts) const {
     // Batch implementation for better performance
     // Would process multiple texts in single inference call
     
