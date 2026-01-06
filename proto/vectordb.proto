@@ -1,0 +1,214 @@
+syntax = "proto3";
+
+package vdb.grpc;
+
+// ============================================================================
+// Vector Database gRPC Service
+// ============================================================================
+
+service VectorDBService {
+  // Vector operations
+  rpc AddVector(AddVectorRequest) returns (AddVectorResponse);
+  rpc RemoveVector(RemoveVectorRequest) returns (RemoveVectorResponse);
+  rpc GetVector(GetVectorRequest) returns (GetVectorResponse);
+  rpc UpdateMetadata(UpdateMetadataRequest) returns (UpdateMetadataResponse);
+  
+  // Search operations
+  rpc Search(SearchRequest) returns (SearchResponse);
+  rpc BatchSearch(stream SearchRequest) returns (stream SearchResponse);
+  
+  // Replication operations
+  rpc ReplicateAdd(ReplicateAddRequest) returns (ReplicateResponse);
+  rpc ReplicateRemove(ReplicateRemoveRequest) returns (ReplicateResponse);
+  rpc ReplicateUpdate(ReplicateUpdateRequest) returns (ReplicateResponse);
+  
+  // Health and status
+  rpc HealthCheck(HealthCheckRequest) returns (HealthCheckResponse);
+  rpc GetNodeStatus(NodeStatusRequest) returns (NodeStatusResponse);
+  
+  // Cluster management
+  rpc JoinCluster(JoinClusterRequest) returns (JoinClusterResponse);
+  rpc LeaveCluster(LeaveClusterRequest) returns (LeaveClusterResponse);
+}
+
+// ============================================================================
+// Common Types
+// ============================================================================
+
+message Vector {
+  repeated float values = 1;
+}
+
+message Metadata {
+  map<string, string> fields = 1;
+}
+
+message QueryResult {
+  uint64 id = 1;
+  float distance = 2;
+  Metadata metadata = 3;
+  Vector vector = 4;
+}
+
+// ============================================================================
+// Vector Operation Messages
+// ============================================================================
+
+message AddVectorRequest {
+  Vector vector = 1;
+  Metadata metadata = 2;
+  uint32 shard_id = 3;
+  bool replicate = 4;
+}
+
+message AddVectorResponse {
+  uint64 id = 1;
+  bool success = 2;
+  string error = 3;
+}
+
+message RemoveVectorRequest {
+  uint64 id = 1;
+  uint32 shard_id = 2;
+  bool replicate = 3;
+}
+
+message RemoveVectorResponse {
+  bool success = 1;
+  string error = 2;
+}
+
+message GetVectorRequest {
+  uint64 id = 1;
+  uint32 shard_id = 2;
+}
+
+message GetVectorResponse {
+  Vector vector = 1;
+  Metadata metadata = 2;
+  bool found = 3;
+  string error = 4;
+}
+
+message UpdateMetadataRequest {
+  uint64 id = 1;
+  Metadata metadata = 2;
+  uint32 shard_id = 3;
+  bool replicate = 4;
+}
+
+message UpdateMetadataResponse {
+  bool success = 1;
+  string error = 2;
+}
+
+// ============================================================================
+// Search Messages
+// ============================================================================
+
+message SearchRequest {
+  Vector query = 1;
+  uint32 k = 2;
+  map<string, string> filter = 3;
+  uint32 shard_id = 4;
+  bool distributed = 5;
+}
+
+message SearchResponse {
+  repeated QueryResult results = 1;
+  uint32 total_results = 2;
+  double query_time_ms = 3;
+  string error = 4;
+}
+
+// ============================================================================
+// Replication Messages
+// ============================================================================
+
+message ReplicateAddRequest {
+  uint64 id = 1;
+  Vector vector = 2;
+  Metadata metadata = 3;
+  uint64 timestamp = 4;
+  string source_node = 5;
+}
+
+message ReplicateRemoveRequest {
+  uint64 id = 1;
+  uint64 timestamp = 2;
+  string source_node = 3;
+}
+
+message ReplicateUpdateRequest {
+  uint64 id = 1;
+  Metadata metadata = 2;
+  uint64 timestamp = 3;
+  string source_node = 4;
+}
+
+message ReplicateResponse {
+  bool success = 1;
+  string error = 2;
+  uint64 replica_lag_ms = 3;
+}
+
+// ============================================================================
+// Health and Status Messages
+// ============================================================================
+
+message HealthCheckRequest {
+  string node_id = 1;
+}
+
+message HealthCheckResponse {
+  bool healthy = 1;
+  string status = 2;
+  uint64 uptime_seconds = 3;
+  uint64 vector_count = 4;
+  uint64 memory_usage_bytes = 5;
+}
+
+message NodeStatusRequest {
+  string node_id = 1;
+}
+
+message NodeStatusResponse {
+  string node_id = 1;
+  string host = 2;
+  uint32 port = 3;
+  bool is_primary = 4;
+  repeated string replicas = 5;
+  uint32 shard_count = 6;
+  uint64 total_vectors = 7;
+  double cpu_usage = 8;
+  uint64 memory_usage_bytes = 9;
+  uint64 replica_lag_ms = 10;
+}
+
+// ============================================================================
+// Cluster Management Messages
+// ============================================================================
+
+message JoinClusterRequest {
+  string node_id = 1;
+  string host = 2;
+  uint32 port = 3;
+  int32 priority = 4;
+}
+
+message JoinClusterResponse {
+  bool success = 1;
+  string error = 2;
+  repeated string existing_nodes = 3;
+  uint32 assigned_shards = 4;
+}
+
+message LeaveClusterRequest {
+  string node_id = 1;
+  bool graceful = 2;
+}
+
+message LeaveClusterResponse {
+  bool success = 1;
+  string error = 2;
+}
