@@ -1,7 +1,18 @@
+---
+title: "Documentation Overview"
+version: "2.0.0"
+last_updated: "2026-01-06"
+sidebar_position: 1
+---
+
 ### INTRODUCTION
 
 # HEKTOR 
 > Advance Vector Database
+
+![Version](https://img.shields.io/badge/version-2.0.0-blue?style=flat-square)
+![Last Updated](https://img.shields.io/badge/updated-2026--01--06-green?style=flat-square)
+![Docs](https://img.shields.io/badge/docs-17_files-orange?style=flat-square)
 
 Meet Hecktor, the Almost AI, Vector Studio. This comprehensive guide covers everything from basic usage to advanced topics and API reference.
 
@@ -12,13 +23,20 @@ Meet Hecktor, the Almost AI, Vector Studio. This comprehensive guide covers ever
 | 01 | [**README**](01_README.md) | This file - documentation overview and quick start | All users |
 | 02 | [**GETTING_STARTED**](02_GETTING_STARTED.md) | Installation, quick start, basic usage, CLI reference | Beginners |
 | 03 | [**USER_GUIDE**](03_USER_GUIDE.md) | Complete user guide from installation to advanced usage | All users |
-| 04 | [**DATA_FORMATS**](04_DATA_FORMATS.md) | **NEW** - Supported data types, formats, and specifications | Data engineers, developers |
+| 04 | [**DATA_FORMATS**](04_DATA_FORMATS.md) | Supported data types, formats, and specifications | Data engineers, developers |
 | 05 | [**DATA_INGESTION**](05_DATA_INGESTION.md) | Data ingestion module with adapters (CSV, JSON, PDF, Excel, Text) | Data engineers |
 | 06 | [**ARCHITECTURE**](06_ARCHITECTURE.md) | System design, data flow, component diagrams | Architects, contributors |
 | 07 | [**API_REFERENCE**](07_API_REFERENCE.md) | Detailed API documentation for all classes and functions | Developers |
 | 08 | [**MODELS**](08_MODELS.md) | Model specifications, benchmarks, integration | ML practitioners |
 | 09 | [**MATH**](09_MATH.md) | Mathematical foundations, HNSW algorithm, distance metrics | ML engineers |
 | 10 | [**AI_TRAINING**](10_AI_TRAINING.md) | Training custom models, fine-tuning, contrastive learning | AI researchers |
+| 11 | [**LOGGING**](11_LOGGING.md) | Comprehensive logging system with anomaly detection | DevOps, developers |
+| 12 | [**USAGE_EXAMPLES**](12_USAGE_EXAMPLES.md) | Code examples and common usage patterns | All developers |
+| 13 | [**DEPLOYMENT**](13_DEPLOYMENT.md) | Production deployment guide | DevOps, architects |
+| 14 | [**REAL_WORLD_APPLICATIONS**](14_REAL_WORLD_APPLICATIONS.md) | Production use cases and benchmarks | Solution architects |
+| 15 | [**LLM_ENGINE**](15_LLM_ENGINE.md) | **NEW** - Local text generation with llama.cpp | AI developers |
+| 16 | [**QUANTIZATION**](16_QUANTIZATION.md) | **NEW** - Vector compression techniques (4-32x) | Performance engineers |
+| 17 | [**FRED_HTTP**](17_FRED_HTTP.md) | **NEW** - FRED adapter & HTTP client utilities | Data engineers |
 
 ## Quick Links by Task
 
