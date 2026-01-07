@@ -1,12 +1,10 @@
----
-title: "Security"
-description: "Security best practices and guidelines"
-version: "2.3.0"
-last_updated: "2026-01-06"
-sidebar_position: 18
-category: "Operations"
----
-# Security Policy
+![Version](https://img.shields.io/badge/version-2.2.0-blue?style=flat-square)
+![Last Updated](https://img.shields.io/badge/updated-2026--01--06-green?style=flat-square)
+![Type](https://img.shields.io/badge/type-operations-yellow?style=flat-square)
+
+## Overview
+
+[Content to be added]
 
 ## Supported Versions
 

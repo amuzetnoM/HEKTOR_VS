@@ -1,6 +1,6 @@
 ---
 title: "What's New in Vector Studio v2.0"
-version: "2.0.0"
+version: "2.3.0"
 last_updated: "2026-01-06"
 ---
 
@@ -631,7 +631,7 @@ config.table = "user_data";  // Becomes `user_data`
 
 - LLM Engine documentation and examples
 - Quantization API documentation
-- FRED adapter (Federal Reserve Economic Data)
+- HTTP adapter (Generic web API data ingestion)
 - HTTP client utilities
 - Performance benchmarks
 

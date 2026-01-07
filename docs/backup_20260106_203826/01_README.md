@@ -36,7 +36,7 @@ Meet Hecktor, the Almost AI, Vector Studio. This comprehensive guide covers ever
 | 14 | [**REAL_WORLD_APPLICATIONS**](14_REAL_WORLD_APPLICATIONS.md) | Production use cases and benchmarks | Solution architects |
 | 15 | [**LLM_ENGINE**](15_LLM_ENGINE.md) | **NEW** - Local text generation with llama.cpp | AI developers |
 | 16 | [**QUANTIZATION**](16_QUANTIZATION.md) | **NEW** - Vector compression techniques (4-32x) | Performance engineers |
-| 17 | [**FRED_HTTP**](17_FRED_HTTP.md) | **NEW** - FRED adapter & HTTP client utilities | Data engineers |
+| 17 | [**HTTP_ADAPTER**](17_HTTP_ADAPTER.md) | **NEW** - HTTP adapter for web API data ingestion | Data engineers |
 
 ## Quick Links by Task
 

@@ -844,8 +844,8 @@ enum class DataFormat {
     // Web & APIs
     HTML, API_JSON, RSS,
     
-    // External APIs (not functional - HTTP client not implemented)
-    FRED, Yahoo_Finance, Alpha_Vantage,
+    // External APIs (via HTTP adapter)
+    Yahoo_Finance, Alpha_Vantage,
     
     // Images
     PNG, JPEG,
@@ -854,7 +854,7 @@ enum class DataFormat {
 };
 ```
 
-**Note:** The external API formats (FRED, Yahoo_Finance, Alpha_Vantage) are defined but not functional as the HTTP client is not yet implemented. Use file-based adapters (CSV, JSON, PDF, Excel, Text) for data ingestion.
+**Note:** The HTTP adapter is now fully functional and can be used to fetch data from any HTTP/HTTPS endpoint. It auto-detects the response format (JSON, XML, CSV) based on Content-Type headers. Use `HTTPAdapter` with URLs for web API data ingestion.
 
 ### ChunkStrategy
 

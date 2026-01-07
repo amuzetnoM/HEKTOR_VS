@@ -367,7 +367,7 @@ set(VDB_CORE_SOURCES
     src/adapters/data_adapter.cpp
     src/adapters/csv_adapter.cpp
     src/adapters/json_adapter.cpp
-    src/adapters/fred_adapter.cpp
+    src/adapters/http_adapter.cpp
     src/adapters/pdf_adapter.cpp
     src/adapters/text_adapter.cpp
     src/adapters/excel_adapter.cpp

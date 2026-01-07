@@ -42,7 +42,6 @@ enum class DataFormat {
     RSS,
     
     // Time series & Financial
-    FRED,           // Federal Reserve Economic Data
     Yahoo_Finance,
     Alpha_Vantage,
     

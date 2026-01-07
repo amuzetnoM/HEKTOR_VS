@@ -1,20 +1,26 @@
-<div class="flex h-screen w-screen bg-[#09090b] text-zinc-200 overflow-hidden font-sans selection:bg-indigo-500/30 selection:text-white">
-  
+<!-- Authentication Gate -->
+@if (!auth.isAuthenticated()) {
+<app-login />
+} @else {
+<div
+  class="flex h-screen w-screen bg-[#09090b] text-zinc-200 overflow-hidden font-sans selection:bg-indigo-500/30 selection:text-white">
+
   <!-- Mobile Backdrop -->
   @if (isMobileSidebarOpen()) {
-    <div class="fixed inset-0 bg-black/80 backdrop-blur-sm z-30 md:hidden animate-in fade-in duration-200" (click)="isMobileSidebarOpen.set(false)"></div>
+  <div class="fixed inset-0 bg-black/80 backdrop-blur-sm z-30 md:hidden animate-in fade-in duration-200"
+    (click)="isMobileSidebarOpen.set(false)"></div>
   }
 
   <!-- Left Sidebar (Collections) -->
-  <aside 
+  <aside
     class="fixed inset-y-0 left-0 z-40 w-[280px] border-r border-white/5 bg-[#09090b] flex flex-col transition-transform duration-300 md:translate-x-0 md:relative"
-    [class.-translate-x-full]="!isMobileSidebarOpen()"
-    [class.translate-x-0]="isMobileSidebarOpen()"
-  >
+    [class.-translate-x-full]="!isMobileSidebarOpen()" [class.translate-x-0]="isMobileSidebarOpen()">
     <!-- Brand -->
     <div class="h-16 border-b border-white/5 flex items-center px-6 gap-3 select-none flex-shrink-0">
-      <div class="w-7 h-7 rounded-lg bg-gradient-to-br from-indigo-500 to-violet-600 flex items-center justify-center shadow-[0_0_15px_rgba(99,102,241,0.3)] ring-1 ring-white/10">
-        <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+      <div
+        class="w-7 h-7 rounded-lg bg-gradient-to-br from-indigo-500 to-violet-600 flex items-center justify-center shadow-[0_0_15px_rgba(99,102,241,0.3)] ring-1 ring-white/10">
+        <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 text-white" fill="none" viewBox="0 0 24 24"
+          stroke="currentColor">
           <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z" />
         </svg>
       </div>
@@ -33,59 +39,65 @@
     <!-- Navigation -->
     <div class="flex-1 overflow-y-auto py-6 px-4 space-y-1 custom-scrollbar">
       <div class="text-[10px] font-bold text-zinc-500 uppercase tracking-widest mb-3 px-2 select-none">Platform</div>
-      
-       <button 
-        (click)="openDashboard()"
+
+      <button (click)="openDashboard()"
         class="w-full text-left px-3 py-2 rounded-lg flex items-center gap-3 transition-all duration-200 text-sm group border border-transparent"
-        [class.bg-white/5]="!selectedCollection()"
-        [class.border-white/5]="!selectedCollection()"
-        [class.text-white]="!selectedCollection()"
-        [class.text-zinc-400]="selectedCollection()"
-        [class.hover:bg-white/5]="selectedCollection()"
-        [class.hover:text-zinc-200]="selectedCollection()"
-      >
-        <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 transition-colors" [class.text-indigo-400]="!selectedCollection()" [class.text-zinc-600]="selectedCollection()" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-           <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2V6zM14 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2V6zM4 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2v-2zM14 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2v-2z" />
+        [class.bg-white/5]="!selectedCollection()" [class.border-white/5]="!selectedCollection()"
+        [class.text-white]="!selectedCollection()" [class.text-zinc-400]="selectedCollection()"
+        [class.hover:bg-white/5]="selectedCollection()" [class.hover:text-zinc-200]="selectedCollection()">
+        <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 transition-colors"
+          [class.text-indigo-400]="!selectedCollection()" [class.text-zinc-600]="selectedCollection()" fill="none"
+          viewBox="0 0 24 24" stroke="currentColor">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+            d="M4 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2V6zM14 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2V6zM4 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2v-2zM14 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2v-2z" />
         </svg>
         <span class="font-medium">Dashboard</span>
       </button>
 
-      <div class="text-[10px] font-bold text-zinc-500 uppercase tracking-widest mb-3 px-2 mt-8 select-none flex justify-between items-center">
+      <div
+        class="text-[10px] font-bold text-zinc-500 uppercase tracking-widest mb-3 px-2 mt-8 select-none flex justify-between items-center">
         <span>Collections</span>
-        <span class="text-[9px] bg-white/5 px-1.5 py-0.5 rounded text-zinc-400 border border-white/5 font-mono">{{ db.collections().length }}</span>
+        <span class="text-[9px] bg-white/5 px-1.5 py-0.5 rounded text-zinc-400 border border-white/5 font-mono">{{
+          db.collections().length }}</span>
       </div>
-      
+
       @for (col of db.collections(); track col.name; let i = $index) {
-        <button 
-          draggable="true"
-          (dragstart)="onDragStart($event, i)"
-          (dragover)="onDragOver($event)"
-          (drop)="onDrop($event, i)"
-          (click)="selectCollection(col.name)"
-          class="w-full text-left px-3 py-2 rounded-lg flex items-center justify-between group transition-all duration-200 text-sm border border-transparent cursor-grab active:cursor-grabbing"
-          [class.opacity-50]="draggedIndex() === i"
-          [class.bg-white/5]="selectedCollection() === col.name"
-          [class.border-white/5]="selectedCollection() === col.name"
-          [class.text-white]="selectedCollection() === col.name"
-          [class.text-zinc-400]="selectedCollection() !== col.name"
-          [class.hover:bg-white/5]="selectedCollection() !== col.name"
-          [class.hover:text-zinc-200]="selectedCollection() !== col.name"
-        >
-          <div class="flex items-center gap-3 overflow-hidden pointer-events-none">
-            <div class="w-1.5 h-1.5 rounded-full shadow-[0_0_5px_currentColor]" [class.text-emerald-500]="col.name === selectedCollection()" [class.bg-emerald-500]="col.name === selectedCollection()" [class.bg-zinc-700]="col.name !== selectedCollection()" [class.text-transparent]="col.name !== selectedCollection()"></div>
-            <span class="truncate font-medium">{{ col.name }}</span>
-          </div>
-          <div class="opacity-0 group-hover:opacity-100 text-zinc-600 cursor-grab">
-            <svg xmlns="http://www.w3.org/2000/svg" class="h-3 w-3" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 8h16M4 16h16" />
-            </svg>
-          </div>
-        </button>
+      <button draggable="true" (dragstart)="onDragStart($event, i)" (dragover)="onDragOver($event)"
+        (drop)="onDrop($event, i)" (click)="selectCollection(col.name)"
+        class="w-full text-left px-3 py-2 rounded-lg flex items-center justify-between group transition-all duration-200 text-sm border border-transparent cursor-grab active:cursor-grabbing"
+        [class.opacity-50]="draggedIndex() === i" [class.bg-white/5]="selectedCollection() === col.name"
+        [class.border-white/5]="selectedCollection() === col.name"
+        [class.text-white]="selectedCollection() === col.name" [class.text-zinc-400]="selectedCollection() !== col.name"
+        [class.hover:bg-white/5]="selectedCollection() !== col.name"
+        [class.hover:text-zinc-200]="selectedCollection() !== col.name">
+        <div class="flex items-center gap-3 overflow-hidden pointer-events-none">
+          @if (col.isSystem) {
+          <!-- Special icon for System Collections -->
+          <div class="w-1.5 h-1.5 rounded-full shadow-[0_0_5px_currentColor] text-yellow-500 bg-yellow-500"
+            title="System Collection"></div>
+          <span class="truncate font-medium text-yellow-500/80">{{ col.name }}</span>
+          } @else {
+          <div class="w-1.5 h-1.5 rounded-full shadow-[0_0_5px_currentColor]"
+            [class.text-emerald-500]="col.name === selectedCollection()"
+            [class.bg-emerald-500]="col.name === selectedCollection()"
+            [class.bg-zinc-700]="col.name !== selectedCollection()"
+            [class.text-transparent]="col.name !== selectedCollection()"></div>
+          <span class="truncate font-medium">{{ col.name }}</span>
+          }
+        </div>
+        <div class="opacity-0 group-hover:opacity-100 text-zinc-600 cursor-grab">
+          <svg xmlns="http://www.w3.org/2000/svg" class="h-3 w-3" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 8h16M4 16h16" />
+          </svg>
+        </div>
+      </button>
       }
 
       <!-- New Collection Button -->
-      <button (click)="toggleChat()" class="w-full text-left px-3 py-2.5 mt-8 rounded-lg flex items-center gap-3 text-zinc-500 hover:text-indigo-400 hover:bg-indigo-500/5 border border-dashed border-zinc-800 hover:border-indigo-500/30 transition-all group">
-        <div class="w-4 h-4 flex items-center justify-center rounded-full bg-zinc-800 group-hover:bg-indigo-500/20 transition-colors">
+      <button (click)="toggleChat()"
+        class="w-full text-left px-3 py-2.5 mt-8 rounded-lg flex items-center gap-3 text-zinc-500 hover:text-indigo-400 hover:bg-indigo-500/5 border border-dashed border-zinc-800 hover:border-indigo-500/30 transition-all group">
+        <div
+          class="w-4 h-4 flex items-center justify-center rounded-full bg-zinc-800 group-hover:bg-indigo-500/20 transition-colors">
           <svg xmlns="http://www.w3.org/2000/svg" class="h-3 w-3" fill="none" viewBox="0 0 24 24" stroke="currentColor">
             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4" />
           </svg>
@@ -94,185 +106,233 @@
       </button>
     </div>
 
-    <!-- Footer Stats -->
-    <div class="p-4 border-t border-white/5 bg-[#09090b]">
-      <div class="flex items-center justify-between text-[10px] text-zinc-500 font-mono mb-2">
-         <span>LATENCY</span>
-         <span class="text-emerald-500">{{ db.stats().latency }}</span>
+    <!-- Footer Stats & User Menu -->
+    <div class="p-4 border-t border-white/5 bg-[#09090b] space-y-3">
+      <!-- Stats -->
+      <div class="flex items-center justify-between text-[10px] text-zinc-500 font-mono">
+        <span>LATENCY</span>
+        <span class="text-emerald-500">{{ db.stats().latency }}</span>
       </div>
       <div class="flex items-center justify-between text-[10px] text-zinc-500 font-mono">
-         <span>MEMORY</span>
-         <span class="text-indigo-400">{{ db.stats().memoryUsage }}</span>
+        <span>MEMORY</span>
+        <span class="text-indigo-400">{{ db.stats().memoryUsage }}</span>
+      </div>
+
+      <!-- User Menu -->
+      <div class="pt-3 border-t border-white/5">
+        <div class="flex items-center justify-between">
+          <div class="flex items-center gap-2 min-w-0">
+            <div
+              class="w-7 h-7 rounded-full bg-gradient-to-br from-indigo-500 to-purple-500 flex items-center justify-center text-white text-xs font-bold flex-shrink-0">
+              {{ auth.user()?.name?.charAt(0)?.toUpperCase() || 'U' }}
+            </div>
+            <div class="min-w-0">
+              <div class="text-xs font-medium text-zinc-300 truncate">{{ auth.user()?.name || 'User' }}</div>
+              <div class="text-[10px] text-zinc-600 truncate">{{ auth.user()?.email }}</div>
+            </div>
+          </div>
+          <button (click)="logout()"
+            class="p-1.5 rounded-lg text-zinc-500 hover:text-red-400 hover:bg-red-500/10 transition-colors"
+            title="Sign Out">
+            <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24"
+              stroke="currentColor">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1" />
+            </svg>
+          </button>
+        </div>
       </div>
     </div>
   </aside>
 
   <!-- Main Content Area -->
   <main class="flex-1 flex flex-col min-w-0 bg-[#09090b] relative z-0">
-    
+
     <!-- Mobile Hamburger Toggle (Floating) -->
-    <button (click)="toggleMobileSidebar()" class="md:hidden absolute top-4 left-4 z-40 p-2 rounded-lg bg-zinc-900/90 border border-white/10 text-zinc-400 hover:text-white backdrop-blur shadow-lg">
+    <button (click)="toggleMobileSidebar()"
+      class="md:hidden absolute top-4 left-4 z-40 p-2 rounded-lg bg-zinc-900/90 border border-white/10 text-zinc-400 hover:text-white backdrop-blur shadow-lg">
       <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16" />
       </svg>
     </button>
 
     @if (!selectedCollection()) {
-      <app-health-monitor />
+    <app-health-monitor />
     } @else {
-      @if (currentCollection(); as col) {
-        <!-- Top Navigation Bar -->
-        <header class="h-16 border-b border-white/5 flex items-center justify-between px-4 md:px-8 bg-[#09090b]/80 backdrop-blur z-30 sticky top-0 pl-16 md:pl-8">
-          <div class="flex items-center gap-3 md:gap-6 overflow-hidden">
-            <h2 class="text-lg md:text-xl font-bold text-white tracking-tight flex items-center gap-2 md:gap-3 truncate">
-              {{ col.name }}
-              <span class="hidden md:inline-block px-2 py-0.5 rounded-full bg-indigo-500/10 border border-indigo-500/20 text-[10px] font-bold text-indigo-400 uppercase tracking-wider">{{ col.metric }}</span>
-            </h2>
-            <div class="hidden md:block h-4 w-px bg-white/10"></div>
-            <div class="hidden md:flex items-center gap-4 text-xs text-zinc-500 font-mono">
-              <span>{{ col.dimension }} DIM</span>
-              <span>{{ col.documents.length }} DOCS</span>
-            </div>
-          </div>
-          
-          <!-- Tab Navigation -->
-          <div class="flex bg-zinc-900/50 p-1 rounded-lg border border-white/5 overflow-x-auto max-w-[200px] md:max-w-none">
-            <button 
-              (click)="activeTab.set('explore')" 
-              class="px-3 md:px-5 py-1.5 text-xs font-medium rounded-md transition-all duration-200 whitespace-nowrap"
-              [class.bg-zinc-800]="activeTab() === 'explore'"
-              [class.text-white]="activeTab() === 'explore'"
-              [class.shadow-sm]="activeTab() === 'explore'"
-              [class.text-zinc-500]="activeTab() !== 'explore'"
-              [class.hover:text-zinc-300]="activeTab() !== 'explore'"
-            >Projection</button>
-             <button 
-              (click)="activeTab.set('data')" 
-              class="px-3 md:px-5 py-1.5 text-xs font-medium rounded-md transition-all duration-200 whitespace-nowrap"
-              [class.bg-zinc-800]="activeTab() === 'data'"
-              [class.text-white]="activeTab() === 'data'"
-              [class.shadow-sm]="activeTab() === 'data'"
-              [class.text-zinc-500]="activeTab() !== 'data'"
-              [class.hover:text-zinc-300]="activeTab() !== 'data'"
-            >Data</button>
-            <button 
-              (click)="activeTab.set('config')" 
-              class="px-3 md:px-5 py-1.5 text-xs font-medium rounded-md transition-all duration-200 whitespace-nowrap"
-              [class.bg-zinc-800]="activeTab() === 'config'"
-              [class.text-white]="activeTab() === 'config'"
-              [class.shadow-sm]="activeTab() === 'config'"
-              [class.text-zinc-500]="activeTab() !== 'config'"
-              [class.hover:text-zinc-300]="activeTab() !== 'config'"
-            >Config</button>
-          </div>
-        </header>
-
-        <!-- Main View Area -->
-        <div class="flex-1 overflow-hidden relative">
-          
-          <!-- Explore Tab -->
-          @if (activeTab() === 'explore') {
-            <div class="h-full w-full relative">
-               <app-projection-view [documents]="col.documents" />
-               
-               <!-- Floating Overlay Controls -->
-               <div class="absolute top-6 left-6 md:left-8 pointer-events-none pr-6">
-                  <h3 class="text-xl md:text-2xl font-bold text-white tracking-tight drop-shadow-lg">Vector Space</h3>
-                  <p class="text-xs md:text-sm text-zinc-400 mt-1 max-w-md drop-shadow-md">
-                    2D UMAP projection. Clusters indicate semantic similarity.
-                  </p>
-               </div>
-            </div>
-          }
-
-          <!-- Data Tab -->
-          @if (activeTab() === 'data') {
-            <div class="h-full flex flex-col">
-              <!-- Toolbar -->
-              <div class="border-b border-white/5 p-4 bg-[#09090b] flex flex-col md:flex-row justify-between items-start md:items-center px-4 md:px-8 gap-4">
-                <div class="relative group w-full md:w-auto">
-                   <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 absolute left-3 top-2.5 text-zinc-500 group-hover:text-indigo-400 transition-colors" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
-                   </svg>
-                   <input 
-                    type="text" 
-                    [(ngModel)]="searchQuery"
-                    placeholder="Search by ID or content..." 
-                    class="w-full md:w-80 bg-zinc-900/50 border border-white/10 rounded-lg pl-10 pr-4 py-2 text-sm text-white focus:outline-none focus:border-indigo-500/50 focus:ring-1 focus:ring-indigo-500/20 transition-all font-sans placeholder-zinc-600">
-                </div>
-                <div class="flex items-center gap-4 w-full md:w-auto justify-between md:justify-end">
-                  <div class="text-xs text-zinc-500 font-mono">
-                     <span class="text-zinc-300">{{ filteredDocuments().length }}</span> RESULTS
-                  </div>
-                  <button class="text-xs bg-white/5 hover:bg-white/10 text-zinc-300 border border-white/5 px-3 py-1.5 rounded transition-colors">
-                     Export CSV
-                  </button>
-                </div>
-              </div>
-
-              <!-- Table -->
-              <div class="flex-1 overflow-auto custom-scrollbar">
-                <table class="w-full text-left text-sm text-zinc-400 min-w-[800px] md:min-w-0">
-                  <thead class="bg-[#09090b] text-zinc-500 sticky top-0 z-10 font-mono text-xs uppercase tracking-wider">
-                    <tr>
-                      <th class="px-8 py-3 border-b border-white/5 font-medium w-48">Vector ID</th>
-                      <th class="px-8 py-3 border-b border-white/5 font-medium">Document Content</th>
-                      <th class="px-8 py-3 border-b border-white/5 font-medium w-96">Metadata</th>
-                    </tr>
-                  </thead>
-                  <tbody class="divide-y divide-white/5">
-                    @for (doc of filteredDocuments(); track doc.id) {
-                      <tr class="hover:bg-white/[0.02] transition-colors group">
-                        <td class="px-8 py-4 font-mono text-xs text-zinc-500 group-hover:text-indigo-400 transition-colors select-all">
-                          {{ doc.id.substring(0, 8) }}...
-                        </td>
-                        <td class="px-8 py-4 text-zinc-300 leading-relaxed max-w-2xl">
-                          {{ doc.content }}
-                        </td>
-                        <td class="px-8 py-4 font-mono text-xs text-zinc-500">
-                           <div class="bg-white/5 rounded p-2 border border-white/5 truncate max-w-[300px]">
-                              {{ doc.metadata | json }}
-                           </div>
-                        </td>
-                      </tr>
-                    }
-                  </tbody>
-                </table>
-              </div>
-            </div>
-          }
-          
-          <!-- Config Tab -->
-          @if (activeTab() === 'config') {
-               <div class="h-full overflow-y-auto p-4 md:p-12 custom-scrollbar">
-                  <div class="max-w-4xl mx-auto space-y-12">
-                      <section>
-                         <h3 class="text-lg font-bold text-white mb-6">Schema Definition</h3>
-                         <app-schema-builder [schema]="col.schema" (save)="onSchemaSave($event)" />
-                      </section>
-
-                      <section class="pt-8 border-t border-white/5">
-                          <h3 class="text-lg font-bold text-white mb-6">General Settings</h3>
-                          <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-                             <div class="p-6 rounded-xl border border-white/5 bg-white/[0.02]">
-                                <label class="text-xs font-bold text-zinc-500 uppercase tracking-wider">Distance Metric</label>
-                                <div class="mt-2 text-xl font-mono text-white">{{ col.metric }}</div>
-                             </div>
-                             <div class="p-6 rounded-xl border border-white/5 bg-white/[0.02]">
-                                <label class="text-xs font-bold text-zinc-500 uppercase tracking-wider">Vector Dimensions</label>
-                                <div class="mt-2 text-xl font-mono text-white">{{ col.dimension }}</div>
-                             </div>
-                          </div>
-                      </section>
-                  </div>
-               </div>
-          }
+    @if (currentCollection(); as col) {
+    <!-- Top Navigation Bar -->
+    <header
+      class="h-16 border-b border-white/5 flex items-center justify-between px-4 md:px-8 bg-[#09090b]/80 backdrop-blur z-30 sticky top-0 pl-16 md:pl-8">
+      <div class="flex items-center gap-3 md:gap-6 overflow-hidden">
+        <h2 class="text-lg md:text-xl font-bold text-white tracking-tight flex items-center gap-2 md:gap-3 truncate">
+          {{ col.name }}
+          <span
+            class="hidden md:inline-block px-2 py-0.5 rounded-full bg-indigo-500/10 border border-indigo-500/20 text-[10px] font-bold text-indigo-400 uppercase tracking-wider">{{
+            col.metric }}</span>
+        </h2>
+        <div class="hidden md:block h-4 w-px bg-white/10"></div>
+        <div class="hidden md:flex items-center gap-4 text-xs text-zinc-500 font-mono">
+          <span>{{ col.dimension }} DIM</span>
+          <span>{{ col.documents.length }} DOCS</span>
         </div>
+      </div>
+
+      <!-- Tab Navigation -->
+      <div class="flex bg-zinc-900/50 p-1 rounded-lg border border-white/5 overflow-x-auto max-w-[200px] md:max-w-none">
+        <button (click)="activeTab.set('explore')"
+          class="px-3 md:px-5 py-1.5 text-xs font-medium rounded-md transition-all duration-200 whitespace-nowrap"
+          [class.bg-zinc-800]="activeTab() === 'explore'" [class.text-white]="activeTab() === 'explore'"
+          [class.shadow-sm]="activeTab() === 'explore'" [class.text-zinc-500]="activeTab() !== 'explore'"
+          [class.hover:text-zinc-300]="activeTab() !== 'explore'">Explore</button>
+        <button (click)="activeTab.set('data')"
+          class="px-3 md:px-5 py-1.5 text-xs font-medium rounded-md transition-all duration-200 whitespace-nowrap"
+          [class.bg-zinc-800]="activeTab() === 'data'" [class.text-white]="activeTab() === 'data'"
+          [class.shadow-sm]="activeTab() === 'data'" [class.text-zinc-500]="activeTab() !== 'data'"
+          [class.hover:text-zinc-300]="activeTab() !== 'data'">Data</button>
+        <button (click)="activeTab.set('playground')"
+          class="px-3 md:px-5 py-1.5 text-xs font-medium rounded-md transition-all duration-200 whitespace-nowrap"
+          [class.bg-zinc-800]="activeTab() === 'playground'" [class.text-white]="activeTab() === 'playground'"
+          [class.shadow-sm]="activeTab() === 'playground'" [class.text-zinc-500]="activeTab() !== 'playground'"
+          [class.hover:text-zinc-300]="activeTab() !== 'playground'">Playground</button>
+        <button (click)="activeTab.set('config')"
+          class="px-3 md:px-5 py-1.5 text-xs font-medium rounded-md transition-all duration-200 whitespace-nowrap"
+          [class.bg-zinc-800]="activeTab() === 'config'" [class.text-white]="activeTab() === 'config'"
+          [class.shadow-sm]="activeTab() === 'config'" [class.text-zinc-500]="activeTab() !== 'config'"
+          [class.hover:text-zinc-300]="activeTab() !== 'config'">Config</button>
+      </div>
+    </header>
+
+    <!-- Main View Area -->
+    <div class="flex-1 overflow-hidden relative">
+
+      <!-- Explore Tab -->
+      @if (activeTab() === 'explore') {
+      <div class="h-full w-full relative">
+        <app-projection-view [documents]="col.documents" />
+
+        <!-- Floating Overlay Controls -->
+        <div class="absolute top-6 left-6 md:left-8 pointer-events-none pr-6">
+          <h3 class="text-xl md:text-2xl font-bold text-white tracking-tight drop-shadow-lg">Vector Space</h3>
+          <p class="text-xs md:text-sm text-zinc-400 mt-1 max-w-md drop-shadow-md">
+            2D UMAP projection. Clusters indicate semantic similarity.
+          </p>
+        </div>
+      </div>
       }
+
+      <!-- Data Tab -->
+      @if (activeTab() === 'data') {
+      <div class="h-full flex flex-col">
+        <!-- Toolbar -->
+        <div
+          class="border-b border-white/5 p-4 bg-[#09090b] flex flex-col md:flex-row justify-between items-start md:items-center px-4 md:px-8 gap-4">
+          <div class="relative group w-full md:w-auto">
+            <svg xmlns="http://www.w3.org/2000/svg"
+              class="h-4 w-4 absolute left-3 top-2.5 text-zinc-500 group-hover:text-indigo-400 transition-colors"
+              fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+            </svg>
+            <input type="text" [(ngModel)]="searchQuery" placeholder="Search by ID or content..."
+              class="w-full md:w-80 bg-zinc-900/50 border border-white/10 rounded-lg pl-10 pr-4 py-2 text-sm text-white focus:outline-none focus:border-indigo-500/50 focus:ring-1 focus:ring-indigo-500/20 transition-all font-sans placeholder-zinc-600">
+          </div>
+          <div class="flex items-center gap-4 w-full md:w-auto justify-between md:justify-end">
+            <button (click)="openIngestion()"
+              class="text-xs bg-indigo-600 hover:bg-indigo-500 text-white font-medium border border-transparent px-4 py-2 rounded transition-colors flex items-center gap-2">
+              <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24"
+                stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                  d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-8l-4-4m0 0L8 8m4-4v12" />
+              </svg>
+              Import Data
+            </button>
+            <button
+              class="text-xs bg-white/5 hover:bg-white/10 text-zinc-300 border border-white/5 px-3 py-2 rounded transition-colors">
+              Export CSV
+            </button>
+          </div>
+        </div>
+
+        <!-- Table -->
+        <div class="flex-1 overflow-auto custom-scrollbar">
+          <table class="w-full text-left text-sm text-zinc-400 min-w-[800px] md:min-w-0">
+            <thead class="bg-[#09090b] text-zinc-500 sticky top-0 z-10 font-mono text-xs uppercase tracking-wider">
+              <tr>
+                <th class="px-8 py-3 border-b border-white/5 font-medium w-48">Vector ID</th>
+                <th class="px-8 py-3 border-b border-white/5 font-medium">Document Content</th>
+                <th class="px-8 py-3 border-b border-white/5 font-medium w-96">Metadata</th>
+              </tr>
+            </thead>
+            <tbody class="divide-y divide-white/5">
+              @for (doc of filteredDocuments(); track doc.id) {
+              <tr class="hover:bg-white/[0.02] transition-colors group">
+                <td
+                  class="px-8 py-4 font-mono text-xs text-zinc-500 group-hover:text-indigo-400 transition-colors select-all">
+                  {{ doc.id.substring(0, 8) }}...
+                </td>
+                <td class="px-8 py-4 text-zinc-300 leading-relaxed max-w-2xl">
+                  {{ doc.content }}
+                </td>
+                <td class="px-8 py-4 font-mono text-xs text-zinc-500">
+                  <div class="bg-white/5 rounded p-2 border border-white/5 truncate max-w-[300px]">
+                    {{ doc.metadata | json }}
+                  </div>
+                </td>
+              </tr>
+              }
+            </tbody>
+          </table>
+        </div>
+      </div>
+      }
+
+      <!-- Playground Tab -->
+      @if (activeTab() === 'playground') {
+      <app-playground [collectionName]="col.name" />
+      }
+
+      <!-- Config Tab -->
+      @if (activeTab() === 'config') {
+      <div class="h-full overflow-y-auto p-4 md:p-12 custom-scrollbar">
+        <div class="max-w-4xl mx-auto space-y-12">
+          <section>
+            <h3 class="text-lg font-bold text-white mb-6">Schema Definition</h3>
+            <app-schema-builder [schema]="col.schema" (save)="onSchemaSave($event)" />
+          </section>
+
+          <section class="pt-8 border-t border-white/5">
+            <h3 class="text-lg font-bold text-white mb-6">General Settings</h3>
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+              <div class="p-6 rounded-xl border border-white/5 bg-white/[0.02]">
+                <label class="text-xs font-bold text-zinc-500 uppercase tracking-wider">Distance Metric</label>
+                <div class="mt-2 text-xl font-mono text-white">{{ col.metric }}</div>
+              </div>
+              <div class="p-6 rounded-xl border border-white/5 bg-white/[0.02]">
+                <label class="text-xs font-bold text-zinc-500 uppercase tracking-wider">Vector Dimensions</label>
+                <div class="mt-2 text-xl font-mono text-white">{{ col.dimension }}</div>
+              </div>
+              <div class="p-6 rounded-xl border border-white/5 bg-white/[0.02]">
+                <label class="text-xs font-bold text-zinc-500 uppercase tracking-wider">Embedding Model</label>
+                <div class="mt-2 text-base font-mono text-white truncate">{{ col.embeddingModel }}</div>
+              </div>
+            </div>
+          </section>
+        </div>
+      </div>
+      }
+    </div>
+    }
     }
   </main>
 
+  <!-- Ingestion Modal -->
+  @if (isIngestionOpen() && selectedCollection()) {
+  <app-ingestion-wizard [collectionName]="selectedCollection()!" (close)="isIngestionOpen.set(false)"
+    (ingest)="handleIngestion($event)" />
+  }
+
   <!-- Floating Chat Widget -->
   <app-chat-widget />
-  
+
 </div>
+} <!-- End auth.isAuthenticated() -->

@@ -1,28 +1,47 @@
 import { Component, inject, signal, computed, ViewChild } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
-import { VectorDbService, SchemaField } from './services/vector-db.service';
+import { VectorDbService } from './services/vector-db.service';
+import { AuthService } from './services/auth.service';
+import { SchemaField, IngestionConfig } from './models/core';
 import { ChatWidgetComponent } from './components/chat-sidebar.component';
 import { ProjectionViewComponent } from './components/projection-view.component';
 import { SchemaBuilderComponent } from './components/schema-builder.component';
 import { HealthMonitorComponent } from './components/health-monitor.component';
+import { IngestionWizardComponent } from './components/ingestion-wizard.component';
+import { PlaygroundComponent } from './components/playground.component';
+import { LoginComponent } from './components/login.component';
 
 @Component({
   selector: 'app-root',
   standalone: true,
-  imports: [CommonModule, FormsModule, ChatWidgetComponent, ProjectionViewComponent, SchemaBuilderComponent, HealthMonitorComponent],
+  imports: [
+    CommonModule,
+    FormsModule,
+    ChatWidgetComponent,
+    ProjectionViewComponent,
+    SchemaBuilderComponent,
+    HealthMonitorComponent,
+    IngestionWizardComponent,
+    PlaygroundComponent,
+    LoginComponent
+  ],
   templateUrl: './app.component.html'
 })
 export class AppComponent {
   db = inject(VectorDbService);
-  
+  auth = inject(AuthService);
+
   @ViewChild(ChatWidgetComponent) chatWidget!: ChatWidgetComponent;
 
   selectedCollection = signal<string | null>(null);
-  activeTab = signal<'explore' | 'data' | 'config'>('explore');
+  activeTab = signal<'explore' | 'data' | 'playground' | 'config'>('explore');
   isMobileSidebarOpen = signal(false);
   searchQuery = signal('');
-  
+
+  // Modal State
+  isIngestionOpen = signal(false);
+
   draggedIndex = signal<number | null>(null);
 
   currentCollection = computed(() => {
@@ -33,12 +52,12 @@ export class AppComponent {
   filteredDocuments = computed(() => {
     const col = this.currentCollection();
     if (!col) return [];
-    
+
     const query = this.searchQuery().toLowerCase().trim();
     if (!query) return col.documents;
 
-    return col.documents.filter(d => 
-      d.id.toLowerCase().includes(query) || 
+    return col.documents.filter(d =>
+      d.id.toLowerCase().includes(query) ||
       d.content.toLowerCase().includes(query) ||
       JSON.stringify(d.metadata).toLowerCase().includes(query)
     );
@@ -46,7 +65,7 @@ export class AppComponent {
 
   selectCollection(name: string) {
     this.selectedCollection.set(name);
-    this.searchQuery.set(''); // Reset search on collection change
+    this.searchQuery.set('');
     if (this.activeTab() === 'config') this.activeTab.set('explore');
     this.isMobileSidebarOpen.set(false);
   }
@@ -61,8 +80,18 @@ export class AppComponent {
   }
 
   toggleChat() {
-     this.chatWidget.toggle();
-     this.isMobileSidebarOpen.set(false);
+    this.chatWidget.toggle();
+    this.isMobileSidebarOpen.set(false);
+  }
+
+  openIngestion() {
+    this.isIngestionOpen.set(true);
+  }
+
+  async handleIngestion(config: IngestionConfig) {
+    const result = await this.db.ingestData(config);
+    console.log(result); // In a real app, toast notification
+    this.isIngestionOpen.set(false);
   }
 
   onSchemaSave(schema: SchemaField[]) {
@@ -72,7 +101,6 @@ export class AppComponent {
     }
   }
 
-  // Drag and Drop Handlers
   onDragStart(event: DragEvent, index: number) {
     this.draggedIndex.set(index);
     if (event.dataTransfer) {
@@ -84,7 +112,7 @@ export class AppComponent {
   onDragOver(event: DragEvent) {
     event.preventDefault();
     if (event.dataTransfer) {
-       event.dataTransfer.dropEffect = 'move';
+      event.dataTransfer.dropEffect = 'move';
     }
   }
 
@@ -95,5 +123,9 @@ export class AppComponent {
       this.db.reorderCollections(dragIdx, dropIndex);
     }
     this.draggedIndex.set(null);
+  }
+
+  logout() {
+    this.auth.logout();
   }
 }

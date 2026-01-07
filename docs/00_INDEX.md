@@ -7,13 +7,12 @@ sidebar_position: 1
 category: "Introduction"
 ---
 
-# Vector Studio Documentation
 
 ![Version](https://img.shields.io/badge/version-2.3.0-blue?style=flat-square)
 ![Last Updated](https://img.shields.io/badge/updated-2026--01--06-green?style=flat-square)
 ![Status](https://img.shields.io/badge/status-production-success?style=flat-square)
 
-**Welcome to Vector Studio** - A production-grade vector database with hybrid search, distributed features, and comprehensive ML framework integration.
+**Welcome to Vector Studio** - The AI vector studio with hybrid search, distributed features, and comprehensive ML framework integration.
 
 ## 📚 Documentation Structure
 

@@ -6,25 +6,11 @@ last_updated: "2026-01-06"
 sidebar_position: 20
 category: "Reference"
 ---
----
-title: "API Reference"
-version: "2.0.0"
-last_updated: "2026-01-06"
-sidebar_position: 7
----
-
-# API 
 
 ![Version](https://img.shields.io/badge/version-2.2.0-blue?style=flat-square)
 ![Last Updated](https://img.shields.io/badge/updated-2026--01--06-green?style=flat-square)
 ![Language](https://img.shields.io/badge/language-C%2B%2B23-00599C?style=flat-square)
 ![License](https://img.shields.io/badge/license-MIT-green?style=flat-square)
-
-**Version:** 2.0.0  
-**Language:** C++23  
-**License:** MIT
-
----
 
 ## Table of Contents
 
@@ -852,8 +838,8 @@ enum class DataFormat {
     // Web & APIs
     HTML, API_JSON, RSS,
     
-    // External APIs (not functional - HTTP client not implemented)
-    FRED, Yahoo_Finance, Alpha_Vantage,
+    // External APIs (via HTTP adapter)
+    Yahoo_Finance, Alpha_Vantage,
     
     // Images
     PNG, JPEG,
@@ -862,7 +848,7 @@ enum class DataFormat {
 };
 ```
 
-**Note:** The external API formats (FRED, Yahoo_Finance, Alpha_Vantage) are defined but not functional as the HTTP client is not yet implemented. Use file-based adapters (CSV, JSON, PDF, Excel, Text) for data ingestion.
+**Note:** The HTTP adapter is now fully functional and can be used to fetch data from any HTTP/HTTPS endpoint. It auto-detects the response format (JSON, XML, CSV) based on Content-Type headers. Use `HTTPAdapter` with URLs for web API data ingestion.
 
 ### ChunkStrategy
 

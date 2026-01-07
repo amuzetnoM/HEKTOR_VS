@@ -40,10 +40,19 @@ import { AgentService, ChatMessage } from '../services/agent.service';
               
               <!-- User Message -->
               @if (msg.role === 'user') {
-                <div class="flex justify-end pl-10">
-                  <div class="bg-indigo-600/10 border border-indigo-500/20 text-indigo-100 rounded-2xl rounded-tr-sm px-4 py-2.5 text-sm leading-relaxed shadow-sm">
-                    {{ msg.text }}
+                <div class="flex flex-col items-end gap-1">
+                  <div class="flex justify-end pl-10">
+                    <div class="bg-indigo-600/10 border border-indigo-500/20 text-indigo-100 rounded-2xl rounded-tr-sm px-4 py-2.5 text-sm leading-relaxed shadow-sm">
+                      {{ msg.text }}
+                    </div>
                   </div>
+                  <!-- RAG Tools Debug Info -->
+                  @if (msg.retrievedTools?.length) {
+                    <div class="flex items-center gap-1.5 text-[9px] text-zinc-600 pr-1 animate-in fade-in slide-in-from-right-2 duration-500">
+                       <svg xmlns="http://www.w3.org/2000/svg" class="h-3 w-3" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z" /></svg>
+                       <span>Loaded Tools: {{ msg.retrievedTools?.join(', ') }}</span>
+                    </div>
+                  }
                 </div>
               }
 
@@ -53,7 +62,7 @@ import { AgentService, ChatMessage } from '../services/agent.service';
                   <div class="flex items-center gap-2">
                      <span class="text-[10px] font-bold text-indigo-400 uppercase tracking-wider">Assistant</span>
                   </div>
-                  <div class="text-zinc-300 text-sm leading-relaxed font-light">
+                  <div class="text-zinc-300 text-sm leading-relaxed font-light whitespace-pre-wrap">
                     {{ msg.text }}
                   </div>
                 </div>
@@ -95,8 +104,20 @@ import { AgentService, ChatMessage } from '../services/agent.service';
             }
           </div>
 
+          <!-- Quick Actions -->
+          <div class="px-4 pb-2 pt-2 bg-zinc-900/30 backdrop-blur-sm border-t border-white/5 flex gap-2 overflow-x-auto custom-scrollbar no-scrollbar">
+            @for (action of quickActions; track action.label) {
+               <button 
+                  (click)="executeAction(action.prompt)"
+                  [disabled]="agent.isThinking()"
+                  class="whitespace-nowrap px-3 py-1.5 rounded-full bg-zinc-800 hover:bg-indigo-500/20 hover:text-indigo-300 hover:border-indigo-500/30 border border-white/5 text-[10px] font-medium text-zinc-400 transition-all flex-shrink-0 disabled:opacity-50 disabled:cursor-not-allowed">
+                  {{ action.label }}
+               </button>
+            }
+          </div>
+
           <!-- Input Area -->
-          <div class="p-4 border-t border-white/5 bg-zinc-900/30 backdrop-blur-sm">
+          <div class="p-4 bg-zinc-900/30 backdrop-blur-sm pt-2">
             <div class="relative group">
               <input 
                 #chatInput
@@ -146,8 +167,10 @@ import { AgentService, ChatMessage } from '../services/agent.service';
     </div>
   `,
   styles: [`
-    .custom-scrollbar::-webkit-scrollbar { width: 4px; }
+    .custom-scrollbar::-webkit-scrollbar { width: 4px; height: 4px; }
     .custom-scrollbar::-webkit-scrollbar-thumb { background: #3f3f46; border-radius: 2px; }
+    .no-scrollbar::-webkit-scrollbar { display: none; }
+    .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
   `]
 })
 export class ChatWidgetComponent {
@@ -158,6 +181,13 @@ export class ChatWidgetComponent {
   
   @ViewChild('scrollContainer') scrollContainer!: ElementRef;
   @ViewChild('chatInput') chatInput!: ElementRef;
+
+  quickActions = [
+    { label: 'Create Collection', prompt: 'Create a new vector collection for me.' },
+    { label: 'System Status', prompt: 'What is the current system status and document count?' },
+    { label: 'List Tools', prompt: 'What tools and functions do you have access to?' },
+    { label: 'Import Data', prompt: 'How do I import data into the database?' }
+  ];
 
   constructor() {
     effect(() => {
@@ -176,6 +206,10 @@ export class ChatWidgetComponent {
       setTimeout(() => this.chatInput?.nativeElement?.focus(), 100);
       setTimeout(() => this.scrollToBottom(), 100);
     }
+  }
+
+  executeAction(prompt: string) {
+    this.agent.sendMessage(prompt);
   }
 
   send() {

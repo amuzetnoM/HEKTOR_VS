@@ -6,14 +6,6 @@ last_updated: "2026-01-06"
 sidebar_position: 16
 category: "Operations"
 ---
----
-title: "Production Deployment"
-version: "2.2.0"
-last_updated: "2026-01-06"
-sidebar_position: 13
----
-
-# DEPLOYMENTS
 
 ![Version](https://img.shields.io/badge/version-2.2.0-blue?style=flat-square)
 ![Last Updated](https://img.shields.io/badge/updated-2026--01--06-green?style=flat-square)

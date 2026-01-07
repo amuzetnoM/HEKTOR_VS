@@ -6,10 +6,12 @@ last_updated: "2026-01-06"
 sidebar_position: 10
 category: "Feature"
 ---
-# Hybrid Search Quickstart
 
-## What is Hybrid Search?
+![Version](https://img.shields.io/badge/version-2.2.0-blue?style=flat-square)
+![Last Updated](https://img.shields.io/badge/updated-2026--01--06-green?style=flat-square)
+![Type](https://img.shields.io/badge/type-theory-purple?style=flat-square)
 
+> **What is Hybrid Search?** <BR>
 Hybrid search combines **vector similarity** (semantic understanding) with **BM25 full-text search** (keyword matching) for superior retrieval accuracy.
 
 **Benefits:**

@@ -5,11 +5,11 @@
 #include "vdb/adapters/data_adapter.hpp"
 #include "vdb/adapters/csv_adapter.hpp"
 #include "vdb/adapters/json_adapter.hpp"
-#include "vdb/adapters/fred_adapter.hpp"
 #include "vdb/adapters/xml_adapter.hpp"
 #include "vdb/adapters/parquet_adapter.hpp"
 #include "vdb/adapters/sqlite_adapter.hpp"
 #include "vdb/adapters/pgvector_adapter.hpp"
+#include "vdb/adapters/http_adapter.hpp"
 #include <algorithm>
 #include <regex>
 #include <cctype>
@@ -27,7 +27,7 @@ DataAdapterManager::DataAdapterManager() {
     register_adapter(std::make_unique<XMLAdapter>());
     register_adapter(std::make_unique<ParquetAdapter>());
     register_adapter(std::make_unique<SQLiteAdapter>());
-    // FRED adapter requires API key, registered separately
+    register_adapter(std::make_unique<HTTPAdapter>());
     // PgvectorAdapter requires configuration, registered separately when needed
 }
 
@@ -164,7 +164,6 @@ std::string format_to_string(DataFormat format) {
         case DataFormat::HTML: return "HTML";
         case DataFormat::API_JSON: return "API_JSON";
         case DataFormat::RSS: return "RSS";
-        case DataFormat::FRED: return "FRED";
         case DataFormat::Yahoo_Finance: return "Yahoo_Finance";
         case DataFormat::Alpha_Vantage: return "Alpha_Vantage";
         case DataFormat::PNG: return "PNG";

@@ -1,5 +1,5 @@
 import { Injectable, inject, signal } from '@angular/core';
-import { GoogleGenAI, GenerateContentResponse, ChatSession } from '@google/genai';
+import { GoogleGenAI, GenerateContentResponse, Chat, Content } from '@google/genai';
 import { VectorDbService } from './vector-db.service';
 
 export interface ChatMessage {
@@ -10,6 +10,7 @@ export interface ChatMessage {
   toolArgs?: any;
   toolOutput?: string;
   timestamp: number;
+  retrievedTools?: string[]; // To show which tools were pulled from DB
 }
 
 @Injectable({
@@ -18,104 +19,67 @@ export interface ChatMessage {
 export class AgentService {
   private dbService = inject(VectorDbService);
   private ai: GoogleGenAI;
-  private chatSession: ChatSession | null = null;
+  
+  // We hold the session manually to allow model-swapping (different tools per turn)
+  private chatHistory: Content[] = [];
+  private chatSession: Chat | null = null;
   
   // State
   messages = signal<ChatMessage[]>([{
     role: 'model',
-    text: 'Hello! I am Hektor, your Vector Ops Agent. I can manage collections, run queries, and visualize data. How can I help?',
+    text: 'Welcome to your database. \nI am connected to the Dynamic Tool Registry.',
     timestamp: Date.now()
   }]);
   
   isThinking = signal(false);
 
   constructor() {
-    // Initialize AI
     const apiKey = process.env['API_KEY'] || '';
     this.ai = new GoogleGenAI({ apiKey });
   }
 
-  private initChat() {
-    if (this.chatSession) return;
-
-    this.chatSession = this.ai.chats.create({
-      model: 'gemini-2.5-flash',
-      config: {
-        systemInstruction: `You are an expert AI Agent managing a Vector Database Studio.
-        You have access to tools to manipulate the database.
-        ALWAYS use tools when the user asks to perform an action (create, delete, query, add).
-        If the user asks for "visualization" or "projection", ensure data exists.
-        Be concise and technical but helpful.
-        When you perform an action, briefly explain what you are doing.
-        `,
-        tools: [{
-          functionDeclarations: [
-            {
-              name: 'create_collection',
-              description: 'Create a new vector collection.',
-              parameters: {
-                type: 'OBJECT',
-                properties: {
-                  name: { type: 'STRING', description: 'Name of the collection (slug-friendly)' },
-                  dimension: { type: 'NUMBER', description: 'Vector dimension (e.g. 1536, 768)' },
-                  metric: { type: 'STRING', enum: ['cosine', 'euclidean', 'dot'], description: 'Distance metric' }
-                },
-                required: ['name']
-              }
-            },
-            {
-              name: 'delete_collection',
-              description: 'Delete an existing collection.',
-              parameters: {
-                type: 'OBJECT',
-                properties: {
-                  name: { type: 'STRING', description: 'Name of the collection to delete' }
-                },
-                required: ['name']
-              }
-            },
-            {
-              name: 'add_documents',
-              description: 'Add raw text documents to a collection. The system will handle embedding.',
-              parameters: {
-                type: 'OBJECT',
-                properties: {
-                  collectionName: { type: 'STRING' },
-                  texts: { type: 'ARRAY', items: { type: 'STRING' }, description: 'List of text strings to add' }
-                },
-                required: ['collectionName', 'texts']
-              }
-            },
-            {
-              name: 'query_vector',
-              description: 'Semantic search / query vectors.',
-              parameters: {
-                type: 'OBJECT',
-                properties: {
-                  collectionName: { type: 'STRING' },
-                  queryText: { type: 'STRING' },
-                  topK: { type: 'NUMBER' }
-                },
-                required: ['collectionName', 'queryText']
-              }
-            }
-          ]
-        }]
-      }
-    });
-  }
-
   async sendMessage(text: string) {
-    this.initChat();
-    if (!this.chatSession) return;
+    this.isThinking.set(true);
 
     // Add user message
     this.messages.update(msgs => [...msgs, { role: 'user', text, timestamp: Date.now() }]);
-    this.isThinking.set(true);
 
     try {
+      // 1. Dynamic Tool Retrieval (RAG for Tools)
+      //    We search the 'system_tools' collection for tools relevant to this specific prompt.
+      const relevantTools = await this.dbService.retrieveTools(text, 3);
+      
+      const toolNames = relevantTools.map(t => t.name);
+      // Update the last message to show what we found (Optional UI enhancement)
+      this.messages.update(msgs => {
+        const last = msgs[msgs.length - 1];
+        return [...msgs.slice(0, -1), { ...last, retrievedTools: toolNames }];
+      });
+
+      // 2. Instantiate Model with JUST the relevant tools
+      //    This keeps the context window clean and focused.
+      this.chatSession = this.ai.chats.create({
+        model: 'gemini-2.5-flash',
+        history: this.chatHistory, // Pass previous history
+        config: {
+          systemInstruction: `You are an expert AI Agent managing a Vector Database Studio.
+          You have access to a Dynamic Tool Registry. 
+          For this turn, the system has retrieved the following tools for you: ${toolNames.join(', ')}.
+          ALWAYS use these tools if the user asks to perform an action.
+          If no relevant tools are present for the request, apologize and explain you don't have that capability loaded.
+          `,
+          tools: relevantTools.length > 0 ? [{ functionDeclarations: relevantTools }] : []
+        }
+      });
+
+      // 3. Send Message
       let response = await this.chatSession.sendMessage({ message: text });
+      
+      // Update history tracking
+      this.chatHistory = await this.chatSession.getHistory();
+
       await this.handleResponse(response);
+
     } catch (err) {
       console.error(err);
       this.messages.update(msgs => [...msgs, { role: 'model', text: 'Error executing request.', timestamp: Date.now() }]);
@@ -149,7 +113,8 @@ export class AgentService {
       for (const call of functionCalls) {
         if (!call) continue;
         const fnName = call.name;
-        const args = call.args;
+        // In recent SDKs, args might be Record<string, any> or unknown. Casting to any for flexibility here.
+        const args = call.args as any;
 
         // Show "Action" UI
         this.messages.update(msgs => [...msgs, {
@@ -162,6 +127,7 @@ export class AgentService {
 
         try {
           let result = "Done";
+          // We can execute these because the service methods are generic
           if (fnName === 'create_collection') {
             result = await this.dbService.createCollection(args['name'], args['dimension'], args['metric']);
           } else if (fnName === 'delete_collection') {
@@ -170,7 +136,11 @@ export class AgentService {
             const docs = (args['texts'] as string[]).map(t => ({ content: t }));
             result = await this.dbService.addDocuments(args['collectionName'], docs);
           } else if (fnName === 'query_vector') {
-            const results = await this.dbService.query(args['collectionName'], args['queryText'], args['topK']);
+            const results = await this.dbService.query(args['collectionName'], {
+              query: args['queryText'],
+              topK: args['topK'],
+              minScore: 0.6
+            });
             result = JSON.stringify(results.map((r: any) => ({ id: r.id, score: r.score, content: r.content.substring(0, 50) + '...' })));
           }
 
@@ -206,11 +176,15 @@ export class AgentService {
       }
 
       // Send tool outputs back to model to get final summary
+      // We must reuse the same session to complete the function call loop
       if (this.chatSession) {
          const finalResponse = await this.chatSession.sendMessage({
             message: toolOutputs // Pass raw tool outputs
          });
          
+         // Sync History again
+         this.chatHistory = await this.chatSession.getHistory();
+
          const finalParts = finalResponse.candidates?.[0]?.content?.parts || [];
          const finalText = finalParts.find(p => p.text)?.text;
          if (finalText) {
