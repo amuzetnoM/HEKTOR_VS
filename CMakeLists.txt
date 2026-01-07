@@ -511,8 +511,28 @@ endif()
 # ============================================================================
 # CLI Tool
 # ============================================================================
-add_executable(vdb_cli
+# New modular CLI (hektor)
+add_executable(hektor
     src/cli/main.cpp
+    src/cli/cli.cpp
+    src/cli/output_formatter.cpp
+    src/cli/commands/db_commands.cpp
+    src/cli/commands/data_commands.cpp
+    src/cli/commands/search_commands.cpp
+)
+
+target_include_directories(hektor PRIVATE
+    ${CMAKE_CURRENT_SOURCE_DIR}/include
+)
+
+target_link_libraries(hektor PRIVATE
+    vdb_core
+    fmt::fmt
+)
+
+# Legacy CLI (vdb_cli)
+add_executable(vdb_cli
+    src/cli/main.cpp.old
 )
 
 target_link_libraries(vdb_cli PRIVATE vdb_core)
@@ -595,7 +615,7 @@ endif()
 # ============================================================================
 # Installation
 # ============================================================================
-install(TARGETS vdb_core vdb_cli
+install(TARGETS vdb_core hektor vdb_cli
     RUNTIME DESTINATION bin
     LIBRARY DESTINATION lib
     ARCHIVE DESTINATION lib
