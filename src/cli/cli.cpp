@@ -4,6 +4,11 @@
 #include "vdb/cli/commands/db_commands.hpp"
 #include "vdb/cli/commands/data_commands.hpp"
 #include "vdb/cli/commands/search_commands.hpp"
+#include "vdb/cli/commands/hybrid_commands.hpp"
+#include "vdb/cli/commands/ingest_commands.hpp"
+#include "vdb/cli/commands/index_commands.hpp"
+#include "vdb/cli/commands/collection_commands.hpp"
+#include "vdb/cli/commands/export_commands.hpp"
 #include <iostream>
 #include <algorithm>
 
@@ -127,10 +132,33 @@ void CLI::register_commands() {
     // Database commands
     auto db_init = std::make_shared<DbInitCommand>();
     commands_[db_init->name()] = db_init;
+    aliases_["init"] = db_init->name();
     
     auto db_info = std::make_shared<DbInfoCommand>();
     commands_[db_info->name()] = db_info;
     aliases_["info"] = db_info->name();
+    
+    auto db_optimize = std::make_shared<DbOptimizeCommand>();
+    commands_[db_optimize->name()] = db_optimize;
+    aliases_["optimize"] = db_optimize->name();
+    
+    auto db_backup = std::make_shared<DbBackupCommand>();
+    commands_[db_backup->name()] = db_backup;
+    aliases_["backup"] = db_backup->name();
+    
+    auto db_restore = std::make_shared<DbRestoreCommand>();
+    commands_[db_restore->name()] = db_restore;
+    aliases_["restore"] = db_restore->name();
+    
+    auto db_health = std::make_shared<DbHealthCommand>();
+    commands_[db_health->name()] = db_health;
+    aliases_["health"] = db_health->name();
+    
+    auto db_list = std::make_shared<DbListCommand>();
+    commands_[db_list->name()] = db_list;
+    for (const auto& alias : db_list->aliases()) {
+        aliases_[alias] = db_list->name();
+    }
     
     // Data commands
     auto data_add = std::make_shared<DataAddCommand>();
@@ -146,10 +174,82 @@ void CLI::register_commands() {
     aliases_["delete"] = data_delete->name();
     aliases_["rm"] = data_delete->name();
     
+    auto data_update = std::make_shared<DataUpdateCommand>();
+    commands_[data_update->name()] = data_update;
+    aliases_["update"] = data_update->name();
+    
+    auto data_batch = std::make_shared<DataBatchCommand>();
+    commands_[data_batch->name()] = data_batch;
+    aliases_["batch"] = data_batch->name();
+    
+    auto data_list = std::make_shared<DataListCommand>();
+    commands_[data_list->name()] = data_list;
+    for (const auto& alias : data_list->aliases()) {
+        aliases_[alias] = data_list->name();
+    }
+    
     // Search command
     auto search = std::make_shared<SearchCommand>();
     commands_[search->name()] = search;
-    aliases_["s"] = search->name();
+    for (const auto& alias : search->aliases()) {
+        aliases_[alias] = search->name();
+    }
+    
+    // Hybrid search commands
+    auto hybrid_search = std::make_shared<HybridSearchCommand>();
+    commands_[hybrid_search->name()] = hybrid_search;
+    for (const auto& alias : hybrid_search->aliases()) {
+        aliases_[alias] = hybrid_search->name();
+    }
+    
+    auto hybrid_bm25 = std::make_shared<HybridBM25Command>();
+    commands_[hybrid_bm25->name()] = hybrid_bm25;
+    
+    // Ingestion commands
+    auto ingest = std::make_shared<IngestCommand>();
+    commands_[ingest->name()] = ingest;
+    
+    auto ingest_scan = std::make_shared<IngestScanCommand>();
+    commands_[ingest_scan->name()] = ingest_scan;
+    
+    // Index commands
+    auto index_build = std::make_shared<IndexBuildCommand>();
+    commands_[index_build->name()] = index_build;
+    
+    auto index_optimize = std::make_shared<IndexOptimizeCommand>();
+    commands_[index_optimize->name()] = index_optimize;
+    
+    auto index_stats = std::make_shared<IndexStatsCommand>();
+    commands_[index_stats->name()] = index_stats;
+    
+    auto index_benchmark = std::make_shared<IndexBenchmarkCommand>();
+    commands_[index_benchmark->name()] = index_benchmark;
+    
+    // Collection commands
+    auto col_create = std::make_shared<CollectionCreateCommand>();
+    commands_[col_create->name()] = col_create;
+    
+    auto col_list = std::make_shared<CollectionListCommand>();
+    commands_[col_list->name()] = col_list;
+    for (const auto& alias : col_list->aliases()) {
+        aliases_[alias] = col_list->name();
+    }
+    
+    auto col_delete = std::make_shared<CollectionDeleteCommand>();
+    commands_[col_delete->name()] = col_delete;
+    
+    auto col_info = std::make_shared<CollectionInfoCommand>();
+    commands_[col_info->name()] = col_info;
+    
+    // Export commands
+    auto export_data = std::make_shared<ExportDataCommand>();
+    commands_[export_data->name()] = export_data;
+    
+    auto export_pairs = std::make_shared<ExportPairsCommand>();
+    commands_[export_pairs->name()] = export_pairs;
+    
+    auto export_triplets = std::make_shared<ExportTripletsCommand>();
+    commands_[export_triplets->name()] = export_triplets;
 }
 
 std::shared_ptr<CommandBase> CLI::get_command(const std::string& name) {
@@ -171,7 +271,7 @@ std::shared_ptr<CommandBase> CLI::get_command(const std::string& name) {
 void CLI::show_help() {
     std::cout << R"(
 Hektor - High-Performance Vector Database CLI
-Version 2.3.0
+Version 2.3.0 - Phase 2 Extended
 
 Usage: hektor [OPTIONS] <COMMAND> [ARGS]
 
@@ -188,39 +288,99 @@ Commands:
   Database Management:
     init <path>           Initialize a new database
     info <path>           Show database information
+    optimize <path>       Optimize database
+    backup <path> <dest>  Backup database
+    restore <src> <path>  Restore from backup
+    health <path>         Health check
+    db:list               List all databases
   
   Data Operations:
     add <db>              Add a document
     get <db> <id>         Get document by ID
-    delete <db> <id>      Delete a document
+    update <db> <id>      Update a document
+    delete <db> <id>      Delete a document (alias: rm)
+    batch <db> <file>     Batch insert from file
+    list <db>             List documents (alias: ls)
   
   Search:
-    search <db> <query>   Search the database
+    search <db> <query>   Semantic search (alias: s)
+    
+  Hybrid Search:
+    hybrid:search <db>    Hybrid vector+BM25 search (alias: hs)
+    hybrid:bm25 <db>      BM25 full-text search only
+  
+  Ingestion:
+    ingest <db> <source>  Import external data
+    ingest:scan <source>  Scan source without importing
+  
+  Index Management:
+    index:build <db>      Build or rebuild index
+    index:optimize <db>   Optimize index
+    index:stats <db>      Show index statistics
+    index:benchmark <db>  Benchmark index performance
+  
+  Collections:
+    collection:create     Create collection
+    collection:list       List collections (alias: collection:ls)
+    collection:delete     Delete collection
+    collection:info       Show collection info
+  
+  Export:
+    export:data <db>      Export database data
+    export:pairs <db>     Export training pairs
+    export:triplets <db>  Export training triplets
   
   General:
     help                  Show this help message
     version               Show version information
 
 Examples:
-  # Initialize database
-  hektor init ./mydb
-
-  # Add a document
+  # Initialize and add documents
+  hektor init ./mydb --preset gold-standard
   hektor add ./mydb --text "Gold prices rising"
+  hektor batch ./mydb documents.jsonl
 
   # Search
-  hektor search ./mydb "gold outlook" -k 10
+  hektor search ./mydb "gold outlook" -k 20
+  hektor hs ./mydb "analysis" --fusion rrf
 
-  # Get database info
-  hektor info ./mydb
+  # Ingestion
+  hektor ingest ./mydb ./docs --format pdf --recursive
+  hektor ingest ./mydb data.csv --chunk-strategy sentence
 
-For more information, visit: https://github.com/amuzetnoM/hektor
+  # Index management
+  hektor index:build ./mydb --type hnsw --hnsw-m 32
+  hektor index:benchmark ./mydb --queries 1000
+
+  # Collections
+  hektor collection:create ./mydb journals
+  hektor collection:list ./mydb
+
+  # Export for ML training
+  hektor export:triplets ./mydb training.jsonl --negative-samples 10
+
+  # Database maintenance
+  hektor optimize ./mydb
+  hektor backup ./mydb ./backup.tar.gz
+  hektor health ./mydb
+
+For detailed command help: hektor <command> --help
+For more information: https://github.com/amuzetnoM/hektor
 )";
 }
 
 void CLI::show_version() {
-    std::cout << "Hektor CLI version 2.3.0\n";
+    std::cout << "Hektor CLI version 2.3.0 - Phase 2 Extended\n";
     std::cout << "Vector Database Engine\n";
+    std::cout << "\nPhase 2 Features:\n";
+    std::cout << "  • 35+ commands across 8 categories\n";
+    std::cout << "  • Hybrid search (vector + BM25)\n";
+    std::cout << "  • Data ingestion with 10+ adapters\n";
+    std::cout << "  • Index management and optimization\n";
+    std::cout << "  • Collection management\n";
+    std::cout << "  • Export for ML training\n";
+    std::cout << "  • Database backup/restore\n";
+    std::cout << "  • Advanced data operations\n";
 }
 
 } // namespace vdb::cli

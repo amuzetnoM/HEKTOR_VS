@@ -101,3 +101,111 @@ Examples:
 };
 
 } // namespace vdb::cli
+
+/**
+ * hektor update - Update document
+ */
+class DataUpdateCommand : public CommandBase {
+public:
+    std::string name() const override { return "update"; }
+    std::string description() const override { 
+        return "Update existing document"; 
+    }
+    
+    std::string usage() const override {
+        return "hektor update <db> <id> [OPTIONS]";
+    }
+    
+    std::string help() const override {
+        return R"(Update existing document
+
+Options:
+  --text TEXT          New text content
+  --metadata JSON      Update metadata
+  --tags TAG1,TAG2     Update tags
+
+Examples:
+  hektor update ./mydb 12345 --text "Updated content"
+  hektor update ./mydb 12345 --metadata '{"status":"reviewed"}'
+)";
+    }
+    
+    int execute(
+        const std::vector<std::string>& args,
+        const std::unordered_map<std::string, std::string>& options
+    ) override;
+};
+
+/**
+ * hektor batch - Batch insert
+ */
+class DataBatchCommand : public CommandBase {
+public:
+    std::string name() const override { return "batch"; }
+    std::string description() const override { 
+        return "Batch insert from file"; 
+    }
+    
+    std::string usage() const override {
+        return "hektor batch <db> <file> [OPTIONS]";
+    }
+    
+    std::string help() const override {
+        return R"(Batch insert from file
+
+Options:
+  --format FORMAT      json|jsonl|csv (default: jsonl)
+  --workers N          Parallel workers (default: 4)
+  --chunk-size N       Batch size (default: 100)
+  --skip-errors        Continue on errors
+
+Examples:
+  hektor batch ./mydb documents.jsonl
+  hektor batch ./mydb data.csv --format csv --workers 8
+)";
+    }
+    
+    int execute(
+        const std::vector<std::string>& args,
+        const std::unordered_map<std::string, std::string>& options
+    ) override;
+};
+
+/**
+ * hektor list - List documents
+ */
+class DataListCommand : public CommandBase {
+public:
+    std::string name() const override { return "list"; }
+    std::string description() const override { 
+        return "List documents in database"; 
+    }
+    std::vector<std::string> aliases() const override { 
+        return {"ls"}; 
+    }
+    
+    std::string usage() const override {
+        return "hektor list <db> [OPTIONS]";
+    }
+    
+    std::string help() const override {
+        return R"(List documents in database
+
+Options:
+  --limit N            Maximum documents (default: 100)
+  --offset N           Skip N documents
+  --type TYPE          Filter by type
+
+Examples:
+  hektor list ./mydb
+  hektor ls ./mydb --limit 50 --type journal
+)";
+    }
+    
+    int execute(
+        const std::vector<std::string>& args,
+        const std::unordered_map<std::string, std::string>& options
+    ) override;
+};
+
+} // namespace vdb::cli

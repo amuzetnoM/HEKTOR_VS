@@ -519,6 +519,11 @@ add_executable(hektor
     src/cli/commands/db_commands.cpp
     src/cli/commands/data_commands.cpp
     src/cli/commands/search_commands.cpp
+    src/cli/commands/hybrid_commands.cpp
+    src/cli/commands/ingest_commands.cpp
+    src/cli/commands/index_commands.cpp
+    src/cli/commands/collection_commands.cpp
+    src/cli/commands/export_commands.cpp
 )
 
 target_include_directories(hektor PRIVATE
