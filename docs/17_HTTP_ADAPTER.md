@@ -2,14 +2,41 @@
 title: "HTTP Adapter"
 description: "Generic HTTP adapter for fetching and parsing data from web APIs"
 version: "3.0.0"
-last_updated: "2026-01-07"
+last_updated: "2026-01-08"
 sidebar_position: 17
 category: "Data Ingestion"
 ---
 
 ![Version](https://img.shields.io/badge/version-3.0.0-blue?style=flat-square)
-![Last Updated](https://img.shields.io/badge/updated-2026--01--06-green?style=flat-square)
-![Type](https://img.shields.io/badge/type-advanced-red?style=flat-square)
+![Last Updated](https://img.shields.io/badge/updated-2026--01--08-green?style=flat-square)
+![Type](https://img.shields.io/badge/type-adapter-red?style=flat-square)
+
+# HTTP Adapter
+
+## Table of Contents
+
+- [Overview](#overview)
+- [Quick Start](#quick-start)
+  - [C++ Usage](#c-usage)
+  - [Python Usage](#python-usage)
+- [Configuration](#configuration)
+  - [HTTPConfig](#httpconfig)
+  - [Custom Headers](#custom-headers)
+  - [Timeout and Retry](#timeout-and-retry)
+- [Format Detection](#format-detection)
+- [Supported Formats](#supported-formats)
+- [API Reference](#api-reference)
+  - [HTTPAdapter Class](#httpadapter-class)
+  - [Methods](#methods)
+- [Response Metadata](#response-metadata)
+- [Error Handling](#error-handling)
+- [Advanced Usage](#advanced-usage)
+  - [Custom Authentication](#custom-authentication)
+  - [Rate Limiting](#rate-limiting)
+  - [Response Caching](#response-caching)
+- [Use Cases](#use-cases)
+
+---
 
 ## Overview
 

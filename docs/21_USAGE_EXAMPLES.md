@@ -1,14 +1,32 @@
 ---
 title: "Usage Examples"
+description: "Practical code examples and common patterns"
 version: "3.0.0"
-last_updated: "2026-01-06"
-sidebar_position: 12
+last_updated: "2026-01-08"
+sidebar_position: 21
+category: "Tutorial"
 ---
 
-
 ![Version](https://img.shields.io/badge/version-3.0.0-blue?style=flat-square)
-![Last Updated](https://img.shields.io/badge/updated-2026--01--06-green?style=flat-square)
+![Last Updated](https://img.shields.io/badge/updated-2026--01--08-green?style=flat-square)
 ![Examples](https://img.shields.io/badge/examples-practical-brightgreen?style=flat-square)
+
+# Usage Examples
+
+## Table of Contents
+
+- [Auto-Parse Any Format](#auto-parse-any-format)
+- [Write to Any Format](#write-to-any-format)
+- [Specific Adapters](#specific-adapters)
+  - [XML](#xml)
+  - [PDF](#pdf)
+  - [SQLite](#sqlite)
+  - [Parquet](#parquet)
+- [Logging](#logging)
+- [Configuration](#configuration)
+- [Version Check](#version-check)
+
+---
 
 ## Auto-Parse Any Format
 

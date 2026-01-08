@@ -2,9 +2,36 @@
 title: "Quick Start"
 description: "Quick deployment with Docker and Kubernetes"
 version: "3.0.0"
-last_updated: "2026-01-06"
+last_updated: "2026-01-08"
 sidebar_position: 3
 category: "Tutorial"
+---
+
+![Version](https://img.shields.io/badge/version-3.0.0-blue?style=flat-square)
+![Last Updated](https://img.shields.io/badge/updated-2026--01--08-green?style=flat-square)
+![Deployment](https://img.shields.io/badge/deployment-docker%20%7C%20k8s-blue?style=flat-square)
+
+# Quick Start
+
+## Table of Contents
+
+- [Option 1: Docker Compose (Recommended)](#option-1-docker-compose-recommended)
+  - [Prerequisites](#prerequisites)
+  - [Steps](#steps)
+  - [Access Services](#access-services)
+  - [First API Call](#first-api-call)
+- [Option 2: Kubernetes](#option-2-kubernetes)
+  - [Prerequisites](#prerequisites-1)
+  - [Steps](#steps-1)
+  - [Access Services](#access-services-1)
+- [Option 3: Local Development](#option-3-local-development)
+  - [Prerequisites](#prerequisites-2)
+  - [Steps](#steps-2)
+- [Next Steps](#next-steps)
+- [Troubleshooting](#troubleshooting)
+- [Resources](#resources)
+- [Support](#support)
+
 ---
 
 Vector Studio can be deployed in **under 5 minutes** using Docker or Kubernetes!

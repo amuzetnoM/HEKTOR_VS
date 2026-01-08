@@ -2,14 +2,37 @@
 title: "ML Framework Integration"
 description: "TensorFlow and PyTorch integration with GPU acceleration"
 version: "3.0.0"
-last_updated: "2026-01-06"
+last_updated: "2026-01-08"
 sidebar_position: 12
 category: "Feature"
 ---
 
 ![Version](https://img.shields.io/badge/version-3.0.0-blue?style=flat-square)
-![Last Updated](https://img.shields.io/badge/updated-2026--01--06-green?style=flat-square)
-![Type](https://img.shields.io/badge/type-theory-purple?style=flat-square)
+![Last Updated](https://img.shields.io/badge/updated-2026--01--08-green?style=flat-square)
+![Type](https://img.shields.io/badge/type-integration-purple?style=flat-square)
+
+# ML Framework Integration
+
+## Table of Contents
+
+- [Overview](#overview)
+- [TensorFlow Integration](#tensorflow-integration)
+  - [Installation](#installation)
+  - [CMake Configuration](#cmake-configuration)
+  - [Usage](#usage)
+  - [Example](#example)
+- [PyTorch Integration](#pytorch-integration)
+  - [Installation](#installation-1)
+  - [CMake Configuration](#cmake-configuration-1)
+  - [Usage](#usage-1)
+  - [Example](#example-1)
+- [System Requirements](#system-requirements)
+- [Performance Considerations](#performance-considerations)
+- [Troubleshooting](#troubleshooting)
+- [Current Status (v2.2.0)](#current-status-v220)
+- [Alternative: ONNX Runtime](#alternative-onnx-runtime)
+
+---
 
 ## Overview
 

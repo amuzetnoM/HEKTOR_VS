@@ -2,14 +2,38 @@
 title: "Logging & Monitoring"
 description: "Logging system, Prometheus metrics, and observability"
 version: "3.0.0"
-last_updated: "2026-01-06"
+last_updated: "2026-01-08"
 sidebar_position: 15
 category: "Operations"
 ---
 ![Version](https://img.shields.io/badge/version-3.0.0-blue?style=flat-square)
-![Last Updated](https://img.shields.io/badge/updated-2026--01--06-green?style=flat-square)
+![Last Updated](https://img.shields.io/badge/updated-2026--01--08-green?style=flat-square)
 ![Anomaly Types](https://img.shields.io/badge/anomaly__types-15-orange?style=flat-square)
 
+# Logging & Monitoring
+
+## Table of Contents
+
+- [Overview](#overview)
+- [Features](#features)
+  - [Multi-Level Logging](#multi-level-logging)
+  - [Anomaly Detection](#anomaly-detection)
+  - [Thread Safety](#thread-safety)
+  - [Performance](#performance)
+- [Usage](#usage)
+  - [Basic Logging](#basic-logging)
+  - [Anomaly Logging](#anomaly-logging)
+  - [Configuration](#configuration)
+- [Log Format](#log-format)
+- [Integration with Adapters](#integration-with-adapters)
+- [Monitoring Anomalies](#monitoring-anomalies)
+- [Production Deployment](#production-deployment)
+- [Performance Impact](#performance-impact)
+- [Troubleshooting](#troubleshooting)
+- [API Reference](#api-reference)
+- [Examples](#examples)
+
+---
 
 ## Overview
 

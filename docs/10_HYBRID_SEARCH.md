@@ -2,14 +2,41 @@
 title: "Hybrid Search"
 description: "BM25 full-text search, fusion methods, and RAG toolkit"
 version: "3.0.0"
-last_updated: "2026-01-06"
+last_updated: "2026-01-08"
 sidebar_position: 10
 category: "Feature"
 ---
 
 ![Version](https://img.shields.io/badge/version-3.0.0-blue?style=flat-square)
-![Last Updated](https://img.shields.io/badge/updated-2026--01--06-green?style=flat-square)
-![Type](https://img.shields.io/badge/type-theory-purple?style=flat-square)
+![Last Updated](https://img.shields.io/badge/updated-2026--01--08-green?style=flat-square)
+![Type](https://img.shields.io/badge/type-feature-purple?style=flat-square)
+
+# Hybrid Search
+
+## Table of Contents
+
+- [Overview](#overview)
+- [Quick Start (C++)](#quick-start-c)
+- [Quick Start (Python)](#quick-start-python)
+- [Fusion Methods](#fusion-methods)
+  - [1. RRF (Reciprocal Rank Fusion)](#1-rrf-reciprocal-rank-fusion---recommended)
+  - [2. Weighted Sum](#2-weighted-sum)
+  - [3. CombSUM](#3-combsum)
+  - [4. CombMNZ](#4-combmnz)
+  - [5. Borda Count](#5-borda-count)
+- [Configuration](#configuration)
+  - [BM25 Tuning](#bm25-tuning)
+  - [Hybrid Search Tuning](#hybrid-search-tuning)
+- [Performance](#performance)
+  - [Benchmarks](#benchmarks)
+  - [Best Practices](#best-practices)
+- [Common Patterns](#common-patterns)
+- [See Also](#see-also)
+- [Support](#support)
+
+---
+
+## Overview
 
 > **What is Hybrid Search?** <BR>
 Hybrid search combines **vector similarity** (semantic understanding) with **BM25 full-text search** (keyword matching) for superior retrieval accuracy.
@@ -18,6 +45,8 @@ Hybrid search combines **vector similarity** (semantic understanding) with **BM2
 - 15-20% accuracy improvement over vector-only
 - Better handling of exact keywords
 - Robust across different query types
+
+---
 
 ## Quick Start (C++)
 

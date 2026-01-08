@@ -1,6 +1,27 @@
+---
+title: "Security Policy"
+description: "Security policies and vulnerability reporting"
+version: "3.0.0"
+last_updated: "2026-01-08"
+sidebar_position: 18
+category: "Operations"
+---
+
 ![Version](https://img.shields.io/badge/version-3.0.0-blue?style=flat-square)
-![Last Updated](https://img.shields.io/badge/updated-2026--01--06-green?style=flat-square)
-![Type](https://img.shields.io/badge/type-operations-yellow?style=flat-square)
+![Last Updated](https://img.shields.io/badge/updated-2026--01--08-green?style=flat-square)
+![Type](https://img.shields.io/badge/type-security-red?style=flat-square)
+
+# Security Policy
+
+## Table of Contents
+
+- [Overview](#overview)
+- [Supported Versions](#supported-versions)
+- [Reporting a Vulnerability](#reporting-a-vulnerability)
+  - [How to Report](#how-to-report)
+  - [What to Expect](#what-to-expect)
+
+---
 
 ## Overview
 
