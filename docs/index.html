@@ -1,6 +1,6 @@
-
 <!DOCTYPE html>
 <html lang="en" class="scroll-smooth">
+
 <head>
   <meta charset="UTF-8">
   <title>Hektor | The Vector Studio</title>
@@ -8,73 +8,438 @@
   <script src="https://cdn.tailwindcss.com"></script>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@300;400;500;600;700&family=Fira+Code:wght@400;500&display=swap" rel="stylesheet">
+  <link
+    href="https://fonts.googleapis.com/css2?family=Manrope:wght@300;400;500;600;700;800&family=Fira+Code:wght@400;500&display=swap"
+    rel="stylesheet">
   <style>
     body {
       font-family: 'Manrope', sans-serif;
-      background-color: #0f0b15; /* darker violet-black */
+      background-color: #020202;
       color: #fafafa;
     }
+
     .font-mono {
       font-family: 'Fira Code', monospace;
     }
+
     .glass-panel {
       background: rgba(20, 15, 30, 0.6);
       backdrop-filter: blur(16px);
       -webkit-backdrop-filter: blur(16px);
       border: 1px solid rgba(255, 255, 255, 0.08);
     }
+
     .gradient-text {
       background: linear-gradient(135deg, #fbbf24 0%, #f59e0b 50%, #d946ef 100%);
       -webkit-background-clip: text;
       -webkit-text-fill-color: transparent;
     }
-    /* Hide scrollbar for code blocks but allow scrolling */
-    .no-scrollbar::-webkit-scrollbar {
-      display: none;
-    }
-    .no-scrollbar {
-      -ms-overflow-style: none;
-      scrollbar-width: none;
-    }
-    /* D3 Tooltip */
-    .d3-tooltip {
-      position: absolute;
-      text-align: center;
-      padding: 8px;
-      font: 12px sans-serif;
-      background: rgba(0, 0, 0, 0.9);
-      color: white;
-      border: 1px solid #333;
-      border-radius: 4px;
-      pointer-events: none;
-      opacity: 0;
-      transition: opacity 0.2s;
-    }
   </style>
-  <script type="importmap">
-  {
-    "imports": {
-      "rxjs": "https://esm.sh/rxjs@^7.8.2?conditions=es2015",
-      "rxjs/operators": "https://esm.sh/rxjs@^7.8.2/operators?conditions=es2015",
-      "rxjs/ajax": "https://esm.sh/rxjs@^7.8.2/ajax?conditions=es2015",
-      "rxjs/webSocket": "https://esm.sh/rxjs@^7.8.2/webSocket?conditions=es2015",
-      "rxjs/testing": "https://esm.sh/rxjs@^7.8.2/testing?conditions=es2015",
-      "rxjs/fetch": "https://esm.sh/rxjs@^7.8.2/fetch?conditions=es2015",
-      "@angular/compiler": "https://esm.sh/@angular/compiler@^21.0.6?external=rxjs",
-      "@angular/platform-browser": "https://esm.sh/@angular/platform-browser@^21.0.6?external=rxjs",
-      "@angular/core": "https://esm.sh/@angular/core@^21.0.6?external=rxjs",
-      "@angular/router": "https://esm.sh/@angular/router@^21.0.6?external=rxjs",
-      "@google/genai": "https://esm.sh/@google/genai@^1.34.0?external=rxjs",
-      "@angular/common": "https://esm.sh/@angular/common@^21.0.6?external=rxjs",
-      "@angular/forms": "https://esm.sh/@angular/forms@^21.0.6?external=rxjs",
-      "d3": "https://esm.sh/d3@7.9.0"
-    }
-  }
-  </script>
-<link rel="stylesheet" href="/index.css">
 </head>
-<body>
-  <app-root></app-root>
+
+<body class="bg-[#020202] text-zinc-100 font-sans selection:bg-amber-500/30">
+
+  <!-- Global Matte Noise Overlay -->
+  <div class="fixed inset-0 z-50 pointer-events-none opacity-[0.04] mix-blend-overlay"
+    style="background-image: url('data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSI1MDAiIGhlaWdodD0iNTAwIj48ZmlsdGVyIGlkPSJub2lzZSI+PHZlVHVyYnVsZW5jZSB0eXBlPSJmcmFjdGFsTm9pc2UiIGJhc2VGcmVxdWVuY3k9IjAuODUiIG51bT1vY3RhdmVzPSIzIiBzdGl0Y2hUaWxlcz0ic3RpdGNoIi8+PC9maWx0ZXI+PHJlY3Qgd2lkdGg9IjEwMCUiIGhlaWdodD0iMTAwJSIgZmlsdGVyPSJ1cmwoI25vaXNlKSIgb3BhY2l0eT0iMSIvPjwvc3ZnPg==')">
+  </div>
+
+  <!-- Header -->
+  <nav class="fixed top-0 left-0 right-0 z-40 border-b border-white/5 bg-[#020202]/80 backdrop-blur-md">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+      <div class="flex items-center justify-between h-20">
+
+        <!-- Logo -->
+        <a href="#" class="flex-shrink-0 flex items-center gap-3 cursor-pointer group">
+          <div
+            class="w-7 h-7 rounded-sm bg-zinc-100 shadow-[0_0_15px_rgba(255,255,255,0.1)] group-hover:shadow-[0_0_20px_rgba(255,255,255,0.3)] transition-all duration-500">
+          </div>
+          <span class="text-xl font-bold tracking-tight text-white">HEKTOR</span>
+        </a>
+
+        <!-- Desktop Menu -->
+        <div class="hidden md:flex items-baseline space-x-8">
+          <a href="#"
+            class="text-zinc-400 hover:text-amber-400 transition-colors px-3 py-2 rounded-md text-sm font-medium">Studio</a>
+          <a href="#"
+            class="text-zinc-400 hover:text-amber-400 transition-colors px-3 py-2 rounded-md text-sm font-medium">Engine</a>
+          <a href="#"
+            class="text-zinc-400 hover:text-amber-400 transition-colors px-3 py-2 rounded-md text-sm font-medium">Docs</a>
+          <a href="#"
+            class="text-zinc-400 hover:text-amber-400 transition-colors px-3 py-2 rounded-md text-sm font-medium">GitHub</a>
+        </div>
+
+        <!-- Mobile Menu Button -->
+        <div class="md:hidden">
+          <button id="mobile-menu-button"
+            class="inline-flex items-center justify-center p-2 rounded-md text-zinc-400 hover:text-white hover:bg-zinc-800 focus:outline-none focus:ring-2 focus:ring-inset focus:ring-white">
+            <span class="sr-only">Open main menu</span>
+            <svg class="h-6 w-6" id="hamburger-icon" stroke="currentColor" fill="none" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16" />
+            </svg>
+            <svg class="h-6 w-6 hidden" id="close-icon" stroke="currentColor" fill="none" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+            </svg>
+          </button>
+        </div>
+      </div>
+    </div>
+  </nav>
+
+  <!-- Mobile Menu Sidebar -->
+  <div id="mobile-menu"
+    class="fixed top-0 left-0 h-full w-full bg-[#020202] z-30 transform -translate-x-full transition-transform duration-300 ease-in-out md:hidden">
+    <div class="pt-24 px-8 space-y-6">
+      <a href="#" class="block text-zinc-300 hover:text-amber-400 transition-colors py-2 text-lg font-medium">Studio</a>
+      <a href="#" class="block text-zinc-300 hover:text-amber-400 transition-colors py-2 text-lg font-medium">Engine</a>
+      <a href="#" class="block text-zinc-300 hover:text-amber-400 transition-colors py-2 text-lg font-medium">Docs</a>
+      <a href="#" class="block text-zinc-300 hover:text-amber-400 transition-colors py-2 text-lg font-medium">GitHub</a>
+      <a href="#"
+        class="mt-8 inline-block w-full text-center bg-white text-black font-semibold py-3 px-6 rounded text-base transition-all hover:bg-zinc-200">
+        Launch Studio
+      </a>
+    </div>
+  </div>
+
+
+  <main class="pt-20"> <!-- Padding for fixed navbar -->
+
+    <!-- Hero Section -->
+    <section class="relative pt-24 pb-24 px-4 sm:px-6 lg:px-8 overflow-hidden">
+      <div
+        class="absolute top-0 left-1/2 -translate-x-1/2 w-[1000px] h-[600px] bg-amber-900/20 rounded-full blur-[120px] pointer-events-none opacity-60">
+      </div>
+      <div
+        class="absolute top-20 right-0 w-[600px] h-[600px] bg-violet-900/20 rounded-full blur-[100px] pointer-events-none opacity-60">
+      </div>
+      <div class="relative max-w-7xl mx-auto z-10">
+        <div class="text-center max-w-4xl mx-auto mb-16">
+          <div
+            class="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-white/5 border border-white/10 mb-8 hover:bg-white/10 transition-colors cursor-default backdrop-blur-md">
+            <span class="w-1.5 h-1.5 rounded-full bg-green-500 shadow-[0_0_10px_rgba(34,197,94,0.5)]"></span>
+            <span class="text-xs font-mono font-medium text-zinc-400">HektorDB v2.4 stable</span>
+          </div>
+          <h1 class="text-5xl sm:text-7xl md:text-8xl font-bold tracking-tighter text-white mb-8 leading-[0.95]">
+            Vector Search <br />
+            <span class="text-transparent bg-clip-text bg-gradient-to-b from-zinc-200 to-zinc-600">for the AGI
+              Era</span>
+          </h1>
+          <p class="text-xl text-zinc-500 max-w-2xl mx-auto leading-relaxed mb-10">
+            The high-performance, embedded vector search engine. <br />
+            Zero garbage collection. SIMD-optimized. Deterministic latency.
+          </p>
+          <div class="flex flex-col sm:flex-row items-center justify-center gap-4">
+            <a href="#"
+              class="h-12 px-8 rounded-full bg-white text-black font-semibold flex items-center gap-2 hover:bg-zinc-200 transition-colors z-20">
+              Open Studio
+              <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14 5l7 7m0 0l-7 7m7-7H3" />
+              </svg>
+            </a>
+            <button
+              class="h-12 px-8 rounded-full border border-white/10 text-zinc-300 font-mono text-sm hover:bg-white/5 transition-colors flex items-center gap-3 group backdrop-blur-sm z-20">
+              <span>$ brew install hektor</span>
+              <svg class="w-4 h-4 text-zinc-600 group-hover:text-white transition-colors" fill="none"
+                viewBox="0 0 24 24" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                  d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z" />
+              </svg>
+            </button>
+          </div>
+        </div>
+        <!-- Code Block Component -->
+        <div id="code-block-wrapper" class="max-w-4xl mx-auto relative group z-10">
+          <div
+            class="absolute -inset-1 bg-gradient-to-r from-amber-500/20 to-violet-600/20 rounded-xl blur-2xl opacity-20 group-hover:opacity-40 transition duration-1000">
+          </div>
+          <div class="relative glass-panel rounded-lg overflow-hidden shadow-2xl border border-white/5">
+            <div class="flex items-center px-4 py-3 bg-[#15101e] border-b border-white/5">
+              <div class="flex gap-2 mr-6 opacity-40">
+                <div class="w-2.5 h-2.5 rounded-full bg-zinc-500"></div>
+                <div class="w-2.5 h-2.5 rounded-full bg-zinc-500"></div>
+                <div class="w-2.5 h-2.5 rounded-full bg-zinc-500"></div>
+              </div>
+              <div class="flex gap-6" id="code-tabs">
+                <button data-lang="cpp"
+                  class="code-tab text-amber-400 border-b border-amber-400 pb-1 text-xs font-mono font-medium transition-all">main.cpp</button>
+                <button data-lang="python"
+                  class="code-tab text-zinc-500 hover:text-zinc-300 pb-1 text-xs font-mono font-medium transition-all">client.py</button>
+                <button data-lang="rust"
+                  class="code-tab text-zinc-500 hover:text-zinc-300 pb-1 text-xs font-mono font-medium transition-all">main.rs</button>
+              </div>
+            </div>
+            <div class="p-6 bg-[#0a080f] overflow-x-auto">
+              <pre
+                class="font-mono text-sm leading-relaxed"><code id="code-content" class="block text-zinc-300"></code></pre>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Performance Features Bento Grid -->
+    <section class="py-24 px-4 sm:px-6 lg:px-8 max-w-7xl mx-auto border-t border-white/5">
+      <div class="mb-16 max-w-2xl">
+        <h2 class="text-4xl md:text-5xl font-bold text-white mb-6 tracking-tight">
+          Engineered for <span class="text-white">[</span><span class="gradient-text">Throughput</span><span
+            class="text-white">]</span>
+        </h2>
+        <p class="text-lg text-zinc-500 leading-relaxed">
+          Most vector databases are wrappers around wrappers. Hektor is bare metal. We engineered the bottleneck out of
+          the system.
+        </p>
+      </div>
+      <div class="grid grid-cols-1 md:grid-cols-3 md:grid-rows-2 gap-6 md:h-[600px]">
+        <div
+          class="md:col-span-2 md:row-span-2 relative group overflow-hidden rounded-sm border border-white/10 bg-[#08080a] hover:border-white/20 transition-all duration-300 flex flex-col min-h-[500px] md:min-h-0">
+          <div class="p-10 relative z-10 flex flex-col h-full justify-between">
+            <div>
+              <div class="flex items-center gap-3 mb-6">
+                <div
+                  class="px-2 py-1 bg-amber-500/10 border border-amber-500/20 text-amber-500 text-xs font-mono font-bold uppercase tracking-wider">
+                  Instruction Set</div>
+                <span class="text-zinc-600 font-mono text-xs">AVX-512 / NEON</span>
+              </div>
+              <h3 class="text-3xl font-bold text-white mb-4 tracking-tight">SIMD Parallelization</h3>
+              <p class="text-zinc-400 text-lg max-w-md leading-relaxed">
+                We process 16 dimensions per cycle using explicit compiler intrinsics. Hektor treats your CPU as a
+                vector processor, not a scalar one.
+              </p>
+            </div>
+            <div class="mt-12 flex-1 flex items-end gap-1.5 opacity-80 h-40">
+              <div class="w-full bg-zinc-900 border border-zinc-800 h-[40%] relative overflow-hidden">
+                <div class="absolute bottom-0 w-full h-1 bg-amber-500"></div>
+              </div>
+              <div class="w-full bg-zinc-900 border border-zinc-800 h-[60%] relative overflow-hidden">
+                <div class="absolute bottom-0 w-full h-1 bg-amber-500"></div>
+              </div>
+              <div class="w-full bg-amber-900/10 border border-amber-500/30 h-[85%] relative overflow-hidden">
+                <div class="absolute inset-0 bg-amber-500/10"></div>
+                <div class="absolute bottom-0 w-full h-full bg-gradient-to-t from-amber-500/40 to-transparent"></div>
+              </div>
+              <div class="w-full bg-zinc-900 border border-zinc-800 h-[55%] relative overflow-hidden">
+                <div class="absolute bottom-0 w-full h-1 bg-amber-500"></div>
+              </div>
+              <div class="w-full bg-amber-900/10 border border-amber-500/30 h-[90%] relative overflow-hidden">
+                <div class="absolute inset-0 bg-amber-500/10"></div>
+                <div class="absolute bottom-0 w-full h-full bg-gradient-to-t from-amber-500/40 to-transparent"></div>
+              </div>
+              <div class="w-full bg-zinc-900 border border-zinc-800 h-[45%] relative overflow-hidden">
+                <div class="absolute bottom-0 w-full h-1 bg-amber-500"></div>
+              </div>
+              <div class="w-full bg-zinc-900 border border-zinc-800 h-[30%] relative overflow-hidden">
+                <div class="absolute bottom-0 w-full h-1 bg-amber-500"></div>
+              </div>
+              <div class="w-full bg-amber-900/10 border border-amber-500/30 h-[75%] relative overflow-hidden">
+                <div class="absolute inset-0 bg-amber-500/10"></div>
+                <div class="absolute bottom-0 w-full h-full bg-gradient-to-t from-amber-500/40 to-transparent"></div>
+              </div>
+            </div>
+            <div class="flex justify-between mt-2 text-[10px] font-mono text-zinc-600 uppercase tracking-widest">
+              <span>Lane 0</span>
+              <span>SIMD Registry Output</span>
+              <span>Lane 7</span>
+            </div>
+          </div>
+        </div>
+        <div
+          class="relative group overflow-hidden rounded-sm border border-white/10 bg-[#08080a] hover:border-white/20 transition-all duration-300">
+          <div class="p-8 relative z-10 flex flex-col h-full">
+            <div class="flex justify-between items-start mb-4">
+              <h3 class="text-lg font-bold text-white">Zero-Copy Access</h3>
+              <span class="text-[10px] font-mono border border-zinc-700 text-zinc-400 px-1.5 py-0.5 rounded">MMAP</span>
+            </div>
+            <div
+              class="flex-1 mt-2 font-mono text-[10px] leading-relaxed text-zinc-600 overflow-hidden bg-zinc-950/50 p-3 rounded border border-white/5 select-none">
+              <div class="flex gap-3"><span
+                  class="text-zinc-700 border-r border-zinc-800 pr-2 select-none">0x0040</span><span
+                  class="text-zinc-500"><span class="text-white font-bold">48</span> 8B 05 <span
+                    class="text-white font-bold">2A</span></span></div>
+              <div class="flex gap-3"><span
+                  class="text-zinc-700 border-r border-zinc-800 pr-2 select-none">0x0048</span><span
+                  class="text-zinc-500">F2 <span class="text-violet-400">0F</span> 10 05</span></div>
+              <div class="flex gap-3"><span
+                  class="text-zinc-700 border-r border-zinc-800 pr-2 select-none">0x0050</span><span
+                  class="text-zinc-500">66 <span class="text-violet-400">0F</span> EF C0</span></div>
+              <div class="flex gap-3"><span
+                  class="text-zinc-700 border-r border-zinc-800 pr-2 select-none">0x0058</span><span
+                  class="text-zinc-500">F2 0F 58 C1</span></div>
+              <div class="flex gap-3 opacity-50"><span
+                  class="text-zinc-700 border-r border-zinc-800 pr-2 select-none">0x0060</span><span
+                  class="text-zinc-500">C3 90 90 90</span></div>
+            </div>
+            <p class="text-xs text-zinc-500 mt-4 leading-relaxed">Data is mapped directly from NVMe to virtual memory.
+              No serialization overhead.</p>
+          </div>
+        </div>
+        <div
+          class="relative group overflow-hidden rounded-sm border border-white/10 bg-[#08080a] hover:border-white/20 transition-all duration-300">
+          <div class="p-8 relative z-10 flex flex-col h-full">
+            <div class="flex justify-between items-start mb-4">
+              <h3 class="text-lg font-bold text-white">No GC Pauses</h3>
+              <span
+                class="text-[10px] font-mono border border-zinc-700 text-zinc-400 px-1.5 py-0.5 rounded">RT-SAFE</span>
+            </div>
+            <div class="flex-1 mt-4 relative border-l border-b border-zinc-800">
+              <div
+                class="absolute inset-0 bg-[linear-gradient(rgba(255,255,255,0.03)_1px,transparent_1px),linear-gradient(90deg,rgba(255,255,255,0.03)_1px,transparent_1px)] bg-[size:10px_10px]">
+              </div>
+              <svg class="absolute inset-0 w-full h-full text-zinc-700" preserveAspectRatio="none">
+                <path d="M0,80 L20,80 L25,20 L30,80 L60,80 L65,10 L70,80 L100,80" fill="none" stroke="currentColor"
+                  stroke-width="1" vector-effect="non-scaling-stroke" stroke-dasharray="2 2" />
+              </svg>
+              <svg class="absolute inset-0 w-full h-full text-green-500" preserveAspectRatio="none">
+                <path d="M0,85 L100,85" fill="none" stroke="currentColor" stroke-width="1.5"
+                  vector-effect="non-scaling-stroke" />
+              </svg>
+              <div class="absolute top-2 right-2 text-[9px] font-mono text-zinc-600">JVM Heap</div>
+              <div class="absolute bottom-4 right-2 text-[9px] font-mono text-green-500">C++ RAII</div>
+            </div>
+            <p class="text-xs text-zinc-500 mt-4 leading-relaxed">Deterministic tail latency. Memory is managed via
+              RAII, not a background collector.</p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- CTA -->
+    <section class="py-32 px-4 text-center">
+      <div class="max-w-3xl mx-auto">
+        <h2 class="text-5xl font-bold text-white mb-8 tracking-tighter">Ready to replace your <br /> Java vector DB?
+        </h2>
+        <div class="flex justify-center gap-6">
+          <a href="#"
+            class="px-8 py-4 bg-white text-black font-bold rounded-lg hover:bg-zinc-200 transition-colors z-20">Get
+            Started</a>
+          <a href="#"
+            class="px-8 py-4 border border-zinc-800 text-zinc-300 font-bold rounded-lg hover:bg-zinc-900 transition-colors z-20 backdrop-blur-sm bg-black/20">Read
+            the Benchmarks</a>
+        </div>
+      </div>
+    </section>
+
+  </main>
+
+  <!-- Footer -->
+  <footer class="border-t border-white/5 py-12 bg-[#020202]">
+    <div class="max-w-7xl mx-auto px-6 flex flex-col md:flex-row justify-between items-center gap-6">
+      <div class="flex items-center gap-2">
+        <div class="w-5 h-5 bg-zinc-100 rounded-sm"></div>
+        <span class="font-bold text-white tracking-tight">HEKTOR</span>
+      </div>
+      <div class="flex gap-8 text-sm text-zinc-500">
+        <a href="#" class="hover:text-white transition-colors">Docs</a>
+        <a href="#" class="hover:text-white transition-colors">GitHub</a>
+        <a href="#" class="hover:text-white transition-colors">Twitter</a>
+        <a href="#" class="hover:text-white transition-colors">Status</a>
+      </div>
+      <div class="text-xs text-zinc-600 font-mono">
+        © 2024 Open Source
+      </div>
+    </div>
+  </footer>
+
+  <script>
+    document.addEventListener('DOMContentLoaded', function () {
+
+      // --- Code Block Interactivity ---
+      const codeSnippets = {
+        cpp: `
+<span class="text-violet-400">#include</span> <span class="text-green-400">&lt;hektor/core.hpp&gt;</span>
+
+<span class="text-violet-400">int</span> main() {
+    <span class="text-zinc-500">// Initialize the zero-copy engine</span>
+    <span class="text-violet-400">auto</span> db = hektor::db::create(<span class="text-amber-400">"data/"</span>);
+
+    <span class="text-zinc-500">// Define HNSW schema</span>
+    <span class="text-violet-400">auto</span> schema = hektor::schema::builder()
+        .name(<span class="text-amber-400">"research_papers"</span>)
+        .metric(hektor::metric::cosine)
+        .dim(<span class="text-orange-400">1536</span>)
+        .build();
+
+    db->create_collection(schema);
+    
+    <span class="text-zinc-500">// SIMD-accelerated insertion</span>
+    db->insert_batch(vectors);
+}`,
+        python: `
+<span class="text-violet-400">import</span> hektor
+
+<span class="text-zinc-500"># Connect to the C++ Daemon via gRPC</span>
+client = hektor.Client(<span class="text-amber-400">"localhost:9090"</span>)
+
+<span class="text-zinc-500"># Perform hybrid search</span>
+results = client.collection(<span class="text-amber-400">"research_papers"</span>).query(
+    vector=[<span class="text-orange-400">0.1</span>, <span class="text-orange-400">0.5</span>, ...],
+    top_k=<span class="text-orange-400">5</span>,
+    <span class="text-zinc-500"># Runs directly on the C++ indexing thread</span>
+    filter=hektor.Filter(<span class="text-amber-400">"year"</span>) > <span class="text-orange-400">2023</span>
+)
+
+print(f<span class="text-amber-400">"Found {len(results)} matches in 2ms"</span>)`,
+        rust: `
+<span class="text-violet-400">use</span> hektor::prelude::*;
+
+<span class="text-violet-400">fn</span> main() -> Result<()> {
+    <span class="text-zinc-500">// Zero-overhead bindings</span>
+    <span class="text-violet-400">let</span> client = Client::connect(<span class="text-amber-400">"http://127.0.0.1:9090"</span>)?;
+    
+    <span class="text-violet-400">let</span> results = client
+        .collection(<span class="text-amber-400">"images"</span>)
+        .search(query_vec)
+        .limit(<span class="text-orange-400">10</span>)
+        .await?;
+        
+    println!(<span class="text-amber-400">"{:?}"</span>, results);
+    Ok(())
+}`
+      };
+
+      const codeContentEl = document.getElementById('code-content');
+      const codeTabs = document.querySelectorAll('.code-tab');
+
+      function updateCode(lang) {
+        if (codeContentEl && codeSnippets[lang]) {
+          codeContentEl.innerHTML = codeSnippets[lang];
+        }
+      }
+
+      codeTabs.forEach(tab => {
+        tab.addEventListener('click', () => {
+          const lang = tab.getAttribute('data-lang');
+
+          // Update tab styles
+          codeTabs.forEach(t => {
+            t.classList.remove('text-amber-400', 'border-b', 'border-amber-400');
+            t.classList.add('text-zinc-500', 'hover:text-zinc-300');
+          });
+          tab.classList.add('text-amber-400', 'border-b', 'border-amber-400');
+          tab.classList.remove('text-zinc-500', 'hover:text-zinc-300');
+
+          // Update content
+          updateCode(lang);
+        });
+      });
+
+      // Initialize with default view
+      updateCode('cpp');
+
+      // --- Mobile Menu Interactivity ---
+      const mobileMenuButton = document.getElementById('mobile-menu-button');
+      const mobileMenu = document.getElementById('mobile-menu');
+      const hamburgerIcon = document.getElementById('hamburger-icon');
+      const closeIcon = document.getElementById('close-icon');
+
+      mobileMenuButton.addEventListener('click', () => {
+        mobileMenu.classList.toggle('-translate-x-full');
+        hamburgerIcon.classList.toggle('hidden');
+        closeIcon.classList.toggle('hidden');
+      });
+
+    });
+  </script>
+
 </body>
+
 </html>
