@@ -36,6 +36,7 @@ option(VDB_USE_PYTORCH "Enable PyTorch C++ API (LibTorch) for embeddings" OFF)
 option(VDB_USE_GRPC "Enable gRPC for distributed networking" OFF)
 option(VDB_BUILD_DISTRIBUTED "Build distributed features (replication, sharding)" OFF)
 option(VDB_USE_PROMETHEUS "Enable Prometheus metrics export" OFF)
+option(VDB_USE_OPENTELEMETRY "Enable OpenTelemetry distributed tracing" OFF)
 
 # ============================================================================
 # Compiler Flags
@@ -349,12 +350,32 @@ if(VDB_USE_PROMETHEUS)
 endif()
 
 # ============================================================================
+# OpenTelemetry C++ SDK - Distributed Tracing
+# ============================================================================
+if(VDB_USE_OPENTELEMETRY)
+    message(STATUS "Searching for OpenTelemetry C++ SDK...")
+    find_package(opentelemetry-cpp CONFIG)
+    
+    if(opentelemetry-cpp_FOUND)
+        message(STATUS "OpenTelemetry C++ SDK found - Distributed tracing enabled")
+        set(HAVE_OPENTELEMETRY TRUE)
+        add_compile_definitions(VDB_USE_OPENTELEMETRY)
+    else()
+        message(WARNING "OpenTelemetry C++ SDK not found - Distributed tracing disabled")
+        message(WARNING "  Install: vcpkg install opentelemetry-cpp")
+        message(WARNING "  Or build from source: https://github.com/open-telemetry/opentelemetry-cpp")
+        set(VDB_USE_OPENTELEMETRY OFF CACHE BOOL "" FORCE)
+    endif()
+endif()
+
+# ============================================================================
 # Core Library
 # ============================================================================
 set(VDB_CORE_SOURCES
     src/core/vector_ops.cpp
     src/core/distance.cpp
     src/core/thread_pool.cpp
+    src/core/telemetry.cpp
     src/index/hnsw.cpp
     src/index/flat.cpp
     src/index/metadata_index.cpp
@@ -493,6 +514,20 @@ if(HAVE_TORCH)
     target_link_libraries(vdb_core PUBLIC Torch::Torch)
     target_compile_definitions(vdb_core PUBLIC VDB_USE_TORCH)
     target_include_directories(vdb_core PUBLIC ${Torch_INCLUDE_DIRS})
+endif()
+
+# Link OpenTelemetry if available
+if(HAVE_OPENTELEMETRY)
+    target_link_libraries(vdb_core PUBLIC
+        opentelemetry-cpp::trace
+        opentelemetry-cpp::metrics
+        opentelemetry-cpp::logs
+        opentelemetry-cpp::otlp_grpc_exporter
+        opentelemetry-cpp::ostream_span_exporter
+        opentelemetry-cpp::prometheus_exporter
+    )
+    target_compile_definitions(vdb_core PUBLIC VDB_USE_OPENTELEMETRY)
+    message(STATUS "Linked OpenTelemetry libraries")
 endif()
 
 # Platform-specific threading

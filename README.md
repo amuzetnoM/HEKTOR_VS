@@ -64,8 +64,10 @@ A performance C++ vector database with SIMD-optimized similarity search and loca
 
 #### Enhanced Observability
 - ✅ **Prometheus Metrics**: Comprehensive metrics export with 50+ metrics
-- ✅ **OpenTelemetry Tracing**: Distributed tracing support (planned)
+- ✅ **OpenTelemetry Tracing**: Distributed tracing with W3C Trace Context support
+- ✅ **eBPF Integration**: Zero-overhead continuous profiling and kernel-level observability
 - ✅ **Comprehensive Logging**: 15 anomaly types, structured JSON logs
+- ✅ **Unified Observability**: Traces + Metrics + Logs + Profiles correlation
 
 #### Documentation & Quality
 - ✅ **23 Core Documents**: Professionally organized with frontmatter and navigation
