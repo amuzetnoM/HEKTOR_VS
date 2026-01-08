@@ -11,7 +11,7 @@ A performance C++ vector database with SIMD-optimized similarity search and loca
 <p align="center">
 
 <!-- Version -->
-[![Version](https://img.shields.io/badge/version-2.3.0-blue?style=for-the-badge&logo=semver&logoColor=white)](#)
+[![Version](https://img.shields.io/badge/version-3.0.0-blue?style=for-the-badge&logo=semver&logoColor=white)](#)
 
 <!-- Build Status -->
 [![Build](https://img.shields.io/badge/build-passing-brightgreen?style=for-the-badge&logo=cmake&logoColor=white)](https://github.com/amuzetnoM/gold_standard)
@@ -36,7 +36,7 @@ A performance C++ vector database with SIMD-optimized similarity search and loca
 
 ---
 
-## v2.3.0
+## v3.0.0
 
 **Major Release: Distributed System, ML Framework Integration, and Production Hardening**
 
@@ -55,7 +55,7 @@ A performance C++ vector database with SIMD-optimized similarity search and loca
 - ✅ **GPU Acceleration**: Multi-GPU distribution, dynamic batching, memory management
 - ✅ **Training Export**: TFRecord, PyTorch Dataset, contrastive learning pipelines
 
-#### Hybrid Search (v2.2.0)
+#### Hybrid Search (v3.0.0)
 - ✅ **BM25 Full-Text Search**: Porter stemming, stop-word filtering, inverted index
 - ✅ **5 Fusion Methods**: RRF, Weighted Sum, CombSUM, CombMNZ, Borda Count
 - ✅ **RAG Engine**: 5 chunking strategies (fixed, sentence, paragraph, semantic, recursive)
@@ -75,7 +75,7 @@ A performance C++ vector database with SIMD-optimized similarity search and loca
 
 ### 📊 Performance Improvements
 
-| Metric | v2.2.0 | v2.3.0 | Improvement |
+| Metric | v2.3.0 | v3.0.0 | Improvement |
 |--------|--------|--------|-------------|
 | Query Latency (p99) | 5ms | 3ms | 40% faster |
 | Hybrid Search Accuracy | N/A | +15-20% | New feature |
@@ -83,7 +83,7 @@ A performance C++ vector database with SIMD-optimized similarity search and loca
 | GPU Inference | N/A | <10ms | New feature |
 | Replication Lag (async) | N/A | <100ms | New feature |
 
-See [RELEASE_NOTES_v2.2.0.md](../RELEASE_NOTES_v2.2.0.md) and [docs/11_DISTRIBUTED_SYSTEM.md](11_DISTRIBUTED_SYSTEM.md) for details.
+See [RELEASE_NOTES_v3.0.0.md](../RELEASE_NOTES_v3.0.0.md) and [docs/11_DISTRIBUTED_SYSTEM.md](11_DISTRIBUTED_SYSTEM.md) for details.
 
 **See**: [CHANGELOG.md](../CHANGELOG.md) | [Documentation Index](00_INDEX.md) | [Real-World Applications](19_REAL_WORLD_APPLICATIONS.md)
 

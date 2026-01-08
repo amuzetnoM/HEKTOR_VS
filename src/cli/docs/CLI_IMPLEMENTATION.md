@@ -1,7 +1,7 @@
 ---
 title: "CLI Implementation Blueprint"
 description: "Technical implementation plan for Hektor CLI"
-version: "2.3.0"
+version: "3.0.0"
 last_updated: "2026-01-07"
 status: "Design"
 ---

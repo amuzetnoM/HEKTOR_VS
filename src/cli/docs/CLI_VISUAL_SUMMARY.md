@@ -1,7 +1,7 @@
 ---
 title: "CLI Visual Summary"
 description: "Visual overview of the complete Hektor CLI system"
-version: "2.3.0"
+version: "3.0.0"
 last_updated: "2026-01-07"
 status: "Design"
 ---

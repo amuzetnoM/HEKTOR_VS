@@ -1,7 +1,7 @@
 ---
 title: "CLI Command Map & Flow Diagrams"
 description: "Visual maps and flow diagrams for all CLI commands"
-version: "2.3.0"
+version: "3.0.0"
 last_updated: "2026-01-07"
 status: "Design"
 ---

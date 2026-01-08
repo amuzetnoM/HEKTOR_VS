@@ -1,12 +1,12 @@
 ---
 title: "Python Bindings"
 description: "Python API reference and examples"
-version: "2.3.0"
+version: "3.0.0"
 last_updated: "2026-01-06"
 sidebar_position: 21
 category: "Reference"
 ---
-![Version](https://img.shields.io/badge/version-2.2.0-blue?style=flat-square)
+![Version](https://img.shields.io/badge/version-3.0.0-blue?style=flat-square)
 ![Last Updated](https://img.shields.io/badge/updated-2026--01--06-green?style=flat-square)
 ![Type](https://img.shields.io/badge/type-operations-yellow?style=flat-square)
 

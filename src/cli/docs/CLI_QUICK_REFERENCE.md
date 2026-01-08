@@ -1,7 +1,7 @@
 ---
 title: "CLI Quick Reference & Examples"
 description: "Quick reference guide with practical examples for all commands"
-version: "2.3.0"
+version: "3.0.0"
 last_updated: "2026-01-07"
 status: "Design"
 ---

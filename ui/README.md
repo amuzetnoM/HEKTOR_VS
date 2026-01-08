@@ -1,6 +1,6 @@
 # HEKTOR Vector Studio
 
-![Version](https://img.shields.io/badge/version-2.1.0-blue?style=flat-square)
+![Version](https://img.shields.io/badge/version-3.0.0-blue?style=flat-square)
 ![Angular](https://img.shields.io/badge/Angular-21.0-dd0031?style=flat-square&logo=angular)
 ![Status](https://img.shields.io/badge/status-development-orange?style=flat-square)
 

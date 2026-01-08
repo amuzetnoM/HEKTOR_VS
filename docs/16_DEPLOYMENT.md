@@ -1,13 +1,13 @@
 ---
 title: "Deployment Guide"
 description: "Docker, Kubernetes, and production deployment"
-version: "2.3.0"
+version: "3.0.0"
 last_updated: "2026-01-06"
 sidebar_position: 16
 category: "Operations"
 ---
 
-![Version](https://img.shields.io/badge/version-2.2.0-blue?style=flat-square)
+![Version](https://img.shields.io/badge/version-3.0.0-blue?style=flat-square)
 ![Last Updated](https://img.shields.io/badge/updated-2026--01--06-green?style=flat-square)
 ![Type](https://img.shields.io/badge/type-operations-yellow?style=flat-square)
 
@@ -173,7 +173,7 @@ curl http://localhost:8080/health
 ```bash
 # Update image
 kubectl set image deployment/vector-studio-api \
-  api=ghcr.io/amuzetnom/vector_studio:v2.2.0 \
+  api=ghcr.io/amuzetnom/vector_studio:v3.0.0 \
   -n vector-studio
 
 # Rollback if needed

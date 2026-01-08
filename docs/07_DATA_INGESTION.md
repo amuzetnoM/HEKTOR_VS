@@ -1,13 +1,13 @@
 ---
 title: "Data Ingestion"
 description: "Data adapters, batch processing, and ingestion patterns"
-version: "2.3.0"
+version: "3.0.0"
 last_updated: "2026-01-06"
 sidebar_position: 7
 category: "Guide"
 ---
 
-![Version](https://img.shields.io/badge/version-2.2.0-blue?style=flat-square)
+![Version](https://img.shields.io/badge/version-3.0.0-blue?style=flat-square)
 ![Last Updated](https://img.shields.io/badge/updated-2026--01--06-green?style=flat-square)
 ![Adapters](https://img.shields.io/badge/adapters-10_types-success?style=flat-square)
 
@@ -2165,6 +2165,6 @@ std::vector<DataChunk> chunk_text(
 
 ---
 
-**Version**: 2.0.0  
+**Version**: 3.0.0  
 **Last Updated**: 2026-01-04  
 **Status**: Enterprise-Grade
