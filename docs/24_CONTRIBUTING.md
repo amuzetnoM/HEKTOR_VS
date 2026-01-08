@@ -52,9 +52,9 @@ This project adheres to a code of conduct. By participating, you are expected to
 
 ```bash
 # Fork the repository on GitHub, then:
-git clone https://github.com/YOUR_USERNAME/vector_database.git
-cd vector_database
-git remote add upstream https://github.com/amuzetnoM/gold_standard.git
+git clone https://github.com/YOUR_USERNAME/hektor.git
+cd hektor
+git remote add upstream https://github.com/amuzetnoM/hektor.git
 ```
 
 ---

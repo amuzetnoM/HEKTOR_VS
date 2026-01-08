@@ -389,15 +389,15 @@ class GoldStandardGUI:
     def __init__(self):
         # ... existing init ...
         self.vector_db = open_database("./data/vectors")
-    
+
     def semantic_search(self, query: str) -> list:
         """Search past journals and reports semantically."""
         options = QueryOptions()
         options.k = 10
         options.include_metadata = True
-        
+
         results = self.vector_db.query_text(query, options)
-        
+
         return [
             {
                 "date": r.metadata.date,
@@ -428,7 +428,7 @@ from datetime import datetime
 def create_search_system(db_path: str) -> pyvdb.Database:
     """Initialize or open a search database."""
     db_path = Path(db_path)
-    
+
     if db_path.exists():
         print(f"Opening existing database: {db_path}")
         return pyvdb.open_database(str(db_path))
@@ -440,11 +440,11 @@ def ingest_markdown_files(db: pyvdb.Database, directory: str) -> int:
     """Ingest all markdown files from a directory."""
     directory = Path(directory)
     count = 0
-    
+
     for md_file in directory.glob("**/*.md"):
         try:
             text = md_file.read_text(encoding="utf-8")
-            
+
             # Parse date from filename if present
             date = None
             if "_202" in md_file.stem:
@@ -453,29 +453,29 @@ def ingest_markdown_files(db: pyvdb.Database, directory: str) -> int:
                     date = datetime.strptime(date_part, "%Y-%m-%d").strftime("%Y-%m-%d")
                 except ValueError:
                     date = datetime.now().strftime("%Y-%m-%d")
-            
+
             # Detect type from filename
             doc_type = detect_document_type(md_file.name)
-            
+
             # Create metadata
             meta = pyvdb.Metadata()
             meta.type = doc_type
             meta.date = date or datetime.now().strftime("%Y-%m-%d")
             meta.source_file = str(md_file)
-            
+
             # Add to database
             db.add_text(text, meta)
             count += 1
-            
+
         except Exception as e:
             print(f"Error processing {md_file}: {e}")
-    
+
     return count
 
 def detect_document_type(filename: str) -> pyvdb.DocumentType:
     """Detect document type from filename."""
     filename = filename.lower()
-    
+
     if "journal" in filename:
         return pyvdb.DocumentType.Journal
     elif "catalyst" in filename:
@@ -494,7 +494,7 @@ def detect_document_type(filename: str) -> pyvdb.DocumentType:
 def search(db: pyvdb.Database, query: str, **kwargs) -> list:
     """
     Perform a semantic search.
-    
+
     Args:
         db: Database instance
         query: Search query string
@@ -503,13 +503,13 @@ def search(db: pyvdb.Database, query: str, **kwargs) -> list:
         date_from: Start date filter
         date_to: End date filter
         min_score: Minimum similarity score
-    
+
     Returns:
         List of search results
     """
     options = pyvdb.QueryOptions()
     options.k = kwargs.get("k", 10)
-    
+
     if "type_filter" in kwargs:
         options.type_filter = kwargs["type_filter"]
     if "date_from" in kwargs:
@@ -518,9 +518,9 @@ def search(db: pyvdb.Database, query: str, **kwargs) -> list:
         options.date_to = kwargs["date_to"]
     if "min_score" in kwargs:
         options.min_score = kwargs["min_score"]
-    
+
     options.include_metadata = True
-    
+
     return db.query_text(query, options)
 
 def pretty_print_results(results: list) -> None:
@@ -528,11 +528,11 @@ def pretty_print_results(results: list) -> None:
     if not results:
         print("No results found.")
         return
-    
+
     print(f"\n{'='*60}")
     print(f"Found {len(results)} results")
     print(f"{'='*60}\n")
-    
+
     for i, r in enumerate(results, 1):
         print(f"[{i}] Score: {r.score:.4f}")
         print(f"    Type: {r.metadata.type}")
@@ -545,41 +545,41 @@ def main():
     """Main demonstration."""
     # Create or open database
     db = create_search_system("./demo_vectors")
-    
+
     # Ingest some documents
     print("\nIngesting documents...")
     count = ingest_markdown_files(db, "./gold_standard/output")
     print(f"Ingested {count} documents")
-    
+
     # Perform searches
     print("\n" + "="*60)
     print("SEARCH: 'gold bullish breakout'")
     results = search(db, "gold bullish breakout", k=5)
     pretty_print_results(results)
-    
+
     print("\n" + "="*60)
     print("SEARCH: 'fed interest rate decision'")
     results = search(db, "fed interest rate decision", k=5)
     pretty_print_results(results)
-    
+
     print("\n" + "="*60)
     print("SEARCH with date filter (2025-12-01 only)")
     results = search(
-        db, 
+        db,
         "market analysis",
         k=5,
         date_from="2025-12-01",
         date_to="2025-12-01"
     )
     pretty_print_results(results)
-    
+
     # Show stats
     stats = db.stats()
     print("\nDatabase Statistics:")
     print(f"  Total vectors: {stats.count}")
     print(f"  Index size: {stats.index_size_mb:.2f} MB")
     print(f"  Vector storage: {stats.vector_size_mb:.2f} MB")
-    
+
     # Clean up
     db.sync()
     db.close()
@@ -712,7 +712,7 @@ Create `vdb.config.json` in database directory:
    # Instead of:
    for doc in documents:
        db.add_text(doc)
-   
+
    # Use:
    db.add_batch(documents)  # 3-5x faster
    ```
@@ -721,7 +721,7 @@ Create `vdb.config.json` in database directory:
    ```python
    # Speed-focused (95% recall)
    options.ef_search = 50
-   
+
    # Accuracy-focused (99%+ recall)
    options.ef_search = 200
    ```

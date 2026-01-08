@@ -51,8 +51,8 @@ This guide covers deploying Vector Studio to production using Docker, Kubernetes
 
 1. **Clone the repository**:
    ```bash
-   git clone https://github.com/yourusername/vector_database.git
-   cd vector_database
+   git clone https://github.com/amuzetnoM/hektor.git
+   cd hektor
    ```
 
 2. **Set environment variables**:
@@ -448,8 +448,8 @@ py-spy top --pid $(pgrep -f uvicorn)
 
 ## Support
 
-- **Documentation**: https://github.com/yourusername/vector_database/docs
-- **Issues**: https://github.com/yourusername/vector_database/issues
+- **Documentation**: https://github.com/amuzetnoM/hektor/tree/main/docs
+- **Issues**: https://github.com/amuzetnoM/hektor/issues
 - **Discord**: https://discord.gg/vector-studio
 
 ---

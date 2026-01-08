@@ -12,7 +12,7 @@ category: "Introduction"
 ![Docs](https://img.shields.io/badge/docs-17_files-orange?style=flat-square)
 
 
-# ⬜️ HECKTOR 
+# ⬜️ HECKTOR
 > Vestor Studio
 
 Meet Hecktor, the AI Vector Studio. This comprehensive guide covers everything from basic usage to advanced topics and API reference.
@@ -89,7 +89,7 @@ Vector Studio is a high-performance vector database and AI training platform des
 
 graph TD
     subgraph VS [VECTOR STUDIO]
-        
+
         subgraph UI [USER INTERFACES]
             direction LR
             Python["Python (pyvdb)"]
@@ -99,7 +99,7 @@ graph TD
         end
 
         subgraph Core [CORE ENGINE - C++23]
-            
+
             subgraph Ingestion [DATA INGESTION]
                 Adapters["Adapters:<br/>• CSV<br/>• JSON<br/>• PDF<br/>• Excel<br/>• Text"]
             end

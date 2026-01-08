@@ -183,7 +183,7 @@ jobs:
         
     - name: Install Linters
       run: |
-        pip install ruff mypy
+        pip install ruff mypy pytest
         sudo apt-get install -y clang-format-15
         
     - name: Run Ruff (Python)
@@ -195,6 +195,11 @@ jobs:
         find src include -name '*.cpp' -o -name '*.hpp' | \
           xargs clang-format-15 --dry-run --Werror
       continue-on-error: true
+    
+    - name: Run Documentation Tests
+      run: |
+        python tests/test_documentation.py
+        pytest tests/test_documentation.py -v
 
   coverage:
     runs-on: ubuntu-latest

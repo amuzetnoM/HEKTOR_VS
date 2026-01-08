@@ -23,8 +23,8 @@ Vector Studio can be deployed in **under 5 minutes** using Docker or Kubernetes!
 
 1. **Clone the repository**:
    ```bash
-   git clone https://github.com/yourusername/vector_database.git
-   cd vector_database
+   git clone https://github.com/amuzetnoM/hektor.git
+   cd hektor
    ```
 
 2. **Set environment variables**:
@@ -108,8 +108,8 @@ curl -X POST http://localhost:8080/collections/test/search \
 
 1. **Clone repository**:
    ```bash
-   git clone https://github.com/yourusername/vector_database.git
-   cd vector_database
+   git clone https://github.com/amuzetnoM/hektor.git
+   cd hektor
    ```
 
 2. **Update secrets**:
@@ -305,7 +305,7 @@ docker-compose up -d
 - **Installation Guide**: [02_INSTALLATION.md](02_INSTALLATION.md)
 - **API Reference**: http://localhost:8080/docs
 - **Deployment Guide**: [16_DEPLOYMENT.md](16_DEPLOYMENT.md)
-- **Issues**: https://github.com/yourusername/vector_database/issues
+- **Issues**: https://github.com/amuzetnoM/hektor/issues
 
 ---
 
@@ -314,7 +314,7 @@ docker-compose up -d
 Need help?
 
 - 📖 Check the [documentation](docs/)
-- 🐛 Report [issues](https://github.com/yourusername/vector_database/issues)
+- 🐛 Report [issues](https://github.com/amuzetnoM/hektor/issues)
 - 💬 Join our [Discord](https://discord.gg/vector-studio)
 
 ---

@@ -1,4 +1,4 @@
-# ⬜️ HECKTOR 
+# ⬜️ HECKTOR
 
 > **Vector Studio** <br>
 > *High-Fidelity Vector Database Engine* <br>
