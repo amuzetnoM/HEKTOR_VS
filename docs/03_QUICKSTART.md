@@ -1,15 +1,15 @@
 ---
 title: "Quick Start"
-description: "Create your first database and perform basic operations"
+description: "Quick deployment with Docker and Kubernetes"
 version: "3.0.0"
 last_updated: "2026-01-06"
 sidebar_position: 3
 category: "Tutorial"
 ---
 
+Vector Studio can be deployed in **under 5 minutes** using Docker or Kubernetes!
 
-
-Vector Studio can be run in **under 5 minutes**!
+> **Note:** For detailed installation from source, see **[02_INSTALLATION.md](02_INSTALLATION.md)**.
 
 ---
 
@@ -145,61 +145,33 @@ curl -X POST http://localhost:8080/collections/test/search \
 
 ## Option 3: Local Development
 
+**For complete local development setup instructions, see [02_INSTALLATION.md](02_INSTALLATION.md).**
+
+This section provides a quick overview for local development. For detailed steps, build options, and troubleshooting, refer to the full installation guide.
+
 ### Prerequisites
 - Python 3.11+
 - CMake 3.20+
 - C++20 compiler
 - 4GB+ RAM
 
-### Steps
+### Quick Steps
 
-1. **Clone repository**:
-   ```bash
-   git clone https://github.com/yourusername/vector_database.git
-   cd vector_database
-   ```
+```bash
+# Clone repository
+git clone https://github.com/yourusername/vector_database.git
+cd vector_database
 
-2. **Install dependencies**:
-   ```bash
-   # Ubuntu/Debian
-   sudo apt-get install -y build-essential cmake ninja-build \
-     libsqlite3-dev libpq-dev python3.11 python3-pip
+# Install dependencies (see 02_INSTALLATION.md for OS-specific commands)
+# Build, download models, and run (see 02_INSTALLATION.md for details)
+```
 
-   # macOS
-   brew install cmake ninja sqlite postgresql python@3.11
-   ```
-
-3. **Build C++ backend**:
-   ```bash
-   cmake -B build -G Ninja -DCMAKE_BUILD_TYPE=Release
-   cmake --build build -j$(nproc)
-   cd build && pip install .
-   cd ..
-   ```
-
-4. **Install Python dependencies**:
-   ```bash
-   pip install -r requirements.txt
-   pip install -r api/requirements.txt
-   ```
-
-5. **Download models**:
-   ```bash
-   python scripts/download_models.py --all
-   ```
-
-6. **Run API server**:
-   ```bash
-   cd api
-   cp .env.example .env
-   # Edit .env with your SECRET_KEY
-   uvicorn main:app --reload --host 0.0.0.0 --port 8080
-   ```
-
-7. **Test**:
-   ```bash
-   curl http://localhost:8080/health
-   ```
+**See [02_INSTALLATION.md](02_INSTALLATION.md) for:**
+- Detailed dependency installation for each OS
+- Build configuration options
+- Model download instructions  
+- Python environment setup
+- Troubleshooting common issues
 
 ---
 
@@ -287,7 +259,7 @@ console.log(results);
 
 ### 4. Configure for Production
 
-See [docs/DEPLOYMENT.md](docs/DEPLOYMENT.md) for:
+See **[16_DEPLOYMENT.md](16_DEPLOYMENT.md)** for:
 - Security hardening
 - Performance tuning
 - High availability setup
@@ -329,10 +301,10 @@ docker-compose up -d
 
 ## Resources
 
-- **Full Documentation**: [docs/](docs/)
+- **Full Documentation**: [00_INDEX.md](00_INDEX.md)
+- **Installation Guide**: [02_INSTALLATION.md](02_INSTALLATION.md)
 - **API Reference**: http://localhost:8080/docs
-- **Deployment Guide**: [docs/DEPLOYMENT.md](docs/DEPLOYMENT.md)
-- **API README**: [api/README.md](api/README.md)
+- **Deployment Guide**: [16_DEPLOYMENT.md](16_DEPLOYMENT.md)
 - **Issues**: https://github.com/yourusername/vector_database/issues
 
 ---

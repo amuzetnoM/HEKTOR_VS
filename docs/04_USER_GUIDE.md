@@ -16,19 +16,20 @@ category: "Guide"
 ## Table of Contents
 
 1. [Introduction](#introduction)
-2. [Getting Started](#getting-started)
-3. [Installation](#installation)
-4. [Core Concepts](#core-concepts)
-5. [Data Ingestion](#data-ingestion)
-6. [Vector Operations](#vector-operations)
-7. [Search & Retrieval](#search--retrieval)
-8. [API Reference](#api-reference)
-9. [Python Bindings](#python-bindings)
-10. [CLI Tool](#cli-tool)
-11. [Performance Tuning](#performance-tuning)
-12. [Troubleshooting](#troubleshooting)
-13. [Advanced Topics](#advanced-topics)
-14. [Examples & Tutorials](#examples--tutorials)
+2. [Core Concepts](#core-concepts)
+3. [Data Ingestion](#data-ingestion)
+4. [Vector Operations](#vector-operations)
+5. [Search & Retrieval](#search--retrieval)
+6. [API Reference](#api-reference)
+7. [Python Bindings](#python-bindings)
+8. [CLI Tool](#cli-tool)
+9. [Performance Tuning](#performance-tuning)
+10. [Troubleshooting](#troubleshooting)
+11. [Advanced Topics](#advanced-topics)
+12. [Examples & Tutorials](#examples--tutorials)
+
+> **Note:** For installation instructions, see **[02_INSTALLATION.md](02_INSTALLATION.md)**.  
+> For quick deployment with Docker/Kubernetes, see **[03_QUICKSTART.md](03_QUICKSTART.md)**.
 
 ---
 
@@ -96,241 +97,7 @@ Vector Studio is a high-fidelity, high-performance vector database built with mo
 
 ---
 
-## 2. Getting Started
-
-### System Requirements
-
-**Minimum:**
-- CPU: x86_64 with SSE4.2
-- RAM: 4 GB
-- Disk: 1 GB free space
-- OS: Windows 10/11, Linux (Ubuntu 20.04+), macOS 11+
-
-**Recommended:**
-- CPU: x86_64 with AVX2 or AVX-512
-- RAM: 16 GB
-- Disk: SSD with 10 GB free space
-- OS: Linux (Ubuntu 22.04+)
-
-### Quick Installation
-
-**Ubuntu/Debian:**
-```bash
-# Install dependencies
-sudo apt update
-sudo apt install build-essential cmake ninja-build python3-dev
-
-# Clone repository
-git clone https://github.com/amuzetnoM/vector_studio.git
-cd vector_studio
-
-# Build
-mkdir build && cd build
-cmake .. -G Ninja -DCMAKE_BUILD_TYPE=Release
-ninja
-
-# Install
-sudo ninja install
-```
-
-**Windows (PowerShell):**
-```powershell
-# Install via scripts
-git clone https://github.com/amuzetnoM/vector_studio.git
-cd vector_studio
-.\scripts\setup.ps1
-.\scripts\build.ps1 -Release
-```
-
-**macOS:**
-```bash
-# Install dependencies via Homebrew
-brew install cmake ninja python3
-
-# Clone and build
-git clone https://github.com/amuzetnoM/vector_studio.git
-cd vector_studio
-mkdir build && cd build
-cmake .. -G Ninja -DCMAKE_BUILD_TYPE=Release
-ninja
-```
-
-### First Steps
-
-**1. Create a Database:**
-```cpp
-#include <vdb/database.hpp>
-
-using namespace vdb;
-
-// Create database
-DatabaseConfig config;
-config.path = "my_database";
-config.dimension = 512;
-config.metric = DistanceMetric::Cosine;
-
-auto db_result = create_gold_standard_db("my_database");
-if (!db_result) {
-    std::cerr << "Error: " << db_result.error().message << std::endl;
-    return 1;
-}
-
-VectorDatabase db = std::move(*db_result);
-```
-
-**2. Ingest Data:**
-```cpp
-#include <vdb/adapters/data_adapter.hpp>
-
-using namespace vdb::adapters;
-
-DataAdapterManager manager;
-
-// Parse CSV file
-auto result = manager.auto_parse("data.csv");
-if (result) {
-    for (const auto& chunk : result->chunks) {
-        // Generate embedding and add to database
-        auto embedding = text_encoder->encode(chunk.content);
-        
-        Metadata meta;
-        meta.content = chunk.content;
-        meta.source_file = "data.csv";
-        
-        db.add_vector(*embedding, meta);
-    }
-}
-```
-
-**3. Search:**
-```cpp
-// Perform similarity search
-auto query_embedding = text_encoder->encode("your search query");
-auto results = db.search(*query_embedding, 10);  // Top 10 results
-
-for (const auto& result : results) {
-    std::cout << "Score: " << result.score << std::endl;
-    std::cout << "Content: " << result.metadata.content << std::endl;
-}
-```
-
----
-
-## 3. Installation
-
-### Build from Source
-
-#### Prerequisites
-
-**Required:**
-- C++23 compatible compiler (GCC 13+, Clang 16+, MSVC 19.35+)
-- CMake 3.20+
-- Ninja or Make
-- Python 3.10+ (for bindings)
-
-**Optional:**
-- CUDA 11.8+ (for GPU acceleration)
-- AVX2/AVX-512 CPU (for SIMD optimization)
-
-#### Detailed Build Steps
-
-**1. Clone Repository:**
-```bash
-git clone --recursive https://github.com/amuzetnoM/vector_studio.git
-cd vector_studio
-```
-
-**2. Install Dependencies:**
-
-*Ubuntu/Debian:*
-```bash
-sudo apt install \
-    build-essential \
-    cmake \
-    ninja-build \
-    python3-dev \
-    python3-pip \
-    libjson-c-dev \
-    zlib1g-dev
-```
-
-*Fedora/RHEL:*
-```bash
-sudo dnf install \
-    gcc-c++ \
-    cmake \
-    ninja-build \
-    python3-devel \
-    json-c-devel \
-    zlib-devel
-```
-
-*macOS:*
-```bash
-brew install cmake ninja python3 json-c zlib
-```
-
-**3. Configure Build:**
-```bash
-mkdir build && cd build
-
-cmake .. \
-    -G Ninja \
-    -DCMAKE_BUILD_TYPE=Release \
-    -DVDB_BUILD_TESTS=ON \
-    -DVDB_BUILD_PYTHON=ON \
-    -DVDB_USE_AVX2=ON
-```
-
-**Build Options:**
-
-| Option | Values | Description |
-|--------|--------|-------------|
-| `CMAKE_BUILD_TYPE` | Debug, Release, RelWithDebInfo | Build configuration |
-| `VDB_BUILD_TESTS` | ON/OFF | Build unit tests |
-| `VDB_BUILD_PYTHON` | ON/OFF | Build Python bindings |
-| `VDB_BUILD_BENCHMARKS` | ON/OFF | Build benchmarks |
-| `VDB_USE_AVX2` | ON/OFF | Enable AVX2 SIMD |
-| `VDB_USE_AVX512` | ON/OFF | Enable AVX-512 SIMD |
-| `VDB_ENABLE_GPU` | ON/OFF | Enable GPU acceleration |
-
-**4. Build:**
-```bash
-ninja
-```
-
-**5. Run Tests:**
-```bash
-./vdb_tests
-```
-
-**6. Install:**
-```bash
-sudo ninja install
-```
-
-### Python Package Installation
-
-**From source:**
-```bash
-cd vector_studio
-pip install .
-```
-
-**Development mode:**
-```bash
-pip install -e .
-```
-
-**Verify installation:**
-```python
-import pyvdb
-print(pyvdb.__version__)
-```
-
----
-
-## 4. Core Concepts
+## 2. Core Concepts
 
 ### Vectors
 
@@ -457,7 +224,7 @@ auto results = db.search(query_vector, 10, filter);
 
 ---
 
-## 5. Data Ingestion
+## 3. Data Ingestion
 
 ### Overview
 
@@ -646,7 +413,7 @@ for (const auto& result : *results) {
 
 ---
 
-## 6. Vector Operations
+## 4. Vector Operations
 
 ### Adding Vectors
 
@@ -805,7 +572,7 @@ my_database/
 
 ---
 
-## 7. Search & Retrieval
+## 5. Search & Retrieval
 
 ### Search Algorithms
 
@@ -908,7 +675,7 @@ results.resize(10);
 
 ---
 
-## 8. API Reference
+## 6. API Reference
 
 ### C++ API
 
@@ -1024,7 +791,7 @@ public:
 
 ---
 
-## 9. Python Bindings
+## 7. Python Bindings
 
 ### Installation
 
@@ -1137,7 +904,7 @@ results = db.search(query, k=10, filter=filter_obj)
 
 ---
 
-## 10. CLI Tool
+## 8. CLI Tool
 
 ### Basic Commands
 
@@ -1210,7 +977,7 @@ vdb_cli verify --db my_database
 
 ---
 
-## 11. Performance Tuning
+## 9. Performance Tuning
 
 ### Hardware Optimization
 
@@ -1316,7 +1083,7 @@ perf report
 
 ---
 
-## 12. Troubleshooting
+## 10. Troubleshooting
 
 ### Common Issues
 
@@ -1392,7 +1159,7 @@ std::cout << "Search took: " << duration.count() << " μs" << std::endl;
 
 ---
 
-## 13. Advanced Topics
+## 11. Advanced Topics
 
 ### Custom Adapters
 
@@ -1491,7 +1258,7 @@ auto merged = merge_and_rank(results1, results2, 10);
 
 ---
 
-## 14. Examples & Tutorials
+## 12. Examples & Tutorials
 
 ### Example 1: Document Search System
 

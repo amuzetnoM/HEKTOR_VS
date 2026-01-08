@@ -128,16 +128,13 @@ Vector Studio is a high-performance vector database and AI training platform des
 
 ## Getting Started
 
-### 1. Installation
+### Quick Setup
 
-```powershell
-cd vector_database
-python scripts/setup.py --auto-install
-python scripts/download_models.py
-.\scripts\build.ps1
-```
+For complete installation instructions, see **[02_INSTALLATION.md](02_INSTALLATION.md)**.
 
-### 2. First Database
+For a quick start with Docker or Kubernetes, see **[03_QUICKSTART.md](03_QUICKSTART.md)**.
+
+### First Database Example
 
 ```python
 import pyvdb
@@ -155,9 +152,11 @@ db.add_text("Gold analysis for today", {
 results = db.search("gold outlook", k=5)
 ```
 
-### 3. Learn More
+### Learn More
 
-- **Beginners**: Start with [02_INSTALLATION.md](02_INSTALLATION.md)
+- **Installation & Setup**: See [02_INSTALLATION.md](02_INSTALLATION.md) for detailed installation steps
+- **Quick Start**: See [03_QUICKSTART.md](03_QUICKSTART.md) for Docker/Kubernetes deployment
+- **Complete User Guide**: See [04_USER_GUIDE.md](04_USER_GUIDE.md) for all features
 - **Data Formats**: Review [06_DATA_FORMATS.md](06_DATA_FORMATS.md) for complete format specifications
 - **Developers**: Read [05_ARCHITECTURE.md](05_ARCHITECTURE.md)
 - **Researchers**: Explore [09_VECTOR_OPERATIONS.md](09_VECTOR_OPERATIONS.md) and [10_AI_TRAINING.md](10_AI_TRAINING.md)

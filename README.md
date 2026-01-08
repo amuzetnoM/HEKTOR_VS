@@ -135,31 +135,25 @@ See [RELEASE_NOTES_v3.0.0.md](../RELEASE_NOTES_v3.0.0.md) and [docs/11_DISTRIBUT
 
 **Windows PowerShell:**
 ```powershell
-# Clone repository
 git clone https://github.com/amuzetnoM/vector_studio.git
 cd gold_standard/vector_studio
-
-# Run automated setup (installs Python, CMake, Ninja, dependencies)
 .\scripts\setup.ps1
-
-# Build
 .\scripts\build.ps1 -Release
 ```
 
 **Unix/macOS/Linux:**
 ```bash
-# Clone and setup
 git clone https://github.com/amuzetnoM/vector_studio.git
 cd gold_standard/vector_studio
-
 chmod +x scripts/setup.sh
 ./scripts/setup.sh
-
-# Build
 mkdir build && cd build
 cmake .. -G Ninja -DCMAKE_BUILD_TYPE=Release
 ninja
 ```
+
+> **Detailed Installation:** See **[docs/02_INSTALLATION.md](docs/02_INSTALLATION.md)** for complete setup instructions, system requirements, and troubleshooting.  
+> **Docker/Kubernetes:** See **[docs/03_QUICKSTART.md](docs/03_QUICKSTART.md)** for quick deployment options.
 
 ### First Database
 
@@ -230,6 +224,8 @@ for r in results:
 
 ## Installation
 
+> **For detailed installation instructions, see [docs/02_INSTALLATION.md](docs/02_INSTALLATION.md).**
+
 ### System Requirements
 
 | Component | Minimum | Recommended |
@@ -244,38 +240,11 @@ for r in results:
 
 ### Dependencies
 
-The setup scripts automatically install:
-
-- **Python 3.12** (via winget/brew/apt)
-- **CMake** (build system)
-- **Ninja** (fast builds)
-- **Visual Studio Build Tools 2022** (Windows) or **build-essential** (Linux)
-- **ONNX Runtime** (inference)
-- **NumPy, Transformers, pytest** (Python packages)
+The setup scripts automatically install required dependencies. See [docs/02_INSTALLATION.md](docs/02_INSTALLATION.md) for manual installation instructions.
 
 ### Manual Installation
 
-```powershell
-# Windows - Install prerequisites
-winget install Python.Python.3.12
-winget install Kitware.CMake
-winget install Ninja-build.Ninja
-winget install Microsoft.VisualStudio.2022.BuildTools
-
-# Create virtual environment
-python -m venv venv
-.\venv\Scripts\Activate.ps1
-
-# Install Python dependencies
-pip install -r requirements.txt
-pip install -r requirements-dev.txt
-
-# Download ONNX models
-python scripts/download_models.py
-
-# Build
-.\scripts\build.ps1 -Release
-```
+See [docs/02_INSTALLATION.md](docs/02_INSTALLATION.md) for detailed manual installation steps for each operating system.
 
 ---
 
