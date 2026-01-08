@@ -61,7 +61,11 @@ git remote add upstream https://github.com/amuzetnoM/gold_standard.git
 
 ## Development Setup
 
-### Windows
+> **For basic installation instructions, see [02_INSTALLATION.md](02_INSTALLATION.md).**
+
+### Development Build
+
+**Windows:**
 
 ```powershell
 # Run automated setup with development dependencies
@@ -71,7 +75,7 @@ git remote add upstream https://github.com/amuzetnoM/gold_standard.git
 .\scripts\build.ps1 -Debug
 ```
 
-### Unix/Linux/macOS
+**Unix/Linux/macOS:**
 
 ```bash
 # Run automated setup
