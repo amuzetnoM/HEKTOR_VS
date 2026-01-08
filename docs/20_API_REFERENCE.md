@@ -18,9 +18,10 @@ category: "Reference"
 2. [Data Adapters API](#data-adapters-api)
 3. [Embedding Models API](#embedding-models-api)
 4. [Search & Indexing API](#search--indexing-api)
-5. [Python Bindings API](#python-bindings-api)
-6. [Type Definitions](#type-definitions)
-7. [Error Handling](#error-handling)
+5. [Hybrid Search API](#hybrid-search-api)
+6. [Python Bindings API](#python-bindings-api)
+7. [Type Definitions](#type-definitions)
+8. [Error Handling](#error-handling)
 
 ---
 
@@ -581,6 +582,254 @@ Check if vector exists in index.
 
 ---
 
+## Hybrid Search API
+
+### BM25Engine
+
+BM25 full-text search engine for lexical search.
+
+#### Constructor
+
+```cpp
+explicit BM25Engine(const BM25Config& config = {});
+```
+
+**Parameters:**
+- `config`: BM25 configuration (optional)
+
+**Example:**
+```cpp
+BM25Config config;
+config.k1 = 1.2f;
+config.b = 0.75f;
+config.use_stemming = true;
+
+BM25Engine bm25(config);
+```
+
+#### add_document()
+
+```cpp
+[[nodiscard]] Result<void> add_document(VectorId id, const std::string& content);
+```
+
+Add document to BM25 index.
+
+**Parameters:**
+- `id`: Document ID
+- `content`: Text content
+
+**Returns:** `Result<void>` - Success or error
+
+**Example:**
+```cpp
+auto result = bm25.add_document(1, "Machine learning is a subset of AI");
+if (!result) {
+    std::cerr << "Failed to add document" << std::endl;
+}
+```
+
+#### remove_document()
+
+```cpp
+[[nodiscard]] Result<void> remove_document(VectorId id);
+```
+
+Remove document from index.
+
+**Parameters:**
+- `id`: Document ID
+
+**Returns:** `Result<void>` - Success or error
+
+#### update_document()
+
+```cpp
+[[nodiscard]] Result<void> update_document(VectorId id, const std::string& content);
+```
+
+Update document content.
+
+**Parameters:**
+- `id`: Document ID
+- `content`: New text content
+
+**Returns:** `Result<void>` - Success or error
+
+#### search()
+
+```cpp
+[[nodiscard]] Result<std::vector<BM25Result>> search(
+    const std::string& query,
+    size_t k = 10,
+    float min_score = 0.0f
+) const;
+```
+
+Search documents with BM25 algorithm.
+
+**Parameters:**
+- `query`: Search query
+- `k`: Number of results (default: 10)
+- `min_score`: Minimum score threshold (default: 0.0)
+
+**Returns:** `Result<std::vector<BM25Result>>` - Search results or error
+
+**Example:**
+```cpp
+auto results = bm25.search("machine learning", 20, 0.5f);
+if (results) {
+    for (const auto& result : *results) {
+        std::cout << "ID: " << result.id << ", Score: " << result.score << std::endl;
+    }
+}
+```
+
+#### document_count()
+
+```cpp
+[[nodiscard]] size_t document_count() const;
+```
+
+Get number of indexed documents.
+
+**Returns:** `size_t` - Document count
+
+#### term_count()
+
+```cpp
+[[nodiscard]] size_t term_count() const;
+```
+
+Get number of unique terms.
+
+**Returns:** `size_t` - Term count
+
+#### average_document_length()
+
+```cpp
+[[nodiscard]] float average_document_length() const;
+```
+
+Get average document length.
+
+**Returns:** `float` - Average length
+
+#### save()
+
+```cpp
+[[nodiscard]] Result<void> save(const std::string& path) const;
+```
+
+Save index to file.
+
+**Parameters:**
+- `path`: File path
+
+**Returns:** `Result<void>` - Success or error
+
+#### load() (static)
+
+```cpp
+static Result<BM25Engine> load(const std::string& path);
+```
+
+Load index from file.
+
+**Parameters:**
+- `path`: File path
+
+**Returns:** `Result<BM25Engine>` - Loaded engine or error
+
+**Example:**
+```cpp
+auto engine = BM25Engine::load("bm25_index.dat");
+if (engine) {
+    std::cout << "Loaded " << engine->document_count() << " documents" << std::endl;
+}
+```
+
+### HybridSearchEngine
+
+Combines vector and lexical search results using fusion methods.
+
+#### Constructor
+
+```cpp
+explicit HybridSearchEngine(const HybridSearchConfig& config = {});
+```
+
+**Parameters:**
+- `config`: Hybrid search configuration (optional)
+
+**Example:**
+```cpp
+HybridSearchConfig config;
+config.vector_weight = 0.7f;
+config.lexical_weight = 0.3f;
+config.fusion = FusionMethod::RRF;
+
+HybridSearchEngine hybrid(config);
+```
+
+#### combine()
+
+```cpp
+[[nodiscard]] Result<std::vector<HybridResult>> combine(
+    const std::vector<QueryResult>& vector_results,
+    const std::vector<BM25Result>& lexical_results,
+    size_t k = 10
+) const;
+```
+
+Combine vector and lexical search results.
+
+**Parameters:**
+- `vector_results`: Results from vector search
+- `lexical_results`: Results from BM25 search
+- `k`: Number of final results (default: 10)
+
+**Returns:** `Result<std::vector<HybridResult>>` - Combined results or error
+
+**Example:**
+```cpp
+// Get results from both systems
+auto vector_results = db.search(query_vec, 50);
+auto lexical_results = bm25.search("query text", 50);
+
+// Combine
+HybridSearchEngine hybrid;
+auto combined = hybrid.combine(*vector_results, *lexical_results, 20);
+
+if (combined) {
+    for (const auto& result : *combined) {
+        std::cout << "ID: " << result.id 
+                  << ", Combined: " << result.combined_score
+                  << ", Vector: " << result.vector_score
+                  << ", Lexical: " << result.lexical_score << std::endl;
+    }
+}
+```
+
+#### Static Fusion Methods
+
+```cpp
+static float weighted_sum(float vec_score, float lex_score, float vec_weight);
+static float reciprocal_rank_fusion(size_t vec_rank, size_t lex_rank, float k);
+static float comb_sum(float vec_score, float lex_score);
+static float comb_mnz(float vec_score, float lex_score, size_t num_systems);
+```
+
+Utility methods for computing fusion scores.
+
+**Example:**
+```cpp
+float score = HybridSearchEngine::weighted_sum(0.8f, 0.6f, 0.7f);
+float rrf = HybridSearchEngine::reciprocal_rank_fusion(1, 3, 60.0f);
+```
+
+---
+
 ## Python Bindings API
 
 ### pyvdb.VectorDatabase
@@ -870,6 +1119,64 @@ enum class Device {
     CPU,
     CUDA,
     DirectML
+};
+```
+
+### BM25Config
+
+```cpp
+struct BM25Config {
+    float k1 = 1.2f;               // Term frequency saturation parameter
+    float b = 0.75f;               // Length normalization parameter
+    size_t min_term_length = 2;    // Minimum term length
+    bool use_stemming = true;      // Enable Porter stemming
+    bool case_sensitive = false;   // Case sensitive search
+};
+```
+
+### BM25Result
+
+```cpp
+struct BM25Result {
+    VectorId id;                       // Document ID
+    float score;                       // BM25 score
+    std::vector<std::string> matched_terms;  // Matched query terms
+};
+```
+
+### HybridSearchConfig
+
+```cpp
+struct HybridSearchConfig {
+    float vector_weight = 0.7f;    // Weight for vector search (0-1)
+    float lexical_weight = 0.3f;   // Weight for lexical search (0-1)
+    FusionMethod fusion = FusionMethod::RRF;  // Fusion method
+    float rrf_k = 60.0f;           // RRF constant (30-100)
+    bool rerank = true;            // Apply reranking
+};
+```
+
+### HybridResult
+
+```cpp
+struct HybridResult {
+    VectorId id;                   // Document ID
+    float combined_score;          // Combined fusion score
+    float vector_score;            // Vector similarity score
+    float lexical_score;           // Lexical (BM25) score
+    std::vector<std::string> matched_keywords;  // Matched keywords
+};
+```
+
+### FusionMethod
+
+```cpp
+enum class FusionMethod {
+    WeightedSum,   // Weighted combination of scores
+    RRF,           // Reciprocal Rank Fusion
+    CombSUM,       // Sum of normalized scores
+    CombMNZ,       // CombSUM * number of matching systems
+    Borda          // Borda count voting
 };
 ```
 
