@@ -28,7 +28,7 @@ category: "Guide"
 11. [Advanced Topics](#advanced-topics)
 12. [Examples & Tutorials](#examples--tutorials)
 
-> **Note:** For installation instructions, see **[02_INSTALLATION.md](02_INSTALLATION.md)**.  
+> **Note:** For installation instructions, see **[02_INSTALLATION.md](02_INSTALLATION.md)**.
 > For quick deployment with Docker/Kubernetes, see **[03_QUICKSTART.md](03_QUICKSTART.md)**.
 
 ---
@@ -447,7 +447,7 @@ std::vector<Metadata> metadata_list;
 for (const auto& text : texts) {
     auto emb = text_encoder->encode(text);
     vectors.push_back(std::move(*emb));
-    
+
     Metadata meta;
     meta.content = text;
     metadata_list.push_back(meta);
@@ -685,38 +685,38 @@ results.resize(10);
 class VectorDatabase {
 public:
     explicit VectorDatabase(const DatabaseConfig& config);
-    
+
     // Initialization
     [[nodiscard]] Result<void> init();
     [[nodiscard]] bool is_ready() const;
-    
+
     // Vector operations
     [[nodiscard]] Result<VectorId> add_vector(
         VectorView vector,
         const Metadata& metadata
     );
-    
+
     [[nodiscard]] Result<std::vector<VectorId>> add_batch(
         const std::vector<Vector>& vectors,
         const std::vector<Metadata>& metadata
     );
-    
+
     [[nodiscard]] std::vector<SearchResult> search(
         VectorView query,
         size_t k,
         const SearchFilter& filter = {}
     );
-    
+
     [[nodiscard]] Result<void> remove(VectorId id);
-    
+
     [[nodiscard]] Result<void> update_metadata(
         VectorId id,
         const Metadata& metadata
     );
-    
+
     // Persistence
     [[nodiscard]] Result<void> sync();
-    
+
     // Statistics
     [[nodiscard]] DatabaseStats stats() const;
 };
@@ -728,29 +728,29 @@ public:
 class DataAdapterManager {
 public:
     DataAdapterManager();
-    
+
     // Register custom adapters
     void register_adapter(std::unique_ptr<IDataAdapter> adapter);
-    
+
     // Parse data
     [[nodiscard]] Result<NormalizedData> auto_parse(
         const fs::path& path,
         const ChunkConfig& config = {}
     );
-    
+
     [[nodiscard]] Result<NormalizedData> auto_parse_content(
         std::string_view content,
         const ChunkConfig& config = {},
         std::string_view hint = ""
     );
-    
+
     // Batch processing
     [[nodiscard]] Result<std::vector<NormalizedData>> parse_batch(
         const std::vector<fs::path>& paths,
         const ChunkConfig& config = {},
         size_t max_parallel = 4
     );
-    
+
     // Format detection
     [[nodiscard]] DataFormat detect_format(const fs::path& path) const;
 };
@@ -762,9 +762,9 @@ public:
 class TextEncoder {
 public:
     explicit TextEncoder(const TextEncoderConfig& config);
-    
+
     [[nodiscard]] Result<Vector> encode(std::string_view text);
-    
+
     [[nodiscard]] Result<std::vector<Vector>> encode_batch(
         const std::vector<std::string>& texts
     );
@@ -777,9 +777,9 @@ public:
 class ImageEncoder {
 public:
     explicit ImageEncoder(const ImageEncoderConfig& config);
-    
+
     [[nodiscard]] Result<Vector> encode(const fs::path& image_path);
-    
+
     [[nodiscard]] Result<Vector> encode(
         const uint8_t* image_data,
         size_t width,
@@ -846,10 +846,10 @@ result = manager.auto_parse("data.csv")
 for chunk in result.chunks:
     print(f"Content: {chunk.content}")
     print(f"Metadata: {chunk.metadata}")
-    
+
     # Generate embedding (using your preferred method)
     embedding = generate_embedding(chunk.content)
-    
+
     # Add to database
     db.add_vector(embedding, chunk.metadata)
 ```
@@ -1171,11 +1171,11 @@ public:
     bool can_handle(const fs::path& path) const override {
         return path.extension() == ".custom";
     }
-    
+
     bool can_handle(std::string_view content) const override {
         return content.starts_with("CUSTOM_FORMAT");
     }
-    
+
     Result<NormalizedData> parse(
         const fs::path& path,
         const ChunkConfig& config
@@ -1185,7 +1185,7 @@ public:
         // ... populate data
         return data;
     }
-    
+
     Result<NormalizedData> parse_content(
         std::string_view content,
         const ChunkConfig& config,
@@ -1194,16 +1194,16 @@ public:
         // Your parsing logic
         return parse_content_impl(content, config);
     }
-    
+
     Result<void> sanitize(NormalizedData& data) override {
         // Your sanitization logic
         return {};
     }
-    
+
     std::string name() const override {
         return "MyCustomAdapter";
     }
-    
+
     std::vector<DataFormat> supported_formats() const override {
         return {DataFormat::Unknown};
     }
@@ -1274,37 +1274,37 @@ int main() {
         return 1;
     }
     VectorDatabase db = std::move(*db_result);
-    
+
     // 2. Initialize text encoder
     TextEncoderConfig enc_config;
     enc_config.model_path = "models/minilm-l6.onnx";
     TextEncoder encoder(enc_config);
-    
+
     // 3. Ingest documents
     DataAdapterManager manager;
     auto docs = manager.auto_parse("documents/*.txt");
-    
+
     for (const auto& chunk : docs->chunks) {
         auto embedding = encoder.encode(chunk.content);
-        
+
         Metadata meta;
         meta.content = chunk.content;
         meta.source_file = docs->source_path;
-        
+
         db.add_vector(*embedding, meta);
     }
-    
+
     // 4. Search
     auto query = encoder.encode("machine learning algorithms");
     auto results = db.search(*query, 10);
-    
+
     // 5. Display results
     for (const auto& result : results) {
         std::cout << "Score: " << result.score << std::endl;
         std::cout << "Content: " << result.metadata.content << std::endl;
         std::cout << "---" << std::endl;
     }
-    
+
     return 0;
 }
 ```
@@ -1329,7 +1329,7 @@ for chunk in result.chunks:
     # Each chunk is a row from the CSV
     # Generate embedding from content
     embedding = db.encode_text(chunk.content)
-    
+
     # Add to database with metadata
     db.add_vector(embedding, chunk.metadata)
 
@@ -1351,12 +1351,12 @@ for result in results:
 int main() {
     // Create database for images
     auto db = create_gold_standard_db("image_db");
-    
+
     // Initialize image encoder
     ImageEncoderConfig config;
     config.model_path = "models/clip-vit.onnx";
     ImageEncoder encoder(config);
-    
+
     // Index images
     std::vector<fs::path> images = {
         "photos/cat1.jpg",
@@ -1364,27 +1364,27 @@ int main() {
         "photos/dog1.jpg",
         // ...
     };
-    
+
     for (const auto& img_path : images) {
         auto embedding = encoder.encode(img_path);
-        
+
         Metadata meta;
         meta.source_file = img_path.string();
         meta.type = DocumentType::Image;
-        
+
         db->add_vector(*embedding, meta);
     }
-    
+
     // Search by image
     auto query_img = encoder.encode("query.jpg");
     auto results = db->search(*query_img, 10);
-    
+
     // Display similar images
     for (const auto& result : results) {
         std::cout << "Similar image: " << result.metadata.source_file << std::endl;
         std::cout << "Similarity: " << (1.0 - result.score) << std::endl;
     }
-    
+
     return 0;
 }
 ```
@@ -1466,8 +1466,8 @@ struct ChunkConfig {
 
 ---
 
-**Version:** 2.0.0  
-**Last Updated:** 2026-01-04  
+**Version:** 2.0.0
+**Last Updated:** 2026-01-04
 **License:** MIT
 
 © 2024 Vector Studio Contributors

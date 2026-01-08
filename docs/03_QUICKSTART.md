@@ -169,7 +169,7 @@ cd vector_database
 **See [02_INSTALLATION.md](02_INSTALLATION.md) for:**
 - Detailed dependency installation for each OS
 - Build configuration options
-- Model download instructions  
+- Model download instructions
 - Python environment setup
 - Troubleshooting common issues
 
@@ -311,7 +311,7 @@ docker-compose up -d
 
 ## Support
 
-Need help? 
+Need help?
 
 - 📖 Check the [documentation](docs/)
 - 🐛 Report [issues](https://github.com/yourusername/vector_database/issues)

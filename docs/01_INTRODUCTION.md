@@ -12,7 +12,7 @@ category: "Introduction"
 ![Docs](https://img.shields.io/badge/docs-17_files-orange?style=flat-square)
 
 
-# ⬜HECKTOR 
+# ⬜HECKTOR
 > Advance Vector Database
 
 Meet Hecktor, the AI Vector Studio. This comprehensive guide covers everything from basic usage to advanced topics and API reference.

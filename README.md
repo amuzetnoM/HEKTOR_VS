@@ -1,4 +1,4 @@
-# ⬜HECKTOR 
+# ⬜HECKTOR
 
 > **Vector Studio** <br>
 > *High-Fidelity Vector Database Engine* <br>
@@ -152,7 +152,7 @@ cmake .. -G Ninja -DCMAKE_BUILD_TYPE=Release
 ninja
 ```
 
-> **Detailed Installation:** See **[docs/02_INSTALLATION.md](docs/02_INSTALLATION.md)** for complete setup instructions, system requirements, and troubleshooting.  
+> **Detailed Installation:** See **[docs/02_INSTALLATION.md](docs/02_INSTALLATION.md)** for complete setup instructions, system requirements, and troubleshooting.
 > **Docker/Kubernetes:** See **[docs/03_QUICKSTART.md](docs/03_QUICKSTART.md)** for quick deployment options.
 
 ### First Database
