@@ -2,18 +2,66 @@
 title: "Distributed System"
 description: "Replication, sharding, and gRPC networking"
 version: "3.0.0"
-last_updated: "2026-01-06"
+last_updated: "2026-01-08"
 sidebar_position: 11
 category: "Feature"
 ---
 
 ![Version](https://img.shields.io/badge/version-3.0.0-blue?style=flat-square)
-![Last Updated](https://img.shields.io/badge/updated-2026--01--06-green?style=flat-square)
-![Type](https://img.shields.io/badge/type-theory-purple?style=flat-square)
+![Last Updated](https://img.shields.io/badge/updated-2026--01--08-green?style=flat-square)
+![Type](https://img.shields.io/badge/type-architecture-purple?style=flat-square)
+![Status](https://img.shields.io/badge/status-planned-orange?style=flat-square)
+
+# Distributed System
+
+## Table of Contents
+
+- [Overview](#overview)
+- [Current Status](#current-status)
+  - [APIs Defined](#apis-defined-complete)
+  - [Implementation Requirements](#implementation-requirements)
+- [Architecture](#architecture)
+  - [Replication Manager](#2-replication-manager)
+  - [Sharding Manager](#3-sharding-manager)
+  - [Networking Layer](#1-networking-layer)
+  - [Distributed Consensus](#4-distributed-consensus-optional)
+- [Implementation Estimates](#implementation-estimates)
+  - [Phase 1: Networking Foundation](#phase-1-networking-foundation-v220)
+  - [Phase 2: Replication](#phase-2-replication-v220)
+  - [Phase 3: Sharding](#phase-3-sharding-v220)
+  - [Phase 4: Integration & Testing](#phase-4-integration--testing-v220)
+- [Recommended Approach](#recommended-approach)
+  - [Option A: Full Implementation](#option-a-full-implementation-ambitious)
+  - [Option B: Incremental](#option-b-incremental-recommended)
+  - [Option C: Stub Implementation](#option-c-stub-implementation-current)
+- [Dependency Installation](#dependency-installation)
+  - [Adding gRPC to CMakeLists.txt](#adding-grpc-to-cmakeliststxt)
+  - [System Requirements](#system-requirements)
+- [Testing Strategy](#testing-strategy)
+  - [Unit Tests](#unit-tests)
+  - [Integration Tests](#integration-tests)
+  - [Performance Tests](#performance-tests)
+- [Security Considerations](#security-considerations)
+  - [Authentication](#authentication)
+  - [Authorization](#authorization)
+  - [Encryption](#encryption)
+- [Deployment Patterns](#deployment-patterns)
+- [Current v2.2.0 Deliverables](#current-v220-deliverables)
+- [Recommendation for v2.2.0](#recommendation-for-v220)
+
+---
 
 ## Overview
 
-This document provides detailed status on the distributed architecture features for Vector Studio v2.2.0, including replication, sharding, and networking requirements.
+This document provides comprehensive status and planning for distributed architecture features in Hektor Vector Studio, including replication, sharding, and gRPC-based networking requirements.
+
+**Key Features:**
+- **Replication**: Async, sync, and semi-sync replication modes for high availability
+- **Sharding**: Hash-based, range-based, and consistent hashing strategies for horizontal scaling
+- **Networking**: gRPC-based communication layer for cluster coordination
+- **Consensus**: Optional Raft consensus for leader election and distributed coordination
+
+**Current Implementation Status:** API definitions complete, implementation planned for v2.3.0+
 
 ## Current Status
 
