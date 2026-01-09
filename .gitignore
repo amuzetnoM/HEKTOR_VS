@@ -194,6 +194,8 @@ dmypy.json
 
 # Downloaded models (large files)
 models/
+# Exception for UI TypeScript type definitions
+!ui/src/models/
 *.onnx
 *.pt
 *.pth

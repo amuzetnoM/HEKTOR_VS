@@ -475,6 +475,8 @@ export class VectorDbService {
       return fusedResults.slice(0, params.topK).map(r => ({
         id: r.id,
         content: r.content,
+        score: r.combinedScore || 0,
+        fusedScore: r.combinedScore || 0,
         combinedScore: r.combinedScore,
         vectorScore: r.score || 0,
         lexicalScore: r.lexicalScore || 0,
@@ -549,7 +551,9 @@ export class VectorDbService {
   async getIndexStats(collectionName: string): Promise<import('../models/core').IndexStats> {
     const col = this.collections().find(c => c.name === collectionName);
     return {
+      indexType: 'hnsw',
       type: 'hnsw',
+      dimension: col?.dimension || 768,
       totalVectors: col?.documents.length || 0,
       indexSize: (col?.documents.length || 0) * 2048,
       memoryUsage: (col?.documents.length || 0) * 2400,
