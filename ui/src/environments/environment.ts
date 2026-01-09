@@ -10,8 +10,8 @@ export const environment = {
   apiUrl: 'http://localhost:8080/api',
   wsUrl: 'ws://localhost:8080/ws',
 
-  // Gemini API - load from localStorage (set via Settings page)
-  geminiApiKey: '', // Configured at runtime via Settings
+  // Gemini API - load from environment variables (process.env)
+  geminiApiKey: process.env['GEMINI_API_KEY'] || '', // Configured via environment variable
 
   // Auth Configuration
   tokenKey: 'hektor_auth_token',
