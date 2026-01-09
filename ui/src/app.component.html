@@ -40,18 +40,71 @@
     <div class="flex-1 overflow-y-auto py-6 px-4 space-y-1 custom-scrollbar">
       <div class="text-[10px] font-bold text-zinc-500 uppercase tracking-widest mb-3 px-2 select-none">Platform</div>
 
-      <button (click)="openDashboard()"
+      <button (click)="openDashboard(); activeMainView.set('dashboard')"
         class="w-full text-left px-3 py-2 rounded-lg flex items-center gap-3 transition-all duration-200 text-sm group border border-transparent"
-        [class.bg-white/5]="!selectedCollection()" [class.border-white/5]="!selectedCollection()"
-        [class.text-white]="!selectedCollection()" [class.text-zinc-400]="selectedCollection()"
-        [class.hover:bg-white/5]="selectedCollection()" [class.hover:text-zinc-200]="selectedCollection()">
+        [class.bg-white/5]="!selectedCollection() && activeMainView() === 'dashboard'"
+        [class.border-white/5]="!selectedCollection() && activeMainView() === 'dashboard'"
+        [class.text-white]="!selectedCollection() && activeMainView() === 'dashboard'"
+        [class.text-zinc-400]="selectedCollection() || activeMainView() !== 'dashboard'"
+        [class.hover:bg-white/5]="selectedCollection() || activeMainView() !== 'dashboard'"
+        [class.hover:text-zinc-200]="selectedCollection() || activeMainView() !== 'dashboard'">
         <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 transition-colors"
-          [class.text-indigo-400]="!selectedCollection()" [class.text-zinc-600]="selectedCollection()" fill="none"
+          [class.text-indigo-400]="!selectedCollection() && activeMainView() === 'dashboard'"
+          [class.text-zinc-600]="selectedCollection() || activeMainView() !== 'dashboard'" fill="none"
           viewBox="0 0 24 24" stroke="currentColor">
           <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
             d="M4 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2V6zM14 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2V6zM4 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2v-2zM14 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2v-2z" />
         </svg>
         <span class="font-medium">Dashboard</span>
+      </button>
+
+      <!-- Database Operations -->
+      <button (click)="selectedCollection.set(null); activeMainView.set('database')"
+        class="w-full text-left px-3 py-2 rounded-lg flex items-center gap-3 transition-all duration-200 text-sm group border border-transparent"
+        [class.bg-white/5]="activeMainView() === 'database'" [class.border-white/5]="activeMainView() === 'database'"
+        [class.text-white]="activeMainView() === 'database'" [class.text-zinc-400]="activeMainView() !== 'database'"
+        [class.hover:bg-white/5]="activeMainView() !== 'database'"
+        [class.hover:text-zinc-200]="activeMainView() !== 'database'">
+        <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 transition-colors"
+          [class.text-emerald-400]="activeMainView() === 'database'"
+          [class.text-zinc-600]="activeMainView() !== 'database'" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+            d="M4 7v10c0 2.21 3.582 4 8 4s8-1.79 8-4V7M4 7c0 2.21 3.582 4 8 4s8-1.79 8-4M4 7c0-2.21 3.582-4 8-4s8 1.79 8 4m0 5c0 2.21-3.582 4-8 4s-8-1.79-8-4" />
+        </svg>
+        <span class="font-medium">Database</span>
+      </button>
+
+      <!-- Cluster View -->
+      <button (click)="selectedCollection.set(null); activeMainView.set('cluster')"
+        class="w-full text-left px-3 py-2 rounded-lg flex items-center gap-3 transition-all duration-200 text-sm group border border-transparent"
+        [class.bg-white/5]="activeMainView() === 'cluster'" [class.border-white/5]="activeMainView() === 'cluster'"
+        [class.text-white]="activeMainView() === 'cluster'" [class.text-zinc-400]="activeMainView() !== 'cluster'"
+        [class.hover:bg-white/5]="activeMainView() !== 'cluster'"
+        [class.hover:text-zinc-200]="activeMainView() !== 'cluster'">
+        <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 transition-colors"
+          [class.text-violet-400]="activeMainView() === 'cluster'"
+          [class.text-zinc-600]="activeMainView() !== 'cluster'" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+            d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10" />
+        </svg>
+        <span class="font-medium">Cluster</span>
+      </button>
+
+      <!-- Settings -->
+      <button (click)="selectedCollection.set(null); activeMainView.set('settings')"
+        class="w-full text-left px-3 py-2 rounded-lg flex items-center gap-3 transition-all duration-200 text-sm group border border-transparent"
+        [class.bg-white/5]="activeMainView() === 'settings'" [class.border-white/5]="activeMainView() === 'settings'"
+        [class.text-white]="activeMainView() === 'settings'" [class.text-zinc-400]="activeMainView() !== 'settings'"
+        [class.hover:bg-white/5]="activeMainView() !== 'settings'"
+        [class.hover:text-zinc-200]="activeMainView() !== 'settings'">
+        <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 transition-colors"
+          [class.text-amber-400]="activeMainView() === 'settings'"
+          [class.text-zinc-600]="activeMainView() !== 'settings'" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+            d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z" />
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+        </svg>
+        <span class="font-medium">Settings</span>
       </button>
 
       <div
@@ -63,7 +116,7 @@
 
       @for (col of db.collections(); track col.name; let i = $index) {
       <button draggable="true" (dragstart)="onDragStart($event, i)" (dragover)="onDragOver($event)"
-        (drop)="onDrop($event, i)" (click)="selectCollection(col.name)"
+        (drop)="onDrop($event, i)" (click)="selectCollection(col.name); activeMainView.set('dashboard')"
         class="w-full text-left px-3 py-2 rounded-lg flex items-center justify-between group transition-all duration-200 text-sm border border-transparent cursor-grab active:cursor-grabbing"
         [class.opacity-50]="draggedIndex() === i" [class.bg-white/5]="selectedCollection() === col.name"
         [class.border-white/5]="selectedCollection() === col.name"
@@ -157,7 +210,16 @@
     </button>
 
     @if (!selectedCollection()) {
+    <!-- Global Views (no collection selected) -->
+    @if (activeMainView() === 'database') {
+    <app-database-ops />
+    } @else if (activeMainView() === 'cluster') {
+    <app-cluster-view />
+    } @else if (activeMainView() === 'settings') {
+    <app-settings />
+    } @else {
     <app-health-monitor />
+    }
     } @else {
     @if (currentCollection(); as col) {
     <!-- Top Navigation Bar -->
@@ -199,6 +261,22 @@
           [class.bg-zinc-800]="activeTab() === 'config'" [class.text-white]="activeTab() === 'config'"
           [class.shadow-sm]="activeTab() === 'config'" [class.text-zinc-500]="activeTab() !== 'config'"
           [class.hover:text-zinc-300]="activeTab() !== 'config'">Config</button>
+        <div class="w-px h-4 bg-white/5 mx-1"></div>
+        <button (click)="activeTab.set('hybrid')"
+          class="px-3 md:px-5 py-1.5 text-xs font-medium rounded-md transition-all duration-200 whitespace-nowrap"
+          [class.bg-zinc-800]="activeTab() === 'hybrid'" [class.text-white]="activeTab() === 'hybrid'"
+          [class.shadow-sm]="activeTab() === 'hybrid'" [class.text-zinc-500]="activeTab() !== 'hybrid'"
+          [class.hover:text-zinc-300]="activeTab() !== 'hybrid'">Hybrid</button>
+        <button (click)="activeTab.set('index')"
+          class="px-3 md:px-5 py-1.5 text-xs font-medium rounded-md transition-all duration-200 whitespace-nowrap"
+          [class.bg-zinc-800]="activeTab() === 'index'" [class.text-white]="activeTab() === 'index'"
+          [class.shadow-sm]="activeTab() === 'index'" [class.text-zinc-500]="activeTab() !== 'index'"
+          [class.hover:text-zinc-300]="activeTab() !== 'index'">Index</button>
+        <button (click)="activeTab.set('export')"
+          class="px-3 md:px-5 py-1.5 text-xs font-medium rounded-md transition-all duration-200 whitespace-nowrap"
+          [class.bg-zinc-800]="activeTab() === 'export'" [class.text-white]="activeTab() === 'export'"
+          [class.shadow-sm]="activeTab() === 'export'" [class.text-zinc-500]="activeTab() !== 'export'"
+          [class.hover:text-zinc-300]="activeTab() !== 'export'">Export</button>
       </div>
     </header>
 
@@ -319,6 +397,21 @@
           </section>
         </div>
       </div>
+      }
+
+      <!-- Hybrid Search Tab -->
+      @if (activeTab() === 'hybrid') {
+      <app-hybrid-search [collectionName]="col.name" />
+      }
+
+      <!-- Index Management Tab -->
+      @if (activeTab() === 'index') {
+      <app-index-manager [collectionName]="col.name" />
+      }
+
+      <!-- Export Tab -->
+      @if (activeTab() === 'export') {
+      <app-export-manager [collectionName]="col.name" />
       }
     </div>
     }

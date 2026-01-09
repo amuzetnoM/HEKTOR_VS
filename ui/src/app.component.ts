@@ -11,6 +11,13 @@ import { HealthMonitorComponent } from './components/health-monitor.component';
 import { IngestionWizardComponent } from './components/ingestion-wizard.component';
 import { PlaygroundComponent } from './components/playground.component';
 import { LoginComponent } from './components/login.component';
+// New components
+import { HybridSearchComponent } from './components/hybrid-search.component';
+import { IndexManagerComponent } from './components/index-manager.component';
+import { ExportManagerComponent } from './components/export-manager.component';
+import { DatabaseOpsComponent } from './components/database-ops.component';
+import { ClusterViewComponent } from './components/cluster-view.component';
+import { SettingsComponent } from './components/settings.component';
 
 @Component({
   selector: 'app-root',
@@ -24,7 +31,14 @@ import { LoginComponent } from './components/login.component';
     HealthMonitorComponent,
     IngestionWizardComponent,
     PlaygroundComponent,
-    LoginComponent
+    LoginComponent,
+    // New components
+    HybridSearchComponent,
+    IndexManagerComponent,
+    ExportManagerComponent,
+    DatabaseOpsComponent,
+    ClusterViewComponent,
+    SettingsComponent
   ],
   templateUrl: './app.component.html'
 })
@@ -35,7 +49,8 @@ export class AppComponent {
   @ViewChild(ChatWidgetComponent) chatWidget!: ChatWidgetComponent;
 
   selectedCollection = signal<string | null>(null);
-  activeTab = signal<'explore' | 'data' | 'playground' | 'config'>('explore');
+  activeTab = signal<'explore' | 'data' | 'playground' | 'config' | 'hybrid' | 'index' | 'export'>('explore');
+  activeMainView = signal<'dashboard' | 'database' | 'cluster' | 'settings'>('dashboard');
   isMobileSidebarOpen = signal(false);
   searchQuery = signal('');
 
