@@ -5,10 +5,10 @@ import { VectorDbService } from '../services/vector-db.service';
 import { AppSettings, LogLevel, EMBEDDING_MODELS } from '../models/core';
 
 @Component({
-    selector: 'app-settings',
-    standalone: true,
-    imports: [CommonModule, FormsModule],
-    template: `
+  selector: 'app-settings',
+  standalone: true,
+  imports: [CommonModule, FormsModule],
+  template: `
     <div class="h-full overflow-y-auto custom-scrollbar bg-[#09090b]">
       <div class="max-w-3xl mx-auto p-8 space-y-8">
         <!-- Header -->
@@ -155,14 +155,11 @@ import { AppSettings, LogLevel, EMBEDDING_MODELS } from '../models/core';
           </div>
           <div class="p-6 space-y-4">
             <div class="flex items-center gap-4">
-              <div class="w-12 h-12 rounded-xl bg-gradient-to-br from-indigo-500 to-violet-600 flex items-center justify-center shadow-lg">
-                <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z" />
-                </svg>
-              </div>
+              <div class="w-12 h-12 bg-white rounded-xl shadow-md"></div>
               <div>
                 <div class="text-lg font-bold text-white">HEKTOR Vector Studio</div>
                 <div class="text-sm text-zinc-500">Agentic Vector Operations Console</div>
+                <a href="https://artifact-virtual.gitbook.io/hektor/" class="text-amber-400 hover:underline mt-2 block">Docs</a>
               </div>
             </div>
 
@@ -197,81 +194,81 @@ import { AppSettings, LogLevel, EMBEDDING_MODELS } from '../models/core';
   `
 })
 export class SettingsComponent implements OnInit {
-    private db = inject(VectorDbService);
+  private db = inject(VectorDbService);
 
-    embeddingModels = EMBEDDING_MODELS;
+  embeddingModels = EMBEDDING_MODELS;
 
-    settings: AppSettings = {
-        apiUrl: 'http://localhost:8080',
-        apiKey: '',
-        defaultEmbeddingModel: 'text-embedding-004',
-        defaultDimension: 768,
-        defaultMetric: 'cosine',
-        logLevel: 'info'
+  settings: AppSettings = {
+    apiUrl: 'http://localhost:8080',
+    apiKey: '',
+    defaultEmbeddingModel: 'text-embedding-004',
+    defaultDimension: 768,
+    defaultMetric: 'cosine',
+    logLevel: 'info'
+  };
+
+  isTesting = signal(false);
+  isSaving = signal(false);
+  connectionStatus = signal<'success' | 'error' | null>(null);
+  backendVersion = signal<string | null>(null);
+
+  ngOnInit() {
+    this.loadSettings();
+  }
+
+  loadSettings() {
+    const saved = localStorage.getItem('hektor_settings');
+    if (saved) {
+      try {
+        this.settings = { ...this.settings, ...JSON.parse(saved) };
+      } catch (e) {
+        console.error('Failed to load settings:', e);
+      }
+    }
+  }
+
+  async testConnection() {
+    this.isTesting.set(true);
+    this.connectionStatus.set(null);
+
+    try {
+      const response = await fetch(`${this.settings.apiUrl}/health`);
+      if (response.ok) {
+        const data = await response.json();
+        this.connectionStatus.set('success');
+        this.backendVersion.set(data.version || 'Unknown');
+      } else {
+        this.connectionStatus.set('error');
+      }
+    } catch (error) {
+      console.error('Connection test failed:', error);
+      this.connectionStatus.set('error');
+    } finally {
+      this.isTesting.set(false);
+    }
+  }
+
+  async saveSettings() {
+    this.isSaving.set(true);
+    try {
+      localStorage.setItem('hektor_settings', JSON.stringify(this.settings));
+      // Could also sync to backend if needed
+      await new Promise(resolve => setTimeout(resolve, 500));
+    } catch (error) {
+      console.error('Failed to save settings:', error);
+    } finally {
+      this.isSaving.set(false);
+    }
+  }
+
+  resetToDefaults() {
+    this.settings = {
+      apiUrl: 'http://localhost:8080',
+      apiKey: '',
+      defaultEmbeddingModel: 'text-embedding-004',
+      defaultDimension: 768,
+      defaultMetric: 'cosine',
+      logLevel: 'info'
     };
-
-    isTesting = signal(false);
-    isSaving = signal(false);
-    connectionStatus = signal<'success' | 'error' | null>(null);
-    backendVersion = signal<string | null>(null);
-
-    ngOnInit() {
-        this.loadSettings();
-    }
-
-    loadSettings() {
-        const saved = localStorage.getItem('hektor_settings');
-        if (saved) {
-            try {
-                this.settings = { ...this.settings, ...JSON.parse(saved) };
-            } catch (e) {
-                console.error('Failed to load settings:', e);
-            }
-        }
-    }
-
-    async testConnection() {
-        this.isTesting.set(true);
-        this.connectionStatus.set(null);
-
-        try {
-            const response = await fetch(`${this.settings.apiUrl}/health`);
-            if (response.ok) {
-                const data = await response.json();
-                this.connectionStatus.set('success');
-                this.backendVersion.set(data.version || 'Unknown');
-            } else {
-                this.connectionStatus.set('error');
-            }
-        } catch (error) {
-            console.error('Connection test failed:', error);
-            this.connectionStatus.set('error');
-        } finally {
-            this.isTesting.set(false);
-        }
-    }
-
-    async saveSettings() {
-        this.isSaving.set(true);
-        try {
-            localStorage.setItem('hektor_settings', JSON.stringify(this.settings));
-            // Could also sync to backend if needed
-            await new Promise(resolve => setTimeout(resolve, 500));
-        } catch (error) {
-            console.error('Failed to save settings:', error);
-        } finally {
-            this.isSaving.set(false);
-        }
-    }
-
-    resetToDefaults() {
-        this.settings = {
-            apiUrl: 'http://localhost:8080',
-            apiKey: '',
-            defaultEmbeddingModel: 'text-embedding-004',
-            defaultDimension: 768,
-            defaultMetric: 'cosine',
-            logLevel: 'info'
-        };
-    }
+  }
 }
