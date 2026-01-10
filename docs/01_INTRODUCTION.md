@@ -1,10 +1,10 @@
 ---
-title: "Introduction"
-description: "Overview of Vector Studio, key features, and quick start guide"
-version: "3.0.0"
-last_updated: "2026-01-06"
+title: Introduction
+description: Overview of Vector Studio
+version: 3.0.0
+last_updated: 2026-01-06
 sidebar_position: 1
-category: "Introduction"
+category: Introduction
 ---
 
 ![Version](https://img.shields.io/badge/version-3.0.0-blue?style=flat-square)
@@ -13,7 +13,7 @@ category: "Introduction"
 
 
 # ⬜️ HECKTOR
-> Vestor Studio
+> Vector Studio
 
 Meet Hecktor, the AI Vector Studio. This comprehensive guide covers everything from basic usage to advanced topics and API reference.
 
