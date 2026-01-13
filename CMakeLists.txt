@@ -267,16 +267,30 @@ if(VDB_USE_LLAMA_CPP)
         if(EXISTS "${GGML_IMPL_H}")
             file(READ "${GGML_IMPL_H}" GGML_IMPL_CONTENT)
             # Check if patch is needed (not already applied)
-            string(FIND "${GGML_IMPL_CONTENT}" "#if defined(__AVX2__) || defined(__AVX__)" AVX2_PATCH_FOUND)
+            string(FIND "${GGML_IMPL_CONTENT}" "#if defined(__AVX2__) || defined(__AVX__) || defined(__AVX512F__)" AVX2_PATCH_FOUND)
             if(AVX2_PATCH_FOUND EQUAL -1)
                 message(STATUS "Patching ggml-impl.h to include AVX2 intrinsics header")
+                # Store original content to verify replacement succeeded
+                set(ORIGINAL_CONTENT "${GGML_IMPL_CONTENT}")
                 # Insert AVX2 include block before __cplusplus block
                 # This is a robust location that should exist in all versions
                 string(REGEX REPLACE 
                     "(#endif[^\n]*\n*)(\n*#ifdef __cplusplus)"
                     "\\1\n#if defined(__AVX2__) || defined(__AVX__) || defined(__AVX512F__)\n#include <immintrin.h>\n#endif\n\\2"
                     GGML_IMPL_CONTENT "${GGML_IMPL_CONTENT}")
+                # Verify the replacement was successful
+                if("${GGML_IMPL_CONTENT}" STREQUAL "${ORIGINAL_CONTENT}")
+                    message(FATAL_ERROR "Failed to patch ggml-impl.h: pattern not found. This may indicate an incompatible llama.cpp version.")
+                endif()
+                # Verify the patch was actually applied
+                string(FIND "${GGML_IMPL_CONTENT}" "#if defined(__AVX2__) || defined(__AVX__) || defined(__AVX512F__)" VERIFY_PATCH)
+                if(VERIFY_PATCH EQUAL -1)
+                    message(FATAL_ERROR "Failed to verify AVX2 patch in ggml-impl.h")
+                endif()
                 file(WRITE "${GGML_IMPL_H}" "${GGML_IMPL_CONTENT}")
+                message(STATUS "Successfully patched ggml-impl.h")
+            else()
+                message(STATUS "ggml-impl.h already patched, skipping")
             endif()
         endif()
         
