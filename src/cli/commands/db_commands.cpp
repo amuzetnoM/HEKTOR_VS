@@ -61,7 +61,7 @@ int DbInitCommand::execute(
         metadata_file << "[]\n";
         metadata_file.close();
         
-        OutputFormatter formatter;
+        vdb::cli::OutputFormatter formatter;
         std::cout << formatter.format_success("Database initialized at " + db_path);
         std::cout << "\nConfiguration:\n";
         std::cout << "  Dimension: " << dimension << "\n";
@@ -117,7 +117,7 @@ int DbInfoCommand::execute(
     }
     
     // Display info
-    OutputFormatter formatter;
+    vdb::cli::OutputFormatter formatter;
     std::vector<std::pair<std::string, std::string>> data = {
         {"Database Path", db_path},
         {"Vector Count", std::to_string(vector_count)},
@@ -143,7 +143,7 @@ int DbOptimizeCommand::execute(
     }
     
     std::string db_path = args[0];
-    OutputFormatter formatter;
+    vdb::cli::OutputFormatter formatter;
     
     std::cout << "Optimizing database...\n";
     std::cout << "Compacting storage...\n";
@@ -175,7 +175,7 @@ int DbBackupCommand::execute(
         compress = false;
     }
     
-    OutputFormatter formatter;
+    vdb::cli::OutputFormatter formatter;
     
     std::cout << "Creating backup...\n";
     std::cout << "Source: " << db_path << "\n";
@@ -206,7 +206,7 @@ int DbRestoreCommand::execute(
     std::string backup = args[0];
     std::string db_path = args[1];
     
-    OutputFormatter formatter;
+    vdb::cli::OutputFormatter formatter;
     
     std::cout << "Restoring from backup...\n";
     std::cout << "Backup: " << backup << "\n";
@@ -232,7 +232,7 @@ int DbHealthCommand::execute(
     }
     
     std::string db_path = args[0];
-    OutputFormatter formatter;
+    vdb::cli::OutputFormatter formatter;
     
     std::cout << "Running health checks...\n\n";
     
@@ -263,7 +263,7 @@ int DbListCommand::execute(
         path = path_it->second;
     }
     
-    OutputFormatter formatter;
+    vdb::cli::OutputFormatter formatter;
     
     std::cout << "Scanning directory: " << path << "\n\n";
     

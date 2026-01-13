@@ -548,10 +548,10 @@ PYBIND11_MODULE(pyvdb, m)
         .def_readonly("score", &BM25Result::score, "BM25 score")
         .def_readonly("matched_terms", &BM25Result::matched_terms, "List of matched terms");
     
-    // BM25Engine
-    py::class_<BM25Engine>(m, "BM25Engine")
-        .def(py::init<>(), "Create BM25 engine with default config")
-        .def(py::init<const BM25Config&>(), py::arg("config"), "Create BM25 engine with custom config")
+    // BM25Engine - wrapped in shared_ptr to handle incomplete Impl type
+    py::class_<BM25Engine, std::shared_ptr<BM25Engine>>(m, "BM25Engine")
+        .def(py::init([]() { return std::make_shared<BM25Engine>(); }), "Create BM25 engine with default config")
+        .def(py::init([](const BM25Config& config) { return std::make_shared<BM25Engine>(config); }), py::arg("config"), "Create BM25 engine with custom config")
         .def("add_document", [](BM25Engine& self, VectorId id, const std::string& content) {
             auto result = self.add_document(id, content);
             if (!result) {
@@ -585,14 +585,16 @@ PYBIND11_MODULE(pyvdb, m)
             if (!result) {
                 throw std::runtime_error(result.error().message);
             }
-        }, py::arg("path"), "Save index to file")
-        .def_static("load", [](const std::string& path) {
-            auto result = BM25Engine::load(path);
-            if (!result) {
-                throw std::runtime_error(result.error().message);
-            }
-            return *result;
-        }, py::arg("path"), "Load index from file");
+        }, py::arg("path"), "Save index to file");
+        // Note: load() disabled in Python bindings due to incomplete type issues with Impl
+        // Users should create a new engine and add documents instead
+        // .def_static("load", [](const std::string& path) {
+        //     auto result = BM25Engine::load(path);
+        //     if (!result) {
+        //         throw std::runtime_error(result.error().message);
+        //     }
+        //     return std::make_shared<BM25Engine>(std::move(*result));
+        // }, py::arg("path"), "Load index from file");
     
     // FusionMethod enum
     py::enum_<FusionMethod>(m, "FusionMethod")

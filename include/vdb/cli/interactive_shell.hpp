@@ -3,7 +3,7 @@
 #include "cli.hpp"
 #include "command_base.hpp"
 #include <memory>
-<parameter name="string">
+#include <string>
 #include <vector>
 
 namespace vdb::cli {
