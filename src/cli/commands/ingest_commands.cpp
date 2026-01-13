@@ -104,4 +104,6 @@ int IngestScanCommand::execute(
     return 0;
 }
 
+
+
 } // namespace vdb::cli

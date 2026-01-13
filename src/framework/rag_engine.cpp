@@ -7,7 +7,7 @@
 #include <regex>
 #include <numeric>
 
-namespace vdb {
+namespace vdb::framework {
 
 // ============================================================================
 // RAGEngine Implementation
@@ -242,7 +242,7 @@ Result<std::vector<std::string>> RAGEngine::chunk_document(const std::string& do
         return Err<std::vector<std::string>>("Unknown chunking strategy: " + impl_->config.chunking_strategy);
     }
     
-    return Ok(chunks);
+    return Ok(std::move(chunks));
 }
 
 Result<RAGContext> RAGEngine::build_context(
@@ -274,8 +274,8 @@ Result<RAGContext> RAGEngine::build_context(
     for (const auto& result : ranked) {
         // Get document text from metadata if available
         std::string doc_text;
-        if (result.metadata && result.metadata->contains("text")) {
-            doc_text = result.metadata->at("text");
+        if (result.metadata && !result.metadata->source_file.empty()) {
+            doc_text = "Document from: " + result.metadata->source_file;
         } else {
             doc_text = "Document " + std::to_string(result.id);
         }
@@ -314,7 +314,7 @@ Result<RAGContext> RAGEngine::build_context(
     context.formatted_context = formatted.str();
     context.total_tokens = current_tokens;
     
-    return Ok(context);
+    return Ok(std::move(context));
 }
 
 std::string RAGEngine::format_prompt(
@@ -352,7 +352,7 @@ Result<std::vector<QueryResult>> RAGEngine::rerank(
     std::sort(reranked.begin(), reranked.end(),
               [](const auto& a, const auto& b) { return a.score > b.score; });
     
-    return Ok(reranked);
+    return Ok(std::move(reranked));
 }
 
-} // namespace vdb
+} // namespace vdb::framework

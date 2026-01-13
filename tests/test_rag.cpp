@@ -6,6 +6,7 @@
 #include <cassert>
 
 using namespace vdb;
+using namespace vdb::framework;
 
 void test_rag_chunking_fixed() {
     std::cout << "Testing RAG fixed chunking...\n";
@@ -21,9 +22,9 @@ void test_rag_chunking_fixed() {
                           "We want to chunk it into smaller pieces for processing.";
     
     auto result = engine.chunk_document(document);
-    assert(result.is_ok());
+    assert(result.has_value());
     
-    auto chunks = result.unwrap();
+    auto chunks = result.value();
     assert(!chunks.empty());
     
     std::cout << "  Created " << chunks.size() << " chunks\n";
@@ -49,9 +50,9 @@ void test_rag_chunking_sentence() {
                           "Fourth sentence wraps it up.";
     
     auto result = engine.chunk_document(document);
-    assert(result.is_ok());
+    assert(result.has_value());
     
-    auto chunks = result.unwrap();
+    auto chunks = result.value();
     assert(!chunks.empty());
     
     std::cout << "  Created " << chunks.size() << " chunks\n";
@@ -76,9 +77,9 @@ void test_rag_chunking_paragraph() {
                           "Third paragraph to test chunking.";
     
     auto result = engine.chunk_document(document);
-    assert(result.is_ok());
+    assert(result.has_value());
     
-    auto chunks = result.unwrap();
+    auto chunks = result.value();
     assert(!chunks.empty());
     
     std::cout << "  Created " << chunks.size() << " chunks\n";
@@ -101,7 +102,7 @@ void test_rag_context_building() {
     r1.id = 1;
     r1.score = 0.9f;
     Metadata meta1;
-    meta1["text"] = "Gold prices surge on market fears.";
+    meta1.source_file = "Gold prices surge on market fears.";
     r1.metadata = meta1;
     results.push_back(r1);
     
@@ -109,7 +110,7 @@ void test_rag_context_building() {
     r2.id = 2;
     r2.score = 0.7f;
     Metadata meta2;
-    meta2["text"] = "Silver follows gold higher.";
+    meta2.source_file = "Silver follows gold higher.";
     r2.metadata = meta2;
     results.push_back(r2);
     
@@ -117,14 +118,14 @@ void test_rag_context_building() {
     r3.id = 3;
     r3.score = 0.3f; // Below threshold
     Metadata meta3;
-    meta3["text"] = "Unrelated content.";
+    meta3.source_file = "Unrelated content.";
     r3.metadata = meta3;
     results.push_back(r3);
     
     auto context_result = engine.build_context("gold prices", results);
-    assert(context_result.is_ok());
+    assert(context_result.has_value());
     
-    auto context = context_result.unwrap();
+    auto context = context_result.value();
     
     // Should have filtered out low-relevance results
     assert(context.retrieved_chunks.size() <= 2);
@@ -177,9 +178,9 @@ void test_rag_reranking() {
     results.push_back(r3);
     
     auto reranked_result = engine.rerank("query", results);
-    assert(reranked_result.is_ok());
+    assert(reranked_result.has_value());
     
-    auto reranked = reranked_result.unwrap();
+    auto reranked = reranked_result.value();
     assert(reranked.size() == 3);
     
     // Should be sorted by score (descending)
@@ -198,7 +199,7 @@ void test_rag_empty_document() {
     RAGEngine engine;
     
     auto result = engine.chunk_document("");
-    assert(!result.is_ok());
+    assert(!result.has_value());
     
     std::cout << "  Correctly rejected empty document\n";
     std::cout << "  PASSED\n";

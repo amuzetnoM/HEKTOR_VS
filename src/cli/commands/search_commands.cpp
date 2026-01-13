@@ -58,4 +58,6 @@ int SearchCommand::execute(
     return 0;
 }
 
+
+
 } // namespace vdb::cli

@@ -4,6 +4,7 @@
 // ============================================================================
 
 #include "core.hpp"
+#include "database.hpp"
 #include <string>
 #include <vector>
 #include <functional>

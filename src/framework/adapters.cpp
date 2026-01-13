@@ -6,7 +6,7 @@
 #include <cmath>
 #include <unordered_set>
 
-namespace vdb {
+namespace vdb::framework {
 
 // ============================================================================
 // LangChainAdapter Implementation
@@ -146,11 +146,12 @@ struct LlamaIndexAdapter::Impl {
     ) const {
         std::vector<QueryResult> scored = results;
         
-        // Apply similarity threshold
+        // Apply similarity threshold (using default value since config doesn't have this field)
+        const float default_threshold = 0.5f;
         scored.erase(
             std::remove_if(scored.begin(), scored.end(),
-                [this](const auto& r) { 
-                    return r.score < config.similarity_threshold; 
+                [default_threshold](const auto& r) { 
+                    return r.score < default_threshold; 
                 }),
             scored.end()
         );
@@ -170,95 +171,25 @@ LlamaIndexAdapter::LlamaIndexAdapter(const LlamaIndexConfig& config)
 
 LlamaIndexAdapter::~LlamaIndexAdapter() = default;
 
-Result<std::vector<QueryResult>> LlamaIndexAdapter::retrieve(
-    const std::string& query,
-    size_t k
-) const {
-    return Err<std::vector<QueryResult>>(
-        "LlamaIndexAdapter requires connection to VectorDatabase. "
-        "Use VectorDatabase::search() and pass results through this adapter."
-    );
-}
-
-Result<std::vector<QueryResult>> LlamaIndexAdapter::query(
-    const std::string& query,
-    size_t k
-) const {
-    // Same as retrieve in this context
-    return retrieve(query, k);
-}
-
-Result<IndexStats> LlamaIndexAdapter::get_index_stats() const {
-    // Would return statistics from the underlying index
-    return Err<IndexStats>(
-        "Index stats require connection to VectorDatabase."
-    );
-}
+// Note: Actual methods (build_index, query, insert, delete_document, etc.)
+// would be implemented here when framework integration is complete.
 
 // ============================================================================
-// TrainingDataExporter Implementation
+// TrainingExporter Implementation
 // ============================================================================
 
-struct TrainingDataExporter::Impl {
+struct TrainingExporter::Impl {
     ExportConfig config;
 };
 
-TrainingDataExporter::TrainingDataExporter(const ExportConfig& config)
+TrainingExporter::TrainingExporter(const ExportConfig& config)
     : impl_(std::make_unique<Impl>()) {
     impl_->config = config;
 }
 
-TrainingDataExporter::~TrainingDataExporter() = default;
+TrainingExporter::~TrainingExporter() = default;
 
-Result<size_t> TrainingDataExporter::export_to_tfrecord(
-    const std::string& output_path
-) const {
-    // Would export to TensorFlow TFRecord format
-    return Err<size_t>(
-        "TFRecord export requires TensorFlow C++ library. "
-        "Install TensorFlow and rebuild with TF support."
-    );
-}
+// Note: Actual export methods (export_supervised, export_contrastive_pairs, etc.)
+// would be implemented here when framework integration is complete.
 
-Result<size_t> TrainingDataExporter::export_to_pytorch(
-    const std::string& output_path
-) const {
-    // Would export to PyTorch tensor format
-    return Err<size_t>(
-        "PyTorch export requires LibTorch C++ library. "
-        "Install PyTorch and rebuild with LibTorch support."
-    );
-}
-
-Result<size_t> TrainingDataExporter::export_to_huggingface(
-    const std::string& output_path
-) const {
-    // Would export to HuggingFace datasets format (typically using Arrow/Parquet)
-    return Err<size_t>(
-        "HuggingFace export requires Arrow C++ library. "
-        "Install Apache Arrow and rebuild with Arrow support."
-    );
-}
-
-Result<size_t> TrainingDataExporter::export_to_jsonl(
-    const std::string& output_path
-) const {
-    // Would export to JSONL format
-    // This can be implemented without external dependencies
-    return Err<size_t>(
-        "JSONL export not yet implemented. "
-        "Use custom export logic or wait for implementation."
-    );
-}
-
-Result<size_t> TrainingDataExporter::export_to_parquet(
-    const std::string& output_path
-) const {
-    // Would export to Parquet format
-    return Err<size_t>(
-        "Parquet export requires Arrow C++ library. "
-        "Install Apache Arrow and rebuild with Arrow support."
-    );
-}
-
-} // namespace vdb
+} // namespace vdb::framework

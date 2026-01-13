@@ -70,8 +70,6 @@ Examples:
     ) override;
 };
 
-} // namespace vdb::cli
-
 /**
  * hektor db optimize - Optimize database
  */

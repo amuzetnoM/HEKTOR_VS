@@ -100,7 +100,7 @@ Examples:
     ) override;
 };
 
-} // namespace vdb::cli
+
 
 /**
  * hektor update - Update document

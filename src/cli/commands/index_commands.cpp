@@ -155,4 +155,6 @@ int IndexBenchmarkCommand::execute(
     return 0;
 }
 
+
+
 } // namespace vdb::cli

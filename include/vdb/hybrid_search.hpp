@@ -4,6 +4,7 @@
 // ============================================================================
 
 #include "core.hpp"
+#include "database.hpp"
 #include <string>
 #include <vector>
 #include <map>
@@ -51,6 +52,14 @@ class BM25Engine {
 public:
     explicit BM25Engine(const BM25Config& config = {});
     ~BM25Engine();
+    
+    // Move semantics
+    BM25Engine(BM25Engine&&) noexcept = default;
+    BM25Engine& operator=(BM25Engine&&) noexcept = default;
+    
+    // Delete copy semantics
+    BM25Engine(const BM25Engine&) = delete;
+    BM25Engine& operator=(const BM25Engine&) = delete;
     
     // Index management
     Result<void> add_document(VectorId id, const std::string& content);

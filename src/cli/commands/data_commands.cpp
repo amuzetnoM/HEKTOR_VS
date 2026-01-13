@@ -112,7 +112,7 @@ int DataDeleteCommand::execute(
     return 0;
 }
 
-} // namespace vdb::cli
+
 
 int DataUpdateCommand::execute(
     const std::vector<std::string>& args,
@@ -158,7 +158,7 @@ int DataBatchCommand::execute(
         workers = std::stoi(w_it->second);
     }
     
-    OutputFormatter formatter;
+    vdb::cli::OutputFormatter formatter;
     
     std::cout << "Batch inserting from: " << file << "\n";
     std::cout << "Format: " << format << "\n";
@@ -194,16 +194,17 @@ int DataListCommand::execute(
         limit = std::stoi(limit_it->second);
     }
     
-    OutputFormatter formatter;
+    vdb::cli::OutputFormatter formatter;
     
     std::vector<std::string> headers = {"ID", "Type", "Date", "Preview"};
     std::vector<std::vector<std::string>> rows;
     
     for (int i = 1; i <= std::min(limit, 10); ++i) {
-        rows.push_back({
+        std::string date_str = "2026-01-" + std::string(i < 10 ? "0" : "") + std::to_string(i);
+        rows.push_back(std::vector<std::string>{
             std::to_string(10000 + i),
             "journal",
-            "2026-01-" + (i < 10 ? "0" : "") + std::to_string(i),
+            date_str,
             "Document preview text..."
         });
     }
@@ -213,3 +214,5 @@ int DataListCommand::execute(
     
     return 0;
 }
+
+} // namespace vdb::cli

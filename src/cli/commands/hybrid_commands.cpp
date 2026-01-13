@@ -116,4 +116,6 @@ int HybridBM25Command::execute(
     return 0;
 }
 
+
+
 } // namespace vdb::cli

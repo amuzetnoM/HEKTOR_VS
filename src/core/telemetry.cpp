@@ -135,7 +135,7 @@ TelemetrySpan::TelemetrySpan(const std::string& operation_name,
 #endif
     
     // Log span start (only if debug logging enabled)
-    if (Logger::instance().config().min_level <= LogLevel::DEBUG) {
+    if (vdb::logging::Logger::instance().config().min_level <= vdb::logging::LogLevel::DEBUG) {
         LOG_DEBUG("Starting trace span: " + operation_name + 
                   " [trace_id=" + impl_->context.trace_id + 
                   ", span_id=" + impl_->context.span_id + "]");
@@ -155,7 +155,7 @@ TelemetrySpan::~TelemetrySpan() {
 #endif
         
         // Log span completion (only if debug logging enabled)
-        if (Logger::instance().config().min_level <= LogLevel::DEBUG) {
+        if (vdb::logging::Logger::instance().config().min_level <= vdb::logging::LogLevel::DEBUG) {
             std::ostringstream oss;
             oss << "Completed trace span: " << operation_name_ 
                 << " (duration: " << duration_ms << "ms)";
@@ -240,7 +240,7 @@ void TelemetrySpan::add_event(const std::string& name,
         impl_->span->AddEvent(name);
     }
 #endif
-    if (Logger::instance().config().min_level <= LogLevel::DEBUG) {
+    if (vdb::logging::Logger::instance().config().min_level <= vdb::logging::LogLevel::DEBUG) {
         LOG_DEBUG("Trace event: " + name);
     }
 }

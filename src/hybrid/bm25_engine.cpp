@@ -123,12 +123,12 @@ struct BM25Engine::Impl {
     
     Result<void> add_document(VectorId id, const std::string& content) {
         if (documents.find(id) != documents.end()) {
-            return Error("Document already exists");
+            return std::unexpected(Error(ErrorCode::InvalidData, "Document already exists"));
         }
         
         auto terms = process_text(content, config);
         if (terms.empty()) {
-            return Error("No valid terms in document");
+            return std::unexpected(Error(ErrorCode::InvalidData, "No valid terms in document"));
         }
         
         Document doc;
@@ -172,7 +172,7 @@ struct BM25Engine::Impl {
         
         auto query_terms = process_text(query, config);
         if (query_terms.empty()) {
-            return Error("No valid terms in query");
+            return std::unexpected(Error(ErrorCode::InvalidInput, "No valid terms in query"));
         }
         
         std::unordered_map<VectorId, float> scores;
@@ -235,7 +235,7 @@ Result<void> BM25Engine::add_document(VectorId id, const std::string& content) {
 Result<void> BM25Engine::remove_document(VectorId id) {
     auto it = impl_->documents.find(id);
     if (it == impl_->documents.end()) {
-        return Error("Document not found: " + std::to_string(id));
+        return std::unexpected(Error(ErrorCode::VectorNotFound, "Document not found: " + std::to_string(id)));
     }
     
     const auto& doc = it->second;
@@ -304,7 +304,7 @@ float BM25Engine::average_document_length() const {
 Result<void> BM25Engine::save(const std::string& path) const {
     std::ofstream file(path, std::ios::binary);
     if (!file) {
-        return Error("Failed to open file for writing: " + path);
+        return std::unexpected(Error(ErrorCode::IoError, "Failed to open file for writing: " + path));
     }
     
     // Write header
@@ -345,7 +345,7 @@ Result<void> BM25Engine::save(const std::string& path) const {
 Result<BM25Engine> BM25Engine::load(const std::string& path) {
     std::ifstream file(path);
     if (!file) {
-        return Error("Failed to open file for reading: " + path);
+        return std::unexpected(Error(ErrorCode::IoError, "Failed to open file for reading: " + path));
     }
     
     std::string line;
@@ -353,7 +353,7 @@ Result<BM25Engine> BM25Engine::load(const std::string& path) {
     // Read header
     std::getline(file, line);
     if (line != "BM25_ENGINE_V1") {
-        return Error("Invalid BM25 engine file format");
+        return std::unexpected(Error(ErrorCode::InvalidData, "Invalid BM25 engine file format"));
     }
     
     // Read configuration
@@ -418,7 +418,7 @@ Result<BM25Engine> BM25Engine::load(const std::string& path) {
             // Add document
             auto result = engine.add_document(id, content);
             if (!result) {
-                return Error("Failed to load document " + std::to_string(id) + ": " + result.error().message);
+                return std::unexpected(Error(ErrorCode::InvalidData, "Failed to load document " + std::to_string(id) + ": " + result.error().message));
             }
         }
     }

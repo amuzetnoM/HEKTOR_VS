@@ -223,7 +223,7 @@ if(VDB_USE_LLAMA_CPP)
     FetchContent_Declare(
         llama_cpp
         GIT_REPOSITORY https://github.com/ggerganov/llama.cpp.git
-        GIT_TAG b4399  # Use proper tag format
+        GIT_TAG b7716  # Latest stable version with GCC 15 fixes
         GIT_SHALLOW TRUE
     )
     
@@ -590,6 +590,8 @@ add_executable(hektor
     src/cli/main.cpp
     src/cli/cli.cpp
     src/cli/output_formatter.cpp
+    src/cli/colors.cpp
+    src/cli/interactive_shell.cpp
     src/cli/commands/db_commands.cpp
     src/cli/commands/data_commands.cpp
     src/cli/commands/search_commands.cpp

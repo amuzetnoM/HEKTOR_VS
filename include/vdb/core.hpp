@@ -129,6 +129,23 @@ struct Error {
 template<typename T>
 using Result = std::expected<T, Error>;
 
+// Helper functions for Result types
+template<typename T>
+inline Result<T> Ok(T&& value) {
+    return Result<T>(std::forward<T>(value));
+}
+
+template<typename T>
+inline Result<T> Err(Error error) {
+    return std::unexpected(error);
+}
+
+// Specialization for string error messages
+template<typename T>
+inline Result<T> Err(const std::string& message) {
+    return std::unexpected(Error(ErrorCode::Unknown, message));
+}
+
 // ============================================================================
 // Vector View (non-owning)
 // ============================================================================
