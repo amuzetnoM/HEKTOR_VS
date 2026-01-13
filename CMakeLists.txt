@@ -270,9 +270,11 @@ if(VDB_USE_LLAMA_CPP)
             string(FIND "${GGML_IMPL_CONTENT}" "#if defined(__AVX2__) || defined(__AVX__)" AVX2_PATCH_FOUND)
             if(AVX2_PATCH_FOUND EQUAL -1)
                 message(STATUS "Patching ggml-impl.h to include AVX2 intrinsics header")
-                string(REPLACE 
-                    "#if defined(__F16C__)\n#include <immintrin.h>\n#endif"
-                    "#if defined(__F16C__)\n#include <immintrin.h>\n#endif\n\n#if defined(__AVX2__) || defined(__AVX__) || defined(__AVX512F__)\n#include <immintrin.h>\n#endif"
+                # Insert AVX2 include block before __cplusplus block
+                # This is a robust location that should exist in all versions
+                string(REGEX REPLACE 
+                    "(#endif[^\n]*\n*)(\n*#ifdef __cplusplus)"
+                    "\\1\n#if defined(__AVX2__) || defined(__AVX__) || defined(__AVX512F__)\n#include <immintrin.h>\n#endif\n\\2"
                     GGML_IMPL_CONTENT "${GGML_IMPL_CONTENT}")
                 file(WRITE "${GGML_IMPL_H}" "${GGML_IMPL_CONTENT}")
             endif()
