@@ -3,6 +3,7 @@
 // ============================================================================
 
 #include "vdb/telemetry.hpp"
+#include "vdb/logging.hpp"
 #include <sstream>
 #include <iomanip>
 #include <random>
@@ -32,6 +33,10 @@ namespace prometheus = opentelemetry::exporter::metrics;
 #endif
 
 namespace vdb::telemetry {
+
+// Import logging types for convenience
+using vdb::logging::Logger;
+using vdb::logging::LogLevel;
 
 // ============================================================================
 // Utility Functions

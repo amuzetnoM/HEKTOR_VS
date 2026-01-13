@@ -257,7 +257,46 @@ if(VDB_USE_LLAMA_CPP)
         endif()
     endif()
     
-    FetchContent_MakeAvailable(llama_cpp)
+    # Populate the content first to apply patches
+    FetchContent_GetProperties(llama_cpp)
+    if(NOT llama_cpp_POPULATED)
+        FetchContent_Populate(llama_cpp)
+        
+        # Patch ggml-impl.h to include immintrin.h for AVX2
+        set(GGML_IMPL_H "${llama_cpp_SOURCE_DIR}/ggml/src/ggml-impl.h")
+        if(EXISTS "${GGML_IMPL_H}")
+            file(READ "${GGML_IMPL_H}" GGML_IMPL_CONTENT)
+            # Check if patch is needed (not already applied)
+            string(FIND "${GGML_IMPL_CONTENT}" "#if defined(__AVX2__) || defined(__AVX__) || defined(__AVX512F__)" AVX2_PATCH_FOUND)
+            if(AVX2_PATCH_FOUND EQUAL -1)
+                message(STATUS "Patching ggml-impl.h to include AVX2 intrinsics header")
+                # Store original content to verify replacement succeeded
+                set(ORIGINAL_CONTENT "${GGML_IMPL_CONTENT}")
+                # Insert AVX2 include block before __cplusplus block
+                # This is a robust location that should exist in all versions
+                string(REGEX REPLACE 
+                    "(#endif[^\n]*\n*)(\n*#ifdef __cplusplus)"
+                    "\\1\n#if defined(__AVX2__) || defined(__AVX__) || defined(__AVX512F__)\n#include <immintrin.h>\n#endif\n\\2"
+                    GGML_IMPL_CONTENT "${GGML_IMPL_CONTENT}")
+                # Verify the replacement was successful
+                if("${GGML_IMPL_CONTENT}" STREQUAL "${ORIGINAL_CONTENT}")
+                    message(FATAL_ERROR "Failed to patch ggml-impl.h: Could not find pattern '#endif' followed by '#ifdef __cplusplus'. This may indicate an incompatible llama.cpp version. Please report this issue with your llama.cpp version.")
+                endif()
+                # Verify the patch was actually applied
+                string(FIND "${GGML_IMPL_CONTENT}" "#if defined(__AVX2__) || defined(__AVX__) || defined(__AVX512F__)" VERIFY_PATCH)
+                if(VERIFY_PATCH EQUAL -1)
+                    message(FATAL_ERROR "Failed to verify AVX2 patch in ggml-impl.h")
+                endif()
+                file(WRITE "${GGML_IMPL_H}" "${GGML_IMPL_CONTENT}")
+                message(STATUS "Successfully patched ggml-impl.h")
+            else()
+                message(STATUS "ggml-impl.h already patched, skipping")
+            endif()
+        endif()
+        
+        # Add the subdirectories
+        add_subdirectory(${llama_cpp_SOURCE_DIR} ${llama_cpp_BINARY_DIR} EXCLUDE_FROM_ALL)
+    endif()
 endif()
 
 # ============================================================================
