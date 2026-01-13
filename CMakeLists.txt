@@ -257,7 +257,30 @@ if(VDB_USE_LLAMA_CPP)
         endif()
     endif()
     
-    FetchContent_MakeAvailable(llama_cpp)
+    # Populate the content first to apply patches
+    FetchContent_GetProperties(llama_cpp)
+    if(NOT llama_cpp_POPULATED)
+        FetchContent_Populate(llama_cpp)
+        
+        # Patch ggml-impl.h to include immintrin.h for AVX2
+        set(GGML_IMPL_H "${llama_cpp_SOURCE_DIR}/ggml/src/ggml-impl.h")
+        if(EXISTS "${GGML_IMPL_H}")
+            file(READ "${GGML_IMPL_H}" GGML_IMPL_CONTENT)
+            # Check if patch is needed (not already applied)
+            string(FIND "${GGML_IMPL_CONTENT}" "#if defined(__AVX2__) || defined(__AVX__)" AVX2_PATCH_FOUND)
+            if(AVX2_PATCH_FOUND EQUAL -1)
+                message(STATUS "Patching ggml-impl.h to include AVX2 intrinsics header")
+                string(REPLACE 
+                    "#if defined(__F16C__)\n#include <immintrin.h>\n#endif"
+                    "#if defined(__F16C__)\n#include <immintrin.h>\n#endif\n\n#if defined(__AVX2__) || defined(__AVX__) || defined(__AVX512F__)\n#include <immintrin.h>\n#endif"
+                    GGML_IMPL_CONTENT "${GGML_IMPL_CONTENT}")
+                file(WRITE "${GGML_IMPL_H}" "${GGML_IMPL_CONTENT}")
+            endif()
+        endif()
+        
+        # Add the subdirectories
+        add_subdirectory(${llama_cpp_SOURCE_DIR} ${llama_cpp_BINARY_DIR} EXCLUDE_FROM_ALL)
+    endif()
 endif()
 
 # ============================================================================
