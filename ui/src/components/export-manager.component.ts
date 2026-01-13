@@ -2,7 +2,9 @@ import { Component, inject, signal, Input } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { VectorDbService } from '../services/vector-db.service';
+import { HektorApiService } from '../services/hektor-api.service';
 import { ExportFormat, TripletStrategy } from '../models/core';
+import { environment } from '../environments/environment';
 
 @Component({
     selector: 'app-export-manager',
@@ -10,32 +12,32 @@ import { ExportFormat, TripletStrategy } from '../models/core';
     imports: [CommonModule, FormsModule],
     template: `
     <div class="h-full overflow-y-auto custom-scrollbar bg-[#09090b]">
-      <div class="max-w-4xl mx-auto p-8 space-y-8">
+      <div class="max-w-7xl mx-auto p-4 sm:p-6 lg:p-8 space-y-6 sm:space-y-8">
         <!-- Header -->
         <div>
-          <h2 class="text-2xl font-bold text-white mb-2">Export Manager</h2>
-          <p class="text-zinc-500">Export data, training pairs, and triplets for ML training</p>
+          <h2 class="text-xl sm:text-2xl font-bold text-white mb-1 sm:mb-2">Export Manager</h2>
+          <p class="text-sm text-zinc-500">Export data, training pairs, and triplets for ML training</p>
         </div>
 
         <!-- Tab Navigation -->
-        <div class="flex bg-zinc-900/50 p-1 rounded-lg border border-white/5 inline-flex">
+        <div class="flex bg-zinc-900/50 p-1 rounded-lg border border-white/5 inline-flex w-full sm:w-auto">
           <button 
             (click)="activeTab.set('data')"
-            class="px-5 py-2 text-sm font-medium rounded-md transition-all"
+            class="flex-1 sm:flex-none px-3 sm:px-5 py-1.5 sm:py-2 text-xs sm:text-sm font-medium rounded-md transition-all"
             [class.bg-zinc-800]="activeTab() === 'data'"
             [class.text-white]="activeTab() === 'data'"
             [class.text-zinc-500]="activeTab() !== 'data'"
-          >Export Data</button>
+          >Data</button>
           <button 
             (click)="activeTab.set('pairs')"
-            class="px-5 py-2 text-sm font-medium rounded-md transition-all"
+            class="flex-1 sm:flex-none px-3 sm:px-5 py-1.5 sm:py-2 text-xs sm:text-sm font-medium rounded-md transition-all"
             [class.bg-zinc-800]="activeTab() === 'pairs'"
             [class.text-white]="activeTab() === 'pairs'"
             [class.text-zinc-500]="activeTab() !== 'pairs'"
-          >Training Pairs</button>
+          >Pairs</button>
           <button 
             (click)="activeTab.set('triplets')"
-            class="px-5 py-2 text-sm font-medium rounded-md transition-all"
+            class="flex-1 sm:flex-none px-3 sm:px-5 py-1.5 sm:py-2 text-xs sm:text-sm font-medium rounded-md transition-all"
             [class.bg-zinc-800]="activeTab() === 'triplets'"
             [class.text-white]="activeTab() === 'triplets'"
             [class.text-zinc-500]="activeTab() !== 'triplets'"
@@ -45,7 +47,7 @@ import { ExportFormat, TripletStrategy } from '../models/core';
         <!-- Export Data Tab -->
         @if (activeTab() === 'data') {
           <section class="rounded-xl border border-white/5 bg-white/[0.02] overflow-hidden">
-            <div class="px-6 py-4 border-b border-white/5">
+            <div class="px-4 sm:px-6 py-3 sm:py-4 border-b border-white/5">
               <h3 class="font-semibold text-white">Export Collection Data</h3>
               <p class="text-sm text-zinc-500 mt-1">Download documents and vectors in various formats</p>
             </div>
@@ -238,6 +240,8 @@ export class ExportManagerComponent {
     @Input() collectionName = '';
 
     private db = inject(VectorDbService);
+    private api = inject(HektorApiService);
+    private useBackend = environment.useBackend;
 
     activeTab = signal<'data' | 'pairs' | 'triplets'>('data');
     isExporting = signal(false);
@@ -256,7 +260,7 @@ export class ExportManagerComponent {
 
     tripletsExport = {
         negativeSamples: 10,
-        strategy: 'hard' as TripletStrategy
+        strategy: 'hard_negative' as TripletStrategy
     };
 
     async exportData() {
@@ -271,19 +275,36 @@ export class ExportManagerComponent {
                 }
             }, 300);
 
-            const blob = await this.db.exportData(this.collectionName, {
-                format: this.dataExport.format,
-                includeVectors: this.dataExport.includeVectors,
-                dateFrom: this.dataExport.dateFrom || undefined,
-                dateTo: this.dataExport.dateTo || undefined
-            });
+            if (this.useBackend) {
+                const result = await this.api.exportData({
+                    outputFile: `${this.collectionName}_export.${this.dataExport.format}`,
+                    format: this.dataExport.format,
+                    includeVectors: this.dataExport.includeVectors,
+                    dateFrom: this.dataExport.dateFrom || undefined,
+                    dateTo: this.dataExport.dateTo || undefined
+                });
+                
+                clearInterval(progressInterval);
+                this.exportProgress.set(100);
+                
+                console.log('Export complete:', result);
+                
+                setTimeout(() => this.exportProgress.set(null), 1000);
+            } else {
+                const blob = await this.db.exportData(this.collectionName, {
+                    format: this.dataExport.format,
+                    includeVectors: this.dataExport.includeVectors,
+                    dateFrom: this.dataExport.dateFrom || undefined,
+                    dateTo: this.dataExport.dateTo || undefined
+                });
 
-            clearInterval(progressInterval);
-            this.exportProgress.set(100);
+                clearInterval(progressInterval);
+                this.exportProgress.set(100);
 
-            this.downloadBlob(blob, `${this.collectionName}_export.${this.dataExport.format}`);
+                this.downloadBlob(blob, `${this.collectionName}_export.${this.dataExport.format}`);
 
-            setTimeout(() => this.exportProgress.set(null), 1000);
+                setTimeout(() => this.exportProgress.set(null), 1000);
+            }
         } catch (error) {
             console.error('Export failed:', error);
             this.exportProgress.set(null);
@@ -295,8 +316,16 @@ export class ExportManagerComponent {
     async exportPairs() {
         this.isExporting.set(true);
         try {
-            const blob = await this.db.exportPairs(this.collectionName, this.pairsExport.minScore);
-            this.downloadBlob(blob, `${this.collectionName}_pairs.jsonl`);
+            if (this.useBackend) {
+                const result = await this.api.exportPairs({
+                    outputFile: `${this.collectionName}_pairs.jsonl`,
+                    positiveThreshold: this.pairsExport.minScore
+                });
+                console.log('Pairs export complete:', result);
+            } else {
+                const blob = await this.db.exportPairs(this.collectionName, this.pairsExport.minScore);
+                this.downloadBlob(blob, `${this.collectionName}_pairs.jsonl`);
+            }
         } catch (error) {
             console.error('Pairs export failed:', error);
         } finally {
@@ -307,11 +336,20 @@ export class ExportManagerComponent {
     async exportTriplets() {
         this.isExporting.set(true);
         try {
-            const blob = await this.db.exportTriplets(this.collectionName, {
-                negativeSamples: this.tripletsExport.negativeSamples,
-                strategy: this.tripletsExport.strategy
-            });
-            this.downloadBlob(blob, `${this.collectionName}_triplets.jsonl`);
+            if (this.useBackend) {
+                const result = await this.api.exportTriplets({
+                    outputFile: `${this.collectionName}_triplets.jsonl`,
+                    strategy: this.tripletsExport.strategy,
+                    negativeSamples: this.tripletsExport.negativeSamples
+                });
+                console.log('Triplets export complete:', result);
+            } else {
+                const blob = await this.db.exportTriplets(this.collectionName, {
+                    negativeSamples: this.tripletsExport.negativeSamples,
+                    strategy: this.tripletsExport.strategy
+                });
+                this.downloadBlob(blob, `${this.collectionName}_triplets.jsonl`);
+            }
         } catch (error) {
             console.error('Triplets export failed:', error);
         } finally {

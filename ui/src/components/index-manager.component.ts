@@ -2,7 +2,9 @@ import { Component, inject, signal, Input, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { VectorDbService } from '../services/vector-db.service';
-import { IndexType, IndexStats, BenchmarkResult } from '../models/core';
+import { HektorApiService } from '../services/hektor-api.service';
+import { IndexType, IndexStats, BenchmarkResult, IndexConfig } from '../models/core';
+import { environment } from '../environments/environment';
 
 @Component({
     selector: 'app-index-manager',
@@ -10,32 +12,32 @@ import { IndexType, IndexStats, BenchmarkResult } from '../models/core';
     imports: [CommonModule, FormsModule],
     template: `
     <div class="h-full overflow-y-auto custom-scrollbar bg-[#09090b]">
-      <div class="max-w-4xl mx-auto p-8 space-y-8">
+      <div class="max-w-7xl mx-auto p-4 sm:p-6 lg:p-8 space-y-6 sm:space-y-8">
         <!-- Header -->
         <div>
-          <h2 class="text-2xl font-bold text-white mb-2">Index Management</h2>
-          <p class="text-zinc-500">Configure and optimize your vector index for optimal search performance</p>
+          <h2 class="text-xl sm:text-2xl font-bold text-white mb-1 sm:mb-2">Index Management</h2>
+          <p class="text-sm text-zinc-500">Configure and optimize your vector index for optimal search performance</p>
         </div>
 
         <!-- Current Index Stats -->
         <section class="rounded-xl border border-white/5 bg-white/[0.02] overflow-hidden">
-          <div class="px-6 py-4 border-b border-white/5 flex items-center justify-between">
-            <h3 class="font-semibold text-white">Index Statistics</h3>
+          <div class="px-4 sm:px-6 py-3 sm:py-4 border-b border-white/5 flex items-center justify-between">
+            <h3 class="text-sm sm:text-base font-semibold text-white">Index Statistics</h3>
             <button 
               (click)="refreshStats()"
-              class="text-xs text-zinc-400 hover:text-white transition-colors flex items-center gap-1"
+              class="text-[10px] sm:text-xs text-zinc-400 hover:text-white transition-colors flex items-center gap-1"
             >
-              <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <svg xmlns="http://www.w3.org/2000/svg" class="h-3.5 w-3.5 sm:h-4 sm:w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
               </svg>
-              Refresh
+              <span class="hidden sm:inline">Refresh</span>
             </button>
           </div>
           
           @if (stats()) {
-            <div class="p-6 grid grid-cols-2 md:grid-cols-4 gap-6">
+            <div class="p-4 sm:p-6 grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-6 gap-3 sm:gap-4 lg:gap-6">
               <div>
-                <div class="text-xs text-zinc-500 uppercase tracking-wider mb-1">Type</div>
+                <div class="text-[10px] sm:text-xs text-zinc-500 uppercase tracking-wider mb-1">Type</div>
                 <div class="text-lg font-mono text-white uppercase">{{ stats()!.type }}</div>
               </div>
               <div>
@@ -93,7 +95,7 @@ import { IndexType, IndexStats, BenchmarkResult } from '../models/core';
               <div>
                 <label class="block text-xs font-bold text-zinc-500 uppercase tracking-wider mb-2">Index Type</label>
                 <select 
-                  [(ngModel)]="buildConfig.type"
+                  [(ngModel)]="buildConfig.indexType"
                   class="w-full bg-zinc-900/50 border border-white/10 rounded-lg px-4 py-2.5 text-white text-sm focus:outline-none focus:border-indigo-500/50"
                 >
                   <option value="hnsw">HNSW (Recommended)</option>
@@ -251,6 +253,8 @@ export class IndexManagerComponent implements OnInit {
     @Input() collectionName = '';
 
     private db = inject(VectorDbService);
+    private api = inject(HektorApiService);
+    private useBackend = environment.useBackend;
 
     stats = signal<IndexStats | null>(null);
     benchmarkResult = signal<BenchmarkResult | null>(null);
@@ -260,8 +264,8 @@ export class IndexManagerComponent implements OnInit {
     isBenchmarking = signal(false);
     buildProgress = signal<number | null>(null);
 
-    buildConfig = {
-        type: 'hnsw' as IndexType,
+    buildConfig: IndexConfig = {
+        indexType: 'hnsw' as IndexType,
         hnswM: 16,
         hnswEfConstruction: 200,
         hnswEfSearch: 50
@@ -275,8 +279,14 @@ export class IndexManagerComponent implements OnInit {
 
     async refreshStats() {
         try {
-            const indexStats = await this.db.getIndexStats(this.collectionName);
-            this.stats.set(indexStats);
+            if (this.useBackend) {
+                const indexStats = await this.api.getIndexStats();
+                this.stats.set(indexStats);
+            } else {
+                // Mock index stats
+                const indexStats = await this.db.getIndexStats(this.collectionName);
+                this.stats.set(indexStats);
+            }
         } catch (error) {
             console.error('Failed to fetch index stats:', error);
         }
@@ -295,7 +305,11 @@ export class IndexManagerComponent implements OnInit {
                 }
             }, 500);
 
-            await this.db.buildIndex(this.collectionName, this.buildConfig);
+            if (this.useBackend) {
+                await this.api.buildIndex(this.buildConfig);
+            } else {
+                await this.db.buildIndex(this.collectionName, this.buildConfig);
+            }
 
             clearInterval(progressInterval);
             this.buildProgress.set(100);
@@ -314,7 +328,11 @@ export class IndexManagerComponent implements OnInit {
     async optimizeIndex() {
         this.isOptimizing.set(true);
         try {
-            await this.db.optimizeIndex(this.collectionName);
+            if (this.useBackend) {
+                await this.api.optimizeIndex();
+            } else {
+                await this.db.optimizeIndex(this.collectionName);
+            }
             await this.refreshStats();
         } catch (error) {
             console.error('Failed to optimize index:', error);
@@ -328,8 +346,15 @@ export class IndexManagerComponent implements OnInit {
         this.benchmarkResult.set(null);
 
         try {
-            const result = await this.db.benchmarkIndex(this.collectionName, this.benchmarkQueries);
-            this.benchmarkResult.set(result);
+            if (this.useBackend) {
+                const result = await this.api.benchmarkIndex({ 
+                    numQueries: this.benchmarkQueries 
+                });
+                this.benchmarkResult.set(result);
+            } else {
+                const result = await this.db.benchmarkIndex(this.collectionName, this.benchmarkQueries);
+                this.benchmarkResult.set(result);
+            }
         } catch (error) {
             console.error('Benchmark failed:', error);
         } finally {

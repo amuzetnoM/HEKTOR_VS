@@ -2,7 +2,9 @@ import { Component, inject, signal, Input } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { VectorDbService } from '../services/vector-db.service';
+import { HektorApiService } from '../services/hektor-api.service';
 import { FusionMethod, HybridResult } from '../models/core';
+import { environment } from '../environments/environment';
 
 @Component({
     selector: 'app-hybrid-search',
@@ -11,18 +13,18 @@ import { FusionMethod, HybridResult } from '../models/core';
     template: `
     <div class="h-full flex flex-col bg-[#09090b] overflow-hidden">
       <!-- Header -->
-      <div class="border-b border-white/5 p-6 bg-[#09090b]">
-        <h2 class="text-xl font-bold text-white mb-1">Hybrid Search</h2>
-        <p class="text-sm text-zinc-500">Combine vector similarity with BM25 full-text search</p>
+      <div class="border-b border-white/5 p-4 sm:p-6 bg-[#09090b] flex-shrink-0">
+        <h2 class="text-lg sm:text-xl font-bold text-white mb-1">Hybrid Search</h2>
+        <p class="text-xs sm:text-sm text-zinc-500">Combine vector similarity with BM25 full-text search</p>
       </div>
 
       <!-- Controls -->
-      <div class="p-6 border-b border-white/5 space-y-6">
+      <div class="p-4 sm:p-6 border-b border-white/5 space-y-4 sm:space-y-6 flex-shrink-0 overflow-y-auto custom-scrollbar">
         <!-- Query Input -->
         <div>
-          <label class="block text-xs font-bold text-zinc-500 uppercase tracking-wider mb-2">Query</label>
+          <label class="block text-[10px] sm:text-xs font-bold text-zinc-500 uppercase tracking-wider mb-1.5 sm:mb-2">Query</label>
           <div class="relative">
-            <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 absolute left-3 top-3 text-zinc-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 sm:h-5 sm:w-5 absolute left-2.5 sm:left-3 top-2.5 sm:top-3 text-zinc-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
               <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
             </svg>
             <input 
@@ -30,12 +32,12 @@ import { FusionMethod, HybridResult } from '../models/core';
               [(ngModel)]="query"
               (keyup.enter)="executeSearch()"
               placeholder="Enter your search query..."
-              class="w-full bg-zinc-900/50 border border-white/10 rounded-lg pl-11 pr-4 py-3 text-white focus:outline-none focus:border-indigo-500/50 focus:ring-1 focus:ring-indigo-500/20 transition-all placeholder-zinc-600"
+              class="w-full bg-zinc-900/50 border border-white/10 rounded-lg pl-9 sm:pl-11 pr-3 sm:pr-4 py-2 sm:py-3 text-sm sm:text-base text-white focus:outline-none focus:border-indigo-500/50 focus:ring-1 focus:ring-indigo-500/20 transition-all placeholder-zinc-600"
             />
           </div>
         </div>
 
-        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+        <div class="grid grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4">
           <!-- Fusion Method -->
           <div>
             <label class="block text-xs font-bold text-zinc-500 uppercase tracking-wider mb-2">Fusion Method</label>
@@ -188,6 +190,8 @@ export class HybridSearchComponent {
     @Input() collectionName = '';
 
     private db = inject(VectorDbService);
+    private api = inject(HektorApiService);
+    private useBackend = environment.useBackend;
 
     query = '';
     fusionMethod: FusionMethod = 'rrf';
@@ -206,16 +210,33 @@ export class HybridSearchComponent {
         const start = Date.now();
 
         try {
-            const searchResults = await this.db.hybridSearch(this.collectionName, {
-                query: this.query,
-                topK: this.topK,
-                fusionMethod: this.fusionMethod,
-                vectorWeight: this.vectorWeight,
-                lexicalWeight: this.lexicalWeight
-            });
+            let searchResults: HybridResult[];
+            
+            if (this.useBackend) {
+                // Use real backend API
+                searchResults = await this.api.hybridSearch({
+                    query: this.query,
+                    topK: this.topK,
+                    fusionMethod: this.fusionMethod,
+                    vectorWeight: this.vectorWeight,
+                    lexicalWeight: this.lexicalWeight
+                });
+            } else {
+                // Use in-memory database with mock hybrid search
+                searchResults = await this.db.hybridSearch(this.collectionName, {
+                    query: this.query,
+                    topK: this.topK,
+                    fusionMethod: this.fusionMethod,
+                    vectorWeight: this.vectorWeight,
+                    lexicalWeight: this.lexicalWeight
+                });
+            }
 
             this.results.set(searchResults);
             this.lastSearchTime.set(Date.now() - start);
+            
+            // Report telemetry
+            this.db.telemetry$.next({ type: 'latency', value: Date.now() - start });
         } catch (error) {
             console.error('Hybrid search failed:', error);
             this.results.set([]);
