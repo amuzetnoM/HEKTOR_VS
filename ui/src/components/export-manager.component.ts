@@ -12,32 +12,32 @@ import { environment } from '../environments/environment';
     imports: [CommonModule, FormsModule],
     template: `
     <div class="h-full overflow-y-auto custom-scrollbar bg-[#09090b]">
-      <div class="max-w-4xl mx-auto p-8 space-y-8">
+      <div class="max-w-7xl mx-auto p-4 sm:p-6 lg:p-8 space-y-6 sm:space-y-8">
         <!-- Header -->
         <div>
-          <h2 class="text-2xl font-bold text-white mb-2">Export Manager</h2>
-          <p class="text-zinc-500">Export data, training pairs, and triplets for ML training</p>
+          <h2 class="text-xl sm:text-2xl font-bold text-white mb-1 sm:mb-2">Export Manager</h2>
+          <p class="text-sm text-zinc-500">Export data, training pairs, and triplets for ML training</p>
         </div>
 
         <!-- Tab Navigation -->
-        <div class="flex bg-zinc-900/50 p-1 rounded-lg border border-white/5 inline-flex">
+        <div class="flex bg-zinc-900/50 p-1 rounded-lg border border-white/5 inline-flex w-full sm:w-auto">
           <button 
             (click)="activeTab.set('data')"
-            class="px-5 py-2 text-sm font-medium rounded-md transition-all"
+            class="flex-1 sm:flex-none px-3 sm:px-5 py-1.5 sm:py-2 text-xs sm:text-sm font-medium rounded-md transition-all"
             [class.bg-zinc-800]="activeTab() === 'data'"
             [class.text-white]="activeTab() === 'data'"
             [class.text-zinc-500]="activeTab() !== 'data'"
-          >Export Data</button>
+          >Data</button>
           <button 
             (click)="activeTab.set('pairs')"
-            class="px-5 py-2 text-sm font-medium rounded-md transition-all"
+            class="flex-1 sm:flex-none px-3 sm:px-5 py-1.5 sm:py-2 text-xs sm:text-sm font-medium rounded-md transition-all"
             [class.bg-zinc-800]="activeTab() === 'pairs'"
             [class.text-white]="activeTab() === 'pairs'"
             [class.text-zinc-500]="activeTab() !== 'pairs'"
-          >Training Pairs</button>
+          >Pairs</button>
           <button 
             (click)="activeTab.set('triplets')"
-            class="px-5 py-2 text-sm font-medium rounded-md transition-all"
+            class="flex-1 sm:flex-none px-3 sm:px-5 py-1.5 sm:py-2 text-xs sm:text-sm font-medium rounded-md transition-all"
             [class.bg-zinc-800]="activeTab() === 'triplets'"
             [class.text-white]="activeTab() === 'triplets'"
             [class.text-zinc-500]="activeTab() !== 'triplets'"
@@ -47,7 +47,7 @@ import { environment } from '../environments/environment';
         <!-- Export Data Tab -->
         @if (activeTab() === 'data') {
           <section class="rounded-xl border border-white/5 bg-white/[0.02] overflow-hidden">
-            <div class="px-6 py-4 border-b border-white/5">
+            <div class="px-4 sm:px-6 py-3 sm:py-4 border-b border-white/5">
               <h3 class="font-semibold text-white">Export Collection Data</h3>
               <p class="text-sm text-zinc-500 mt-1">Download documents and vectors in various formats</p>
             </div>
