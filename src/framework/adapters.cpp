@@ -192,5 +192,4 @@ TrainingExporter::~TrainingExporter() = default;
 // Note: Actual export methods (export_supervised, export_contrastive_pairs, etc.)
 // would be implemented here when framework integration is complete.
 
-} // namespace framework
-} // namespace vdb
+} // namespace vdb::framework
