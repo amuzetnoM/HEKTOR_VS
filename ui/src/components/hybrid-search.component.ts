@@ -2,7 +2,9 @@ import { Component, inject, signal, Input } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { VectorDbService } from '../services/vector-db.service';
+import { HektorApiService } from '../services/hektor-api.service';
 import { FusionMethod, HybridResult } from '../models/core';
+import { environment } from '../environments/environment';
 
 @Component({
     selector: 'app-hybrid-search',
@@ -188,6 +190,8 @@ export class HybridSearchComponent {
     @Input() collectionName = '';
 
     private db = inject(VectorDbService);
+    private api = inject(HektorApiService);
+    private useBackend = environment.useBackend;
 
     query = '';
     fusionMethod: FusionMethod = 'rrf';
@@ -206,16 +210,33 @@ export class HybridSearchComponent {
         const start = Date.now();
 
         try {
-            const searchResults = await this.db.hybridSearch(this.collectionName, {
-                query: this.query,
-                topK: this.topK,
-                fusionMethod: this.fusionMethod,
-                vectorWeight: this.vectorWeight,
-                lexicalWeight: this.lexicalWeight
-            });
+            let searchResults: HybridResult[];
+            
+            if (this.useBackend) {
+                // Use real backend API
+                searchResults = await this.api.hybridSearch({
+                    query: this.query,
+                    topK: this.topK,
+                    fusionMethod: this.fusionMethod,
+                    vectorWeight: this.vectorWeight,
+                    lexicalWeight: this.lexicalWeight
+                });
+            } else {
+                // Use in-memory database with mock hybrid search
+                searchResults = await this.db.hybridSearch(this.collectionName, {
+                    query: this.query,
+                    topK: this.topK,
+                    fusionMethod: this.fusionMethod,
+                    vectorWeight: this.vectorWeight,
+                    lexicalWeight: this.lexicalWeight
+                });
+            }
 
             this.results.set(searchResults);
             this.lastSearchTime.set(Date.now() - start);
+            
+            // Report telemetry
+            this.db.telemetry$.next({ type: 'latency', value: Date.now() - start });
         } catch (error) {
             console.error('Hybrid search failed:', error);
             this.results.set([]);

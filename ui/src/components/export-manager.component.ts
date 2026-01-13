@@ -2,7 +2,9 @@ import { Component, inject, signal, Input } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { VectorDbService } from '../services/vector-db.service';
+import { HektorApiService } from '../services/hektor-api.service';
 import { ExportFormat, TripletStrategy } from '../models/core';
+import { environment } from '../environments/environment';
 
 @Component({
     selector: 'app-export-manager',
@@ -238,6 +240,8 @@ export class ExportManagerComponent {
     @Input() collectionName = '';
 
     private db = inject(VectorDbService);
+    private api = inject(HektorApiService);
+    private useBackend = environment.useBackend;
 
     activeTab = signal<'data' | 'pairs' | 'triplets'>('data');
     isExporting = signal(false);
@@ -256,7 +260,7 @@ export class ExportManagerComponent {
 
     tripletsExport = {
         negativeSamples: 10,
-        strategy: 'hard' as TripletStrategy
+        strategy: 'hard_negative' as TripletStrategy
     };
 
     async exportData() {
@@ -271,19 +275,36 @@ export class ExportManagerComponent {
                 }
             }, 300);
 
-            const blob = await this.db.exportData(this.collectionName, {
-                format: this.dataExport.format,
-                includeVectors: this.dataExport.includeVectors,
-                dateFrom: this.dataExport.dateFrom || undefined,
-                dateTo: this.dataExport.dateTo || undefined
-            });
+            if (this.useBackend) {
+                const result = await this.api.exportData({
+                    outputFile: `${this.collectionName}_export.${this.dataExport.format}`,
+                    format: this.dataExport.format,
+                    includeVectors: this.dataExport.includeVectors,
+                    dateFrom: this.dataExport.dateFrom || undefined,
+                    dateTo: this.dataExport.dateTo || undefined
+                });
+                
+                clearInterval(progressInterval);
+                this.exportProgress.set(100);
+                
+                console.log('Export complete:', result);
+                
+                setTimeout(() => this.exportProgress.set(null), 1000);
+            } else {
+                const blob = await this.db.exportData(this.collectionName, {
+                    format: this.dataExport.format,
+                    includeVectors: this.dataExport.includeVectors,
+                    dateFrom: this.dataExport.dateFrom || undefined,
+                    dateTo: this.dataExport.dateTo || undefined
+                });
 
-            clearInterval(progressInterval);
-            this.exportProgress.set(100);
+                clearInterval(progressInterval);
+                this.exportProgress.set(100);
 
-            this.downloadBlob(blob, `${this.collectionName}_export.${this.dataExport.format}`);
+                this.downloadBlob(blob, `${this.collectionName}_export.${this.dataExport.format}`);
 
-            setTimeout(() => this.exportProgress.set(null), 1000);
+                setTimeout(() => this.exportProgress.set(null), 1000);
+            }
         } catch (error) {
             console.error('Export failed:', error);
             this.exportProgress.set(null);
@@ -295,8 +316,16 @@ export class ExportManagerComponent {
     async exportPairs() {
         this.isExporting.set(true);
         try {
-            const blob = await this.db.exportPairs(this.collectionName, this.pairsExport.minScore);
-            this.downloadBlob(blob, `${this.collectionName}_pairs.jsonl`);
+            if (this.useBackend) {
+                const result = await this.api.exportPairs({
+                    outputFile: `${this.collectionName}_pairs.jsonl`,
+                    positiveThreshold: this.pairsExport.minScore
+                });
+                console.log('Pairs export complete:', result);
+            } else {
+                const blob = await this.db.exportPairs(this.collectionName, this.pairsExport.minScore);
+                this.downloadBlob(blob, `${this.collectionName}_pairs.jsonl`);
+            }
         } catch (error) {
             console.error('Pairs export failed:', error);
         } finally {
@@ -307,11 +336,20 @@ export class ExportManagerComponent {
     async exportTriplets() {
         this.isExporting.set(true);
         try {
-            const blob = await this.db.exportTriplets(this.collectionName, {
-                negativeSamples: this.tripletsExport.negativeSamples,
-                strategy: this.tripletsExport.strategy
-            });
-            this.downloadBlob(blob, `${this.collectionName}_triplets.jsonl`);
+            if (this.useBackend) {
+                const result = await this.api.exportTriplets({
+                    outputFile: `${this.collectionName}_triplets.jsonl`,
+                    strategy: this.tripletsExport.strategy,
+                    negativeSamples: this.tripletsExport.negativeSamples
+                });
+                console.log('Triplets export complete:', result);
+            } else {
+                const blob = await this.db.exportTriplets(this.collectionName, {
+                    negativeSamples: this.tripletsExport.negativeSamples,
+                    strategy: this.tripletsExport.strategy
+                });
+                this.downloadBlob(blob, `${this.collectionName}_triplets.jsonl`);
+            }
         } catch (error) {
             console.error('Triplets export failed:', error);
         } finally {

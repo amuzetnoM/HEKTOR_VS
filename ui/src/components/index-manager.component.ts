@@ -2,7 +2,9 @@ import { Component, inject, signal, Input, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { VectorDbService } from '../services/vector-db.service';
-import { IndexType, IndexStats, BenchmarkResult } from '../models/core';
+import { HektorApiService } from '../services/hektor-api.service';
+import { IndexType, IndexStats, BenchmarkResult, IndexConfig } from '../models/core';
+import { environment } from '../environments/environment';
 
 @Component({
     selector: 'app-index-manager',
@@ -251,6 +253,8 @@ export class IndexManagerComponent implements OnInit {
     @Input() collectionName = '';
 
     private db = inject(VectorDbService);
+    private api = inject(HektorApiService);
+    private useBackend = environment.useBackend;
 
     stats = signal<IndexStats | null>(null);
     benchmarkResult = signal<BenchmarkResult | null>(null);
@@ -260,8 +264,8 @@ export class IndexManagerComponent implements OnInit {
     isBenchmarking = signal(false);
     buildProgress = signal<number | null>(null);
 
-    buildConfig = {
-        type: 'hnsw' as IndexType,
+    buildConfig: IndexConfig = {
+        indexType: 'hnsw' as IndexType,
         hnswM: 16,
         hnswEfConstruction: 200,
         hnswEfSearch: 50
@@ -275,8 +279,14 @@ export class IndexManagerComponent implements OnInit {
 
     async refreshStats() {
         try {
-            const indexStats = await this.db.getIndexStats(this.collectionName);
-            this.stats.set(indexStats);
+            if (this.useBackend) {
+                const indexStats = await this.api.getIndexStats();
+                this.stats.set(indexStats);
+            } else {
+                // Mock index stats
+                const indexStats = await this.db.getIndexStats(this.collectionName);
+                this.stats.set(indexStats);
+            }
         } catch (error) {
             console.error('Failed to fetch index stats:', error);
         }
@@ -295,7 +305,11 @@ export class IndexManagerComponent implements OnInit {
                 }
             }, 500);
 
-            await this.db.buildIndex(this.collectionName, this.buildConfig);
+            if (this.useBackend) {
+                await this.api.buildIndex(this.buildConfig);
+            } else {
+                await this.db.buildIndex(this.collectionName, this.buildConfig);
+            }
 
             clearInterval(progressInterval);
             this.buildProgress.set(100);
@@ -314,7 +328,11 @@ export class IndexManagerComponent implements OnInit {
     async optimizeIndex() {
         this.isOptimizing.set(true);
         try {
-            await this.db.optimizeIndex(this.collectionName);
+            if (this.useBackend) {
+                await this.api.optimizeIndex();
+            } else {
+                await this.db.optimizeIndex(this.collectionName);
+            }
             await this.refreshStats();
         } catch (error) {
             console.error('Failed to optimize index:', error);
@@ -328,8 +346,15 @@ export class IndexManagerComponent implements OnInit {
         this.benchmarkResult.set(null);
 
         try {
-            const result = await this.db.benchmarkIndex(this.collectionName, this.benchmarkQueries);
-            this.benchmarkResult.set(result);
+            if (this.useBackend) {
+                const result = await this.api.benchmarkIndex({ 
+                    numQueries: this.benchmarkQueries 
+                });
+                this.benchmarkResult.set(result);
+            } else {
+                const result = await this.db.benchmarkIndex(this.collectionName, this.benchmarkQueries);
+                this.benchmarkResult.set(result);
+            }
         } catch (error) {
             console.error('Benchmark failed:', error);
         } finally {
