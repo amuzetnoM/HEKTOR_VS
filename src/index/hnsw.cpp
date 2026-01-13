@@ -451,7 +451,7 @@ Result<void> HnswIndex::save(std::string_view path) const {
     
     // Write header
     uint32_t magic = 0x564442; // "VDB"
-    uint32_t version = 1;
+    uint32_t version = 2;  // Version 2 includes additional config fields
     file.write(reinterpret_cast<const char*>(&magic), sizeof(magic));
     file.write(reinterpret_cast<const char*>(&version), sizeof(version));
     
@@ -459,6 +459,10 @@ Result<void> HnswIndex::save(std::string_view path) const {
     file.write(reinterpret_cast<const char*>(&config_.dimension), sizeof(config_.dimension));
     file.write(reinterpret_cast<const char*>(&config_.M), sizeof(config_.M));
     file.write(reinterpret_cast<const char*>(&config_.metric), sizeof(config_.metric));
+    file.write(reinterpret_cast<const char*>(&config_.max_elements), sizeof(config_.max_elements));
+    file.write(reinterpret_cast<const char*>(&config_.ef_construction), sizeof(config_.ef_construction));
+    file.write(reinterpret_cast<const char*>(&config_.ef_search), sizeof(config_.ef_search));
+    file.write(reinterpret_cast<const char*>(&config_.seed), sizeof(config_.seed));
     
     // Write state
     file.write(reinterpret_cast<const char*>(&element_count_), sizeof(element_count_));
@@ -504,10 +508,24 @@ Result<HnswIndex> HnswIndex::load(std::string_view path) {
         return std::unexpected(Error{ErrorCode::IndexCorrupted, "Invalid file format"});
     }
     
+    if (version != 1 && version != 2) {
+        return std::unexpected(Error{ErrorCode::IndexCorrupted, 
+            "Unsupported file version: " + std::to_string(version)});
+    }
+    
     HnswConfig config;
     file.read(reinterpret_cast<char*>(&config.dimension), sizeof(config.dimension));
     file.read(reinterpret_cast<char*>(&config.M), sizeof(config.M));
     file.read(reinterpret_cast<char*>(&config.metric), sizeof(config.metric));
+    
+    // Version 2 includes additional configuration fields
+    if (version >= 2) {
+        file.read(reinterpret_cast<char*>(&config.max_elements), sizeof(config.max_elements));
+        file.read(reinterpret_cast<char*>(&config.ef_construction), sizeof(config.ef_construction));
+        file.read(reinterpret_cast<char*>(&config.ef_search), sizeof(config.ef_search));
+        file.read(reinterpret_cast<char*>(&config.seed), sizeof(config.seed));
+    }
+    // Version 1 files will use default values for these fields
     
     HnswIndex index(config);
     

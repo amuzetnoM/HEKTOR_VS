@@ -5,6 +5,8 @@
 #include <gtest/gtest.h>
 #include "vdb/index.hpp"
 #include <random>
+#include <fstream>
+#include <filesystem>
 
 namespace vdb::test
 {
@@ -211,6 +213,147 @@ namespace vdb::test
         auto result = index.resize(25);
         EXPECT_FALSE(result.has_value());
         EXPECT_EQ(result.error().code, ErrorCode::InvalidInput);
+    }
+
+    TEST_F(HNSWTest, SaveLoadAndAddVectors)
+    {
+        // Test for the segfault bug: adding vectors to a loaded index should work
+        HnswConfig config;
+        config.dimension = DIM;
+        config.max_elements = 100;
+        config.ef_construction = 100;
+        config.ef_search = 50;
+        config.M = 8;
+
+        // Create and populate index
+        HnswIndex index(config);
+        for (size_t i = 0; i < 50; ++i)
+        {
+            auto result = index.add(i + 1, vectors_[i]);
+            EXPECT_TRUE(result.has_value());
+        }
+
+        // Save to file
+        auto temp_path = std::filesystem::temp_directory_path() / "test_hnsw_save_load.bin";
+        auto save_result = index.save(temp_path.string());
+        EXPECT_TRUE(save_result.has_value());
+
+        // Load from file
+        auto load_result = HnswIndex::load(temp_path.string());
+        EXPECT_TRUE(load_result.has_value());
+        
+        HnswIndex loaded_index = std::move(*load_result);
+        
+        // Verify loaded index has correct state
+        EXPECT_EQ(loaded_index.size(), 50);
+        EXPECT_EQ(loaded_index.dimension(), DIM);
+        
+        // Verify config fields are preserved
+        EXPECT_EQ(loaded_index.config().dimension, config.dimension);
+        EXPECT_EQ(loaded_index.config().M, config.M);
+        EXPECT_EQ(loaded_index.config().max_elements, config.max_elements);
+        EXPECT_EQ(loaded_index.config().ef_construction, config.ef_construction);
+        EXPECT_EQ(loaded_index.config().ef_search, config.ef_search);
+
+        // Add more vectors to loaded index (this is where the segfault occurs)
+        for (size_t i = 50; i < 75; ++i)
+        {
+            auto result = loaded_index.add(i + 1, vectors_[i]);
+            EXPECT_TRUE(result.has_value()) << "Failed to add vector " << i + 1 << " to loaded index";
+        }
+
+        EXPECT_EQ(loaded_index.size(), 75);
+
+        // Verify search still works
+        auto results = loaded_index.search(vectors_[0], 5);
+        EXPECT_GT(results.size(), 0);
+        EXPECT_EQ(results[0].id, 1);
+
+        // Clean up
+        std::filesystem::remove(temp_path);
+    }
+
+    TEST_F(HNSWTest, BackwardCompatibilityVersion1)
+    {
+        // Test backward compatibility: loading a version 1 file should work
+        // Create a version 1 file manually
+        auto temp_path = std::filesystem::temp_directory_path() / "test_hnsw_v1.bin";
+        std::ofstream file(temp_path, std::ios::binary);
+        
+        // Write version 1 header
+        // Magic number from src/index/hnsw.cpp
+        constexpr uint32_t HNSW_MAGIC = 0x564442;  // "VDB"
+        constexpr uint32_t HNSW_VERSION_1 = 1;
+        
+        file.write(reinterpret_cast<const char*>(&HNSW_MAGIC), sizeof(HNSW_MAGIC));
+        file.write(reinterpret_cast<const char*>(&HNSW_VERSION_1), sizeof(HNSW_VERSION_1));
+        
+        // Write minimal config (version 1 format)
+        Dim dimension = DIM;
+        size_t M = 16;
+        DistanceMetric metric = DistanceMetric::Cosine;
+        file.write(reinterpret_cast<const char*>(&dimension), sizeof(dimension));
+        file.write(reinterpret_cast<const char*>(&M), sizeof(M));
+        file.write(reinterpret_cast<const char*>(&metric), sizeof(metric));
+        
+        // Write state
+        size_t element_count = 2;
+        int max_level = 0;
+        VectorId entry_point = 1;
+        file.write(reinterpret_cast<const char*>(&element_count), sizeof(element_count));
+        file.write(reinterpret_cast<const char*>(&max_level), sizeof(max_level));
+        file.write(reinterpret_cast<const char*>(&entry_point), sizeof(entry_point));
+        
+        // Write nodes
+        uint64_t node_count = 2;
+        file.write(reinterpret_cast<const char*>(&node_count), sizeof(node_count));
+        
+        for (uint64_t i = 0; i < node_count; ++i)
+        {
+            VectorId id = i + 1;
+            int level = 0;
+            file.write(reinterpret_cast<const char*>(&id), sizeof(id));
+            file.write(reinterpret_cast<const char*>(&level), sizeof(level));
+            
+            // Write vector
+            file.write(reinterpret_cast<const char*>(vectors_[i].data()),
+                       vectors_[i].dim() * sizeof(Scalar));
+            
+            // Write connections (empty for level 0)
+            uint32_t conn_count = 0;
+            file.write(reinterpret_cast<const char*>(&conn_count), sizeof(conn_count));
+        }
+        
+        file.close();
+        
+        // Load the version 1 file
+        auto load_result = HnswIndex::load(temp_path.string());
+        EXPECT_TRUE(load_result.has_value());
+        
+        HnswIndex loaded_index = std::move(*load_result);
+        
+        // Verify loaded index has correct basic state
+        EXPECT_EQ(loaded_index.size(), 2);
+        EXPECT_EQ(loaded_index.dimension(), DIM);
+        
+        // Config fields should have default values for version 1 files
+        EXPECT_EQ(loaded_index.config().dimension, dimension);
+        EXPECT_EQ(loaded_index.config().M, M);
+        EXPECT_EQ(loaded_index.config().max_elements, HNSW_MAX_ELEMENTS); // default
+        EXPECT_EQ(loaded_index.config().ef_construction, HNSW_EF_CONSTRUCTION); // default
+        EXPECT_EQ(loaded_index.config().ef_search, HNSW_EF_SEARCH); // default
+        
+        // Should be able to add more vectors without segfault
+        for (size_t i = 2; i < 10; ++i)
+        {
+            auto result = loaded_index.add(i + 1, vectors_[i]);
+            EXPECT_TRUE(result.has_value()) << "Failed to add vector " << i + 1 << " to v1 loaded index";
+        }
+        
+        EXPECT_EQ(loaded_index.size(), 10);
+        
+        // Clean up
+        std::filesystem::remove(temp_path);
     }
 
 } // namespace vdb::test
