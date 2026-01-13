@@ -29,7 +29,7 @@ option(VDB_BUILD_PYTHON "Build Python bindings" ON)
 option(VDB_USE_AVX2 "Enable AVX2 SIMD optimizations" ON)
 option(VDB_USE_AVX512 "Enable AVX-512 SIMD optimizations" OFF)
 option(VDB_ENABLE_GPU "Enable GPU acceleration via ONNX DirectML/CUDA" OFF)
-option(VDB_USE_LLAMA_CPP "Enable llama.cpp for local LLM inference" OFF)
+option(VDB_USE_LLAMA_CPP "Enable llama.cpp for local LLM inference" ON)
 option(VDB_USE_ONNX_RUNTIME "Enable ONNX Runtime for text/image encoders (requires MSVC)" OFF)
 option(VDB_USE_TENSORFLOW "Enable TensorFlow C++ API for embeddings" OFF)
 option(VDB_USE_PYTORCH "Enable PyTorch C++ API (LibTorch) for embeddings" OFF)
@@ -223,7 +223,7 @@ if(VDB_USE_LLAMA_CPP)
     FetchContent_Declare(
         llama_cpp
         GIT_REPOSITORY https://github.com/ggerganov/llama.cpp.git
-        GIT_TAG b4399  # Use proper tag format
+        GIT_TAG b7716  # Latest stable version with GCC 15 fixes
         GIT_SHALLOW TRUE
     )
     

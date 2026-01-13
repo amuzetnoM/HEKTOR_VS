@@ -360,7 +360,9 @@ namespace vdb::llm
 
         int vocab_size() const override
         {
-            return model_ ? llama_n_vocab(model_) : 0;
+            if (!model_) return 0;
+            const llama_vocab* vocab = llama_model_get_vocab(model_);
+            return vocab ? llama_vocab_n_tokens(vocab) : 0;
         }
 
         std::string generate(std::string_view prompt, const GenerationParams &params) override
@@ -370,14 +372,17 @@ namespace vdb::llm
 
             [[maybe_unused]] auto start_time = std::chrono::high_resolution_clock::now();
 
+            // Get vocab for tokenization
+            const llama_vocab* vocab = llama_model_get_vocab(model_);
+
             // Tokenize prompt
             std::vector<llama_token> tokens(prompt.size() + 32);
-            int n_tokens = llama_tokenize(model_, prompt.data(), prompt.size(),
+            int n_tokens = llama_tokenize(vocab, prompt.data(), prompt.size(),
                                           tokens.data(), tokens.size(), true, false);
             if (n_tokens < 0)
             {
                 tokens.resize(-n_tokens);
-                n_tokens = llama_tokenize(model_, prompt.data(), prompt.size(),
+                n_tokens = llama_tokenize(vocab, prompt.data(), prompt.size(),
                                           tokens.data(), tokens.size(), true, false);
             }
             tokens.resize(n_tokens);
@@ -404,14 +409,14 @@ namespace vdb::llm
                 llama_token new_token = sample_token(smpl, params, n_cur);
 
                 // Check for EOS
-                if (llama_token_is_eog(model_, new_token))
+                if (llama_vocab_is_eog(vocab, new_token))
                 {
                     break;
                 }
 
                 // Decode token to text
                 char buf[256];
-                int len = llama_token_to_piece(model_, new_token, buf, sizeof(buf), 0, true);
+                int len = llama_token_to_piece(vocab, new_token, buf, sizeof(buf), 0, true);
                 if (len > 0)
                 {
                     std::string_view piece(buf, len);
@@ -506,8 +511,9 @@ namespace vdb::llm
             if (!model_)
                 return 0;
 
+            const llama_vocab* vocab = llama_model_get_vocab(model_);
             std::vector<llama_token> tokens(text.size() + 32);
-            int n = llama_tokenize(model_, text.data(), text.size(),
+            int n = llama_tokenize(vocab, text.data(), text.size(),
                                    tokens.data(), tokens.size(), false, false);
             return n > 0 ? n : 0;
         }
