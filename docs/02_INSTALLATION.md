@@ -73,6 +73,30 @@ for r in results:
 
 ## Installation
 
+### Quick Install (Recommended)
+
+The easiest way to install Hektor VDB is via pip:
+
+```bash
+# Install from source (requires CMake and a C++ compiler)
+pip install hektor-vdb
+
+# Or install with ML dependencies
+pip install hektor-vdb[ml]
+
+# Or install with all optional dependencies
+pip install hektor-vdb[all]
+```
+
+**Note:** This requires:
+- Python 3.10 or higher
+- CMake 3.20 or higher
+- A C++23 compatible compiler (GCC 11+, Clang 14+, MSVC 2022+)
+
+If you encounter build issues, see [Building from Source](#building-from-source) below.
+
+---
+
 ### System Requirements
 
 | Component | Minimum | Recommended |

@@ -1,0 +1,133 @@
+[build-system]
+requires = [
+    "scikit-build-core>=0.8.0",
+    "pybind11>=2.11.0",
+    "numpy>=1.26.0",
+]
+build-backend = "scikit_build_core.build"
+
+[project]
+name = "hektor-vdb"
+version = "3.0.0"
+description = "High-performance vector database with SIMD-optimized similarity search and local ONNX-based embeddings"
+readme = "README.md"
+license = {text = "MIT"}
+authors = [
+    {name = "Hektor VDB Contributors"}
+]
+requires-python = ">=3.10"
+keywords = ["vector-database", "similarity-search", "embeddings", "simd", "onnx", "machine-learning"]
+classifiers = [
+    "Development Status :: 4 - Beta",
+    "Intended Audience :: Developers",
+    "Intended Audience :: Science/Research",
+    "License :: OSI Approved :: MIT License",
+    "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3.10",
+    "Programming Language :: Python :: 3.11",
+    "Programming Language :: Python :: 3.12",
+    "Programming Language :: Python :: 3.13",
+    "Programming Language :: C++",
+    "Topic :: Scientific/Engineering :: Artificial Intelligence",
+    "Topic :: Database",
+]
+
+dependencies = [
+    "numpy>=1.26.0",
+    "pybind11>=2.11.0",
+]
+
+[project.optional-dependencies]
+ml = [
+    "onnxruntime>=1.19.0",
+    "huggingface-hub>=0.26.0",
+    "transformers>=4.46.0",
+    "tokenizers>=0.20.0",
+    "sentencepiece>=0.2.0",
+    "safetensors>=0.4.0",
+]
+data = [
+    "pandas>=2.1.0",
+    "openpyxl>=3.1.0",
+    "pypdf2>=3.0.0",
+    "python-magic>=0.4.27",
+    "Pillow>=10.4.0",
+    "scipy>=1.14.0",
+]
+db = [
+    "psycopg2-binary>=2.9.9",
+    "pgvector>=0.2.0",
+]
+dev = [
+    "pytest>=8.3.0",
+    "pytest-cov>=5.0.0",
+    "pytest-benchmark>=4.0.0",
+    "pytest-asyncio>=0.23.0",
+    "black>=24.10.0",
+    "ruff>=0.7.0",
+    "mypy>=1.13.0",
+]
+docs = [
+    "mkdocs>=1.6.0",
+    "mkdocs-material>=9.5.0",
+    "mkdocstrings[python]>=0.26.0",
+]
+all = [
+    "hektor-vdb[ml,data,db,dev,docs]",
+]
+
+[project.urls]
+Homepage = "https://github.com/amuzetnoM/hektor"
+Repository = "https://github.com/amuzetnoM/hektor"
+Documentation = "https://github.com/amuzetnoM/hektor/tree/main/docs"
+Issues = "https://github.com/amuzetnoM/hektor/issues"
+
+[tool.scikit-build]
+cmake.verbose = true
+cmake.build-type = "Release"
+wheel.packages = ["pyvdb"]
+minimum-version = "0.8"
+
+[tool.scikit-build.cmake.define]
+VDB_BUILD_PYTHON = "ON"
+VDB_BUILD_TESTS = "OFF"
+VDB_BUILD_CLI = "OFF"
+VDB_BUILD_BENCHMARKS = "OFF"
+VDB_USE_LLAMA_CPP = "OFF"
+VDB_USE_ONNX_RUNTIME = "OFF"
+VDB_USE_TENSORFLOW = "OFF"
+VDB_USE_PYTORCH = "OFF"
+VDB_USE_GRPC = "OFF"
+VDB_BUILD_DISTRIBUTED = "OFF"
+VDB_USE_PROMETHEUS = "OFF"
+VDB_USE_OPENTELEMETRY = "OFF"
+CMAKE_BUILD_TYPE = "Release"
+
+[tool.cibuildwheel]
+# Build for common platforms
+build = ["cp310-*", "cp311-*", "cp312-*", "cp313-*"]
+skip = ["*-musllinux_*", "pp*"]
+
+[tool.cibuildwheel.linux]
+before-all = "yum install -y cmake gcc-c++ || apt-get update && apt-get install -y cmake g++"
+archs = ["x86_64", "aarch64"]
+
+[tool.cibuildwheel.macos]
+archs = ["x86_64", "arm64"]
+
+[tool.cibuildwheel.windows]
+archs = ["AMD64"]
+
+[tool.black]
+line-length = 100
+target-version = ["py310", "py311", "py312"]
+
+[tool.ruff]
+line-length = 100
+target-version = "py310"
+
+[tool.mypy]
+python_version = "3.10"
+warn_return_any = true
+warn_unused_configs = true
+disallow_untyped_defs = false

@@ -133,20 +133,35 @@ See [RELEASE_NOTES_v3.0.0.md](../RELEASE_NOTES_v3.0.0.md) and [docs/11_DISTRIBUT
 
 ## Quick Start
 
-### Automated Setup (Recommended)
+### Installation via pip (Easiest)
+
+```bash
+# Install from source (requires CMake and C++ compiler)
+pip install hektor-vdb
+
+# Or install with ML dependencies
+pip install hektor-vdb[ml]
+```
+
+**Requirements:**
+- Python 3.10+
+- CMake 3.20+
+- C++23 compatible compiler (GCC 11+, Clang 14+, MSVC 2022+)
+
+### Automated Setup from Source
 
 **Windows PowerShell:**
 ```powershell
-git clone https://github.com/amuzetnoM/vector_studio.git
-cd gold_standard/vector_studio
+git clone https://github.com/amuzetnoM/hektor.git
+cd hektor
 .\scripts\setup.ps1
 .\scripts\build.ps1 -Release
 ```
 
 **Unix/macOS/Linux:**
 ```bash
-git clone https://github.com/amuzetnoM/vector_studio.git
-cd gold_standard/vector_studio
+git clone https://github.com/amuzetnoM/hektor.git
+cd hektor
 chmod +x scripts/setup.sh
 ./scripts/setup.sh
 mkdir build && cd build
