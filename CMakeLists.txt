@@ -585,38 +585,40 @@ endif()
 # ============================================================================
 # CLI Tool
 # ============================================================================
-# New modular CLI (hektor)
-add_executable(hektor
-    src/cli/main.cpp
-    src/cli/cli.cpp
-    src/cli/output_formatter.cpp
-    src/cli/colors.cpp
-    src/cli/interactive_shell.cpp
-    src/cli/commands/db_commands.cpp
-    src/cli/commands/data_commands.cpp
-    src/cli/commands/search_commands.cpp
-    src/cli/commands/hybrid_commands.cpp
-    src/cli/commands/ingest_commands.cpp
-    src/cli/commands/index_commands.cpp
-    src/cli/commands/collection_commands.cpp
-    src/cli/commands/export_commands.cpp
-)
+if(VDB_BUILD_CLI)
+    # New modular CLI (hektor)
+    add_executable(hektor
+        src/cli/main.cpp
+        src/cli/cli.cpp
+        src/cli/output_formatter.cpp
+        src/cli/colors.cpp
+        src/cli/interactive_shell.cpp
+        src/cli/commands/db_commands.cpp
+        src/cli/commands/data_commands.cpp
+        src/cli/commands/search_commands.cpp
+        src/cli/commands/hybrid_commands.cpp
+        src/cli/commands/ingest_commands.cpp
+        src/cli/commands/index_commands.cpp
+        src/cli/commands/collection_commands.cpp
+        src/cli/commands/export_commands.cpp
+    )
 
-target_include_directories(hektor PRIVATE
-    ${CMAKE_CURRENT_SOURCE_DIR}/include
-)
+    target_include_directories(hektor PRIVATE
+        ${CMAKE_CURRENT_SOURCE_DIR}/include
+    )
 
-target_link_libraries(hektor PRIVATE
-    vdb_core
-    fmt::fmt
-)
+    target_link_libraries(hektor PRIVATE
+        vdb_core
+        fmt::fmt
+    )
 
-# Legacy CLI (vdb_cli)
-add_executable(vdb_cli
-    src/cli/main.cpp.old
-)
+    # Legacy CLI (vdb_cli)
+    add_executable(vdb_cli
+        src/cli/main.cpp.old
+    )
 
-target_link_libraries(vdb_cli PRIVATE vdb_core)
+    target_link_libraries(vdb_cli PRIVATE vdb_core)
+endif()
 
 # ============================================================================
 # Python Bindings
@@ -696,7 +698,12 @@ endif()
 # ============================================================================
 # Installation
 # ============================================================================
-install(TARGETS vdb_core hektor vdb_cli
+set(INSTALL_TARGETS vdb_core)
+if(VDB_BUILD_CLI)
+    list(APPEND INSTALL_TARGETS hektor vdb_cli)
+endif()
+
+install(TARGETS ${INSTALL_TARGETS}
     RUNTIME DESTINATION bin
     LIBRARY DESTINATION lib
     ARCHIVE DESTINATION lib
