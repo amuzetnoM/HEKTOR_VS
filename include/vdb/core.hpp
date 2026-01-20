@@ -99,6 +99,7 @@ enum class ErrorCode : uint8_t {
     InvalidDimension,
     InvalidVectorId,
     InvalidState,
+    NotTrained,
     InvalidData,
     VectorNotFound,
     IndexFull,
