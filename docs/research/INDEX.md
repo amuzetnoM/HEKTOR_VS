@@ -18,7 +18,7 @@ research/
     └── paper_citations.md                 # Complete citations (20.6 KB)
 ```
 
-**Total Content**: 167+ KB of research materials (134 KB academic + 33 KB competitive analysis)
+**Total Content**: 224+ KB of research materials (134 KB academic + 33 KB competitive + 24 KB Hektor + 22 KB visualization + 11 KB tests)
 
 ---
 
@@ -55,7 +55,84 @@ research/
 
 ---
 
-### 2. [Vector Space Theory](vector_space_theory.md)
+### 2. [Hektor Deep Dive Analysis](HEKTOR_ANALYSIS.md)
+
+**Technical research, benchmarking, and performance documentation for Hektor**
+
+**Contents**:
+- Complete architecture breakdown with component diagrams
+- Performance benchmarks (single-node and distributed)
+- SIMD optimization analysis (AVX2/AVX-512)
+- Memory efficiency and scalability studies
+- Hybrid search and RAG pipeline performance
+- Production deployment architectures
+- Cost analysis and TCO comparisons
+- Resource requirements and capacity planning
+- Optimization techniques and best practices
+- Security, compliance, and known limitations
+
+**Format**: 24.4 KB, 12 major sections, 30+ tables, code examples  
+**Validation**: ✅ 10 automated tests covering document structure and completeness  
+**Benchmarks**: Real hardware (i7-12700H, 32GB RAM, NVMe SSD)
+
+**Key Metrics**:
+- Query latency: <3ms p99 (1M vectors)
+- Throughput: 4,200 QPS (16 threads)
+- SIMD speedup: 8x with AVX-512
+- Memory: ~2.4 KB per vector
+- Scale: 100M vectors per node
+
+**Use Cases**:
+- Understanding Hektor's architecture
+- Performance tuning and optimization
+- Deployment planning
+- Capacity and cost estimation
+- Technical deep dives
+
+---
+
+### 3. [Interactive Competitive Comparison Dashboard](COMPETITIVE_COMPARISON.html)
+
+**Visual stakeholder-ready comparison with responsive charts**
+
+**Features**:
+- 9 interactive charts comparing all competitors
+- Performance metrics (latency, throughput, memory)
+- Cost analysis and TCO comparison
+- Feature coverage radar charts
+- Market positioning visualization
+- Fully responsive design (mobile, tablet, desktop)
+- No text overflow, adaptive components
+- Print-friendly formatting
+
+**Charts Included**:
+1. Query Latency Comparison (p99)
+2. Throughput (QPS)
+3. Memory Efficiency
+4. Monthly Cost
+5. Market Position (bubble chart)
+6. Feature Coverage (radar)
+7. Maximum Scale
+8. Deployment Flexibility
+9. 3-Year TCO Analysis
+
+**Technical**:
+- Chart.js 4.4.1 for interactive charts
+- Responsive CSS with media queries
+- Color-coded by vendor
+- Interactive tooltips
+- Print optimization
+
+**Use Cases**:
+- Executive presentations
+- Stakeholder meetings
+- Quick visual comparison
+- Marketing materials
+- Investment discussions
+
+---
+
+### 4. [Vector Space Theory](vector_space_theory.md)
 
 **Comprehensive mathematical treatment of vector spaces in machine learning**
 
@@ -86,7 +163,7 @@ research/
 
 ---
 
-### 3. [HNSW Algorithm](hnsw_algorithm.md)
+### 5. [HNSW Algorithm](hnsw_algorithm.md)
 
 **Complete analysis of Hierarchical Navigable Small World graphs**
 
@@ -119,7 +196,7 @@ research/
 
 ## Supporting Materials
 
-### 4. [Research Survey](papers/research_survey.md)
+### 6. [Research Survey](papers/research_survey.md)
 
 **State-of-the-art survey covering 50+ papers from 1954-2026**
 
@@ -150,7 +227,7 @@ research/
 
 ---
 
-### 5. [Annotated Bibliography](references/annotated_bibliography.md)
+### 7. [Annotated Bibliography](references/annotated_bibliography.md)
 
 **Detailed annotations of 18 key papers**
 
@@ -182,7 +259,7 @@ research/
 
 ---
 
-### 6. [Complete Citations](references/paper_citations.md)
+### 8. [Complete Citations](references/paper_citations.md)
 
 **Full bibliographic information for 30 papers**
 
