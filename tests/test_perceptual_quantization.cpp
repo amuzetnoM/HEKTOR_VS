@@ -5,6 +5,7 @@
 #include "vdb/quantization/perceptual_curves.hpp"
 #include "vdb/quantization/adaptive_quantizer.hpp"
 #include <gtest/gtest.h>
+#include <chrono>
 #include <cmath>
 #include <vector>
 

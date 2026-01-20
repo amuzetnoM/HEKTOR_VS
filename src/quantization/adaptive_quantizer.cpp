@@ -3,6 +3,7 @@
 // ============================================================================
 
 #include "vdb/quantization/adaptive_quantizer.hpp"
+#include "vdb/quantization/product_quantizer.hpp"
 #include <algorithm>
 
 namespace vdb {

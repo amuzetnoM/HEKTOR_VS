@@ -241,15 +241,17 @@ public:
                 
             case PerceptualCurve::Gamma22:
                 for (size_t i = 0; i < input.size(); ++i) {
-                    output[i] = GammaCurve(2.2f).encode(input[i]);
+                    output[i] = gamma_curve_.encode(input[i]);
                 }
                 break;
                 
-            case PerceptualCurve::Gamma24:
+            case PerceptualCurve::Gamma24: {
+                GammaCurve gamma24(2.4f);
                 for (size_t i = 0; i < input.size(); ++i) {
-                    output[i] = GammaCurve(2.4f).encode(input[i]);
+                    output[i] = gamma24.encode(input[i]);
                 }
                 break;
+            }
                 
             case PerceptualCurve::PQ_ST2084:
                 for (size_t i = 0; i < input.size(); ++i) {
@@ -280,15 +282,17 @@ public:
                 
             case PerceptualCurve::Gamma22:
                 for (size_t i = 0; i < input.size(); ++i) {
-                    output[i] = GammaCurve(2.2f).decode(input[i]);
+                    output[i] = gamma_curve_.decode(input[i]);
                 }
                 break;
                 
-            case PerceptualCurve::Gamma24:
+            case PerceptualCurve::Gamma24: {
+                GammaCurve gamma24(2.4f);
                 for (size_t i = 0; i < input.size(); ++i) {
-                    output[i] = GammaCurve(2.4f).decode(input[i]);
+                    output[i] = gamma24.decode(input[i]);
                 }
                 break;
+            }
                 
             case PerceptualCurve::PQ_ST2084:
                 for (size_t i = 0; i < input.size(); ++i) {
