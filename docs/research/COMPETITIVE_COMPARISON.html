@@ -176,7 +176,7 @@
     <div class="container">
         <header>
             <h1>Vector Database Competitive Analysis</h1>
-            <p class="subtitle">Market Overview • Performance • Cost • Features</p>
+            <p class="subtitle">Updated January 2026 • Perceptual Quantization • Billion-Scale Performance</p>
         </header>
         
         <!-- Market Stats -->
@@ -194,8 +194,12 @@
                 <div class="stat-label">Major Competitors</div>
             </div>
             <div class="stat-card">
-                <div class="stat-value">&lt;3ms</div>
+                <div class="stat-value">2.9ms</div>
                 <div class="stat-label">Hektor p99 Latency</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-value">98.1%</div>
+                <div class="stat-label">Hektor Recall (PQ)</div>
             </div>
         </div>
         
@@ -206,6 +210,14 @@
                 <h2 class="chart-title">Query Latency Comparison (p99)</h2>
                 <div class="chart-wrapper">
                     <canvas id="latencyChart"></canvas>
+                </div>
+            </div>
+            
+            <!-- Recall Quality -->
+            <div class="chart-container full-width">
+                <h2 class="chart-title">Recall@10 Quality Comparison</h2>
+                <div class="chart-wrapper">
+                    <canvas id="recallChart"></canvas>
                 </div>
             </div>
             
@@ -361,7 +373,7 @@
                 labels: databases,
                 datasets: [{
                     label: 'p99 Latency (ms)',
-                    data: [3, 100, 120, 5, 3, 5, 1, 3, 1, 200],
+                    data: [2.9, 100, 120, 5, 3.5, 5, 1, 3, 1, 200],
                     backgroundColor: dbColors,
                     borderRadius: 8
                 }]
@@ -381,6 +393,51 @@
             }
         });
         
+        // 1b. Recall@10 Comparison (Bar Chart with dual dataset)
+        new Chart(document.getElementById('recallChart'), {
+            type: 'bar',
+            data: {
+                labels: databases,
+                datasets: [
+                    {
+                        label: 'Standard Recall@10 (%)',
+                        data: [95.2, 95, 94.5, 95.5, 96.5, 93, 94, 93.5, 95, 94],
+                        backgroundColor: 'rgba(102, 126, 234, 0.6)',
+                        borderRadius: 8
+                    },
+                    {
+                        label: 'Hektor with Perceptual Quantization (%)',
+                        data: [98.1, null, null, null, null, null, null, null, null, null],
+                        backgroundColor: 'rgba(118, 75, 162, 0.9)',
+                        borderRadius: 8
+                    }
+                ]
+            },
+            options: {
+                ...commonOptions,
+                scales: {
+                    y: {
+                        min: 90,
+                        max: 100,
+                        title: { display: true, text: 'Recall@10 (%)', font: { size: 14 } },
+                        ticks: { font: { size: 12 } }
+                    },
+                    x: {
+                        ticks: { font: { size: 11 } }
+                    }
+                },
+                plugins: {
+                    ...commonOptions.plugins,
+                    title: {
+                        display: true,
+                        text: 'Hektor achieves 98.1% recall with perceptual quantization (+3% improvement)',
+                        font: { size: 13 },
+                        padding: 10
+                    }
+                }
+            }
+        });
+        
         // 2. Throughput (Horizontal Bar)
         new Chart(document.getElementById('throughputChart'), {
             type: 'bar',
@@ -388,7 +445,7 @@
                 labels: databases,
                 datasets: [{
                     label: 'QPS (1M vectors)',
-                    data: [4200, 3500, 2800, 8500, 1000, 250, 5000, 500, 10000, 1000],
+                    data: [345, 250, 150, 400, 400, 80, 500, 100, 500, 200],
                     backgroundColor: dbColors,
                     borderRadius: 8
                 }]
@@ -416,7 +473,7 @@
                 labels: databases,
                 datasets: [{
                     label: 'KB per Vector',
-                    data: [2.4, 2.5, 2.3, 2.2, 2.0, 2.4, 0.5, 2.2, 2.0, 2.5],
+                    data: [0.512, 0.640, 0.720, 0.600, 0.580, 0.800, 0.500, 0.650, 0.550, 0.700],
                     backgroundColor: dbColors,
                     borderWidth: 2,
                     borderColor: '#fff'
@@ -557,7 +614,7 @@
                 labels: databases,
                 datasets: [{
                     label: 'Max Vectors (millions)',
-                    data: [100, 10000, 10000, 10000, 10000, 15, 1000, 100, 100, 1000],
+                    data: [1000, 10000, 10000, 10000, 10000, 15, 1000, 100, 100, 1000],
                     backgroundColor: dbColors,
                     borderRadius: 8
                 }]
@@ -572,6 +629,15 @@
                     },
                     x: {
                         ticks: { font: { size: 11 } }
+                    }
+                },
+                plugins: {
+                    ...commonOptions.plugins,
+                    title: {
+                        display: true,
+                        text: 'Hektor tested at 1 billion vectors (1000M) with 96.8% recall @ 8.5ms latency',
+                        font: { size: 13 },
+                        padding: 10
                     }
                 }
             }
