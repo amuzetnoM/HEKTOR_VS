@@ -1,17 +1,9 @@
 # Installation Guide
 
-## Important: Package Name
-
-This vector database project is named **hektor** but the Python package is published as **hektor-vdb** to avoid conflict with an existing unrelated package on PyPI.
 
 When installing, use:
 ```bash
 pip install hektor-vdb
-```
-
-NOT:
-```bash
-pip install hektor  # ⚠️ This installs a different package (QTI-XML converter)
 ```
 
 ## Automated Build Script (Recommended)
@@ -132,7 +124,7 @@ If you encounter build errors:
 
 If `import pyvdb` fails:
 
-1. Make sure you installed `hektor-vdb`, not `hektor`
+1. Make sure you installed `hektor-vdb`
 2. Check that the installation completed successfully
 3. Verify your Python version is 3.10 or higher
 
