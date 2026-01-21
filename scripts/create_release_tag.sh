@@ -54,67 +54,43 @@ echo "Creating annotated tag v3.0.1..."
 echo ""
 
 # Create annotated tag with release notes
-git tag -a v3.0.1 -m "Release v3.0.1 - Complete CLI System with Native NLP Engine
+git tag -a v3.0.1 -m "Release v3.0.1 - Security Patch Release
 
-Major Release - Hektor Vector Database CLI System
+Patch Release - Hektor Vector Database
 
-## What's New
+## Overview
 
-- **118+ Commands** across 18 categories
-- **Native NLP Engine** (bare-metal C++ implementation)
-- **Interactive REPL** with history, tab completion, colors
-- **Hybrid Search** (Vector + BM25 with 5 fusion methods)
-- **Multi-Source Ingestion** (10+ data sources)
-- **Model Management** (download, quantize, benchmark)
-- **Real-time Monitoring** (Prometheus metrics)
-- **Comprehensive Documentation** (~195KB)
+Hektor v3.0.1 is a patch release that includes important dependency updates to address security vulnerabilities. This release maintains full backward compatibility with v3.0.0.
 
-## Phases Complete
+## Changes
 
-- Phase 1: Foundation (8 commands)
-- Phase 2: Extended (35+ commands)
-- Phase 3: Interactive Mode (3 commands)
-- Phase 4: NLP & Advanced (41 commands)
-- Phase 5: Design Complete (40 commands)
+### Security Updates
+- Dependency Update: Upgraded tar package from 7.5.2 to 7.5.3 in UI dependencies
+  - Fixes vulnerability related to absolute linkpath sanitization
+  - Addresses security advisory for tar package
 
-## Key Features
+## Technical Details
+- Changed Files: 1 (ui/package-lock.json)
+- Lines Changed: 8 (4 additions, 4 deletions)
+- Scope: UI/Frontend dependencies only
 
-- Native NLP: 500+ embeddings/sec (CPU)
-- Hybrid Search: 5 fusion methods
-- Interactive REPL: Full-featured shell
-- Model Quantization: INT8/INT4 support
-- Prometheus Monitoring: Real-time metrics
-- Security: Secure password handling
+## Migration Guide
+- No breaking changes - This is a drop-in replacement for v3.0.0
+- No action required - simply update to v3.0.1
+- All v3.0.0 features and APIs remain unchanged
 
-## Performance
-
-- Search: Sub-millisecond
-- NLP: 500+ embeddings/sec
-- Ingestion: 5,000+ docs/sec
-- Quantization: Up to 4x speedup
-
-## Documentation
-
-- Complete CLI docs in src/cli/docs/
-- USAGE.md (28KB) - Complete guide
-- NLP_GUIDE.md (19KB) - NLP engine
-- TESTING.md (10KB) - Test suite
-- Release notes in docs/releases/
-
-## Migration
-
-No breaking changes - fully backward compatible with v2.x
+## Dependencies
+- Updated: tar 7.5.2 → 7.5.3 (UI dependency)
 
 ## Installation
 
 git clone https://github.com/amuzetnoM/hektor.git
 cd hektor
 git checkout v3.0.1
-mkdir build && cd build
-cmake .. -DCMAKE_BUILD_TYPE=Release
-cmake --build . --config Release
+cmake -B build -G Ninja
+cmake --build build
 
-Full release notes: docs/releases/v3.0.1.md
+Full release notes: docs/changelog/v3.0.1.md
 "
 
 if [ $? -eq 0 ]; then
