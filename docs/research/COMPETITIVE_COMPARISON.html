@@ -419,6 +419,18 @@
         const databases = ['Hektor', 'Pinecone', 'Weaviate', 'Milvus', 'Qdrant', 'Chroma', 'Faiss', 'pgvector', 'Redis', 'Elasticsearch'];
         const dbColors = Object.values(colors);
         
+        // Hektor capabilities data (0-10 scale)
+        const hektorCapabilities = {
+            labels: [
+                'Performance', 'Scalability', 'Memory Efficiency', 'Cost Efficiency',
+                'Perceptual Quantization', 'Visual Search', 'Hybrid Search', 'RAG Pipeline',
+                'Local Embeddings', 'SIMD Optimization', 'Distributed', 'Observability',
+                'Security', 'Privacy', 'Developer Experience', 'Documentation',
+                'Open Source', 'GPU Support', 'Multi-Modal', 'Billion-Scale'
+            ],
+            scores: [10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 9, 10, 8, 8, 10, 10, 10, 10]
+        };
+        
         // Common chart options
         const commonOptions = {
             responsive: true,
@@ -444,16 +456,10 @@
         new Chart(document.getElementById('hektorCapabilitiesChart'), {
             type: 'radar',
             data: {
-                labels: [
-                    'Performance', 'Scalability', 'Memory Efficiency', 'Cost Efficiency',
-                    'Perceptual Quantization', 'Visual Search', 'Hybrid Search', 'RAG Pipeline',
-                    'Local Embeddings', 'SIMD Optimization', 'Distributed', 'Observability',
-                    'Security', 'Privacy', 'Developer Experience', 'Documentation',
-                    'Open Source', 'GPU Support', 'Multi-Modal', 'Billion-Scale'
-                ],
+                labels: hektorCapabilities.labels,
                 datasets: [{
                     label: 'Hektor Capabilities',
-                    data: [10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 9, 10, 8, 8, 10, 10, 10, 10],
+                    data: hektorCapabilities.scores,
                     backgroundColor: 'rgba(102, 126, 234, 0.25)',
                     borderColor: colors.hektor,
                     borderWidth: 3,

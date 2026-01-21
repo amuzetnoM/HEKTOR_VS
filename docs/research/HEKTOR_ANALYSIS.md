@@ -253,16 +253,26 @@ Hektor is the **industry's first vector database** with perceptual quantization 
 - Reduces memory footprint by 78% while maintaining 98.1% recall
 
 **Technical Implementation**:
+
+The perceptual quantization curve is based on the SMPTE ST 2084 standard (Perceptual Quantizer), which maps linear light values to perceptually uniform code values:
+
 ```
-PQ Curve: L = [(max[(L^(1/m) - c1), 0] / (c2 - c3*L^(1/m)))^(1/n)]
+PQ(L) = [(c1 + c2 × L^m) / (1 + c3 × L^m)]^n
 
 Where:
-- m = 2610/4096 = 0.1593017578125
-- n = 2523/4096 = 0.15930175781250
-- c1 = 3424/4096 = 0.8359375
-- c2 = 2413/128 = 18.8515625
-- c3 = 2392/128 = 18.6875
+- L = normalized linear light input (0-1)
+- m = 2610/4096 ≈ 0.1593 (controls low-light compression)
+- n = 2523/4096 ≈ 0.6157 (controls mid-tone mapping)
+- c1 = 3424/4096 ≈ 0.8359 (offset constant)
+- c2 = 2413/128 ≈ 18.85 (gain factor)
+- c3 = 2392/128 ≈ 18.69 (saturation factor)
 ```
+
+This curve optimizes vector quantization by:
+- Preserving perceptually significant differences
+- Allocating more bits to mid-tones (where human perception is most sensitive)
+- Compressing dark/bright extremes (where perception is less sensitive)
+- Maintaining monotonicity for distance calculations
 
 #### 2.6.2 Display-Aware Quantization Modes
 
@@ -933,7 +943,7 @@ Per Vector:      $0.00024 (10M avg)
 
 ### 11.2 Roadmap
 
-**v3.1 (Q2 2026)** - ✅ **COMPLETED**:
+**v3.1 (Q1 2026)** - ✅ **COMPLETED**:
 - ✅ Perceptual quantization (PQ curve SMPTE ST 2084)
 - ✅ Display-aware quantization (SDR/HDR1000/HDR4000/Dolby Vision)
 - ✅ Billion-scale testing and validation (1B vectors)

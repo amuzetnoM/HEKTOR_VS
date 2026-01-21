@@ -678,7 +678,7 @@ This document provides an exhaustive analysis of the vector database market land
 | Database | 100K vectors | 1M vectors | 10M vectors | 100M vectors | 1B vectors |
 |----------|--------------|------------|-------------|--------------|------------|
 | **Hektor** | <1ms | **2.9ms** | 5.2ms | 7.8ms | **8.5ms** |
-| **Hektor (PQ)** | <1ms | **2.1ms** | 4.5ms | 6.8ms | **10.5ms** |
+| **Hektor (PQ)** | <1ms | **2.1ms** | 4.5ms | 6.8ms | **10.5ms*** |
 | **Pinecone** | <5ms | <10ms | <50ms | <100ms | ~15ms |
 | **Weaviate** | 3ms | 120ms | - | - | ~18ms |
 | **Milvus** | <1ms | <5ms | <10ms | <50ms | ~12ms |
@@ -691,9 +691,11 @@ This document provides an exhaustive analysis of the vector database market land
 
 **Hektor Achievements**:
 - ✅ **2.9ms p99 @ 1M vectors** (single node, full precision)
-- ✅ **2.1ms p99 @ 1M vectors** (with perceptual quantization)
+- ✅ **2.1ms p99 @ 1M vectors** (with perceptual quantization - faster due to cache efficiency)
 - ✅ **8.5ms p99 @ 1B vectors** (250-node cluster, full precision)
-- ✅ **10.5ms p99 @ 1B vectors** (78-node cluster with PQ, 69% cost savings)
+- ✅ **10.5ms p99 @ 1B vectors** (78-node cluster with PQ - slightly slower due to dequantization overhead, but 69% cost savings)
+
+*Note: At billion scale, PQ has 2ms overhead for dequantization but achieves 69% cost reduction and 98.1% recall vs 96.8%
 
 *Note: Benchmarks vary by hardware, configuration, and test methodology*
 
