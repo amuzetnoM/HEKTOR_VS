@@ -14,6 +14,34 @@ NOT:
 pip install hektor  # ⚠️ This installs a different package (QTI-XML converter)
 ```
 
+## Automated Build Script (Recommended)
+
+The easiest way to build Hektor from source is using the automated build script:
+
+```bash
+# Clone the repository
+git clone https://github.com/amuzetnoM/hektor.git
+cd hektor
+
+# Run the automated build script
+./build-hektor.sh
+
+# Or with options:
+./build-hektor.sh --dev --test      # Install dev tools and run tests
+./build-hektor.sh --repair          # Repair broken installation
+./build-hektor.sh --clean --test    # Clean build with tests
+```
+
+The script automatically:
+- Detects your system (Linux, macOS, Windows)
+- Installs all required dependencies
+- Sets up Python virtual environment
+- Configures and builds the project
+- Verifies the installation
+- Can repair regressions
+
+For more options, run: `./build-hektor.sh --help`
+
 ## Quick Install
 
 ### From Source (Recommended for Development)

@@ -441,6 +441,8 @@ set(VDB_CORE_SOURCES
     src/adapters/pgvector_adapter.cpp
     src/quantization/product_quantizer.cpp
     src/quantization/scalar_quantizer.cpp
+    src/quantization/perceptual_curves.cpp
+    src/quantization/adaptive_quantizer.cpp
     src/hybrid/bm25_engine.cpp
     src/hybrid/hybrid_search_engine.cpp
     src/framework/rag_engine.cpp
@@ -675,6 +677,7 @@ if(VDB_BUILD_TESTS)
         tests/test_bm25.cpp
         tests/test_hybrid_search.cpp
         tests/test_rag.cpp
+        tests/test_perceptual_quantization.cpp
     )
     
     target_link_libraries(vdb_tests PRIVATE

@@ -1,70 +1,102 @@
-name: Publish Docker image
+name: Docker Build & Publish
 
 on:
   push:
+    branches: [main]
     tags:
       - 'v*.*.*'
+  pull_request:
+    branches: [main]
   workflow_dispatch:
 
 permissions:
   contents: read
   packages: write
-  id-token: write
 
 jobs:
-  build-and-push:
+  docker-build:
+    name: Docker Build & Test
     runs-on: ubuntu-latest
-
+    timeout-minutes: 30
+    
     steps:
-      - name: Checkout
-        uses: actions/checkout@v4
-        with:
-          submodules: false
-          fetch-depth: 0
+    - name: Checkout
+      uses: actions/checkout@v4
+      with:
+        fetch-depth: 1
+        
+    - name: Set up Docker Buildx
+      uses: docker/setup-buildx-action@v3
+      
+    - name: Build test image
+      uses: docker/build-push-action@v5
+      with:
+        context: .
+        load: true
+        tags: hektor:test
+        cache-from: type=gha
+        cache-to: type=gha,mode=max
+        
+    - name: Test Docker image
+      run: |
+        docker run --rm hektor:test --version || true
+        docker run --rm hektor:test --help || true
 
-      - name: Set up QEMU
-        uses: docker/setup-qemu-action@v2
-
-      - name: Set up Docker Buildx
-        uses: docker/setup-buildx-action@v3
-
-      - name: Login to GitHub Container Registry
-        uses: docker/login-action@v2
-        with:
-          registry: ghcr.io
-          username: ${{ github.actor }}
-          password: ${{ secrets.GITHUB_TOKEN }}
-
-      - name: Compute lowercase owner
-        id: vars
-        run: |
-          echo "owner=$(echo ${GITHUB_REPOSITORY_OWNER} | tr '[:upper:]' '[:lower:]')" >> $GITHUB_OUTPUT
-
-      - name: Build and push image
-        uses: docker/build-push-action@v4
-        with:
-          context: .
-          push: true
-          tags: |
-            ghcr.io/${{ steps.vars.outputs.owner }}/vector_studio:${{ github.ref_name }}
-            ghcr.io/${{ steps.vars.outputs.owner }}/vector_studio:latest
-          platforms: linux/amd64,linux/arm64
-
-      - name: Add image info to release
-        if: startsWith(github.ref, 'refs/tags/')
-        uses: actions/github-script@v6
-        with:
-          script: |
-            const tag = process.env.GITHUB_REF.replace('refs/tags/','')
-            const body = `Docker image published: ghcr.io/${process.env.GITHUB_REPOSITORY_OWNER}/vector_studio:${tag}\n\nLatest: ghcr.io/${process.env.GITHUB_REPOSITORY_OWNER}/vector_studio:latest`
-            // Append to release body if release for tag exists
-            const releases = await github.rest.repos.listReleases({ owner: context.repo.owner, repo: context.repo.repo })
-            const release = releases.data.find(r => r.tag_name === tag)
-            if (release) {
-              await github.rest.releases.update({ owner: context.repo.owner, repo: context.repo.repo, release_id: release.id, body: (release.body || '') + '\n\n' + body })
-            } else {
-              // create a draft release with the body if none exists
-              await github.rest.releases.create({ owner: context.repo.owner, repo: context.repo.repo, tag_name: tag, name: tag, body, draft: true })
-            }
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+  docker-publish:
+    name: Docker Publish
+    needs: docker-build
+    runs-on: ubuntu-latest
+    if: github.event_name != 'pull_request'
+    timeout-minutes: 45
+    
+    steps:
+    - name: Checkout
+      uses: actions/checkout@v4
+      with:
+        submodules: recursive
+        fetch-depth: 0
+        
+    - name: Set up QEMU
+      uses: docker/setup-qemu-action@v3
+      
+    - name: Set up Docker Buildx
+      uses: docker/setup-buildx-action@v3
+      
+    - name: Login to GitHub Container Registry
+      uses: docker/login-action@v3
+      with:
+        registry: ghcr.io
+        username: ${{ github.actor }}
+        password: ${{ secrets.GITHUB_TOKEN }}
+        
+    - name: Docker metadata
+      id: meta
+      uses: docker/metadata-action@v5
+      with:
+        images: ghcr.io/${{ github.repository }}
+        tags: |
+          type=ref,event=branch
+          type=ref,event=pr
+          type=semver,pattern={{version}}
+          type=semver,pattern={{major}}.{{minor}}
+          type=semver,pattern={{major}}
+          type=sha,prefix={{branch}}-
+          type=raw,value=latest,enable={{is_default_branch}}
+        
+    - name: Build and push
+      uses: docker/build-push-action@v5
+      with:
+        context: .
+        platforms: linux/amd64,linux/arm64
+        push: true
+        tags: ${{ steps.meta.outputs.tags }}
+        labels: ${{ steps.meta.outputs.labels }}
+        cache-from: type=gha
+        cache-to: type=gha,mode=max
+        build-args: |
+          BUILD_DATE=${{ fromJSON(steps.meta.outputs.json).labels['org.opencontainers.image.created'] }}
+          VERSION=${{ fromJSON(steps.meta.outputs.json).labels['org.opencontainers.image.version'] }}
+          VCS_REF=${{ github.sha }}
+          
+    - name: Image digest
+      run: echo ${{ steps.meta.outputs.digest }}

@@ -3,10 +3,12 @@ include LICENSE
 include CMakeLists.txt
 include requirements.txt
 include requirements-dev.txt
+include INSTALL.md
+include pyproject.toml
 
-recursive-include src *.cpp *.h *.hpp
+recursive-include src *.cpp *.h *.hpp *.c
 recursive-include include *.h *.hpp
-recursive-include bindings *.cpp *.h
+recursive-include bindings *.cpp *.h *.hpp
 recursive-include cmake *.cmake
 
 global-exclude *.pyc
@@ -15,3 +17,14 @@ global-exclude *.so
 global-exclude *.dylib
 global-exclude *.dll
 global-exclude .git*
+prune build
+prune build_*
+prune venv*
+prune .vscode
+prune .idea
+prune tests
+prune benchmarks
+prune examples
+prune docs
+prune models
+prune ui
