@@ -4,7 +4,7 @@
 
 ---
 
-We shipped.
+I shipped.
 
 After four months of architecture, implementation, debugging, and more debugging — Hektor 4.0 is live.
 
@@ -46,11 +46,11 @@ Benchmarked on SIFT-1M (1 million 128-dim vectors):
 | Build Time | 45 seconds |
 | Memory | 1.2 GB |
 
-We're competitive with the best open-source options and beat several commercial offerings.
+I'm competitive with the best open-source options and beat several commercial offerings.
 
-## What We Learned
+## What I Learned
 
-**The hard parts weren't where we expected.**
+**The hard parts weren't where I expected.**
 
 Memory management? Straightforward.
 SIMD optimization? Tedious but tractable.
@@ -61,13 +61,13 @@ The hard parts:
 - **Unicode handling in tokenization** — three weeks of pain
 - **Cross-platform builds** — CMake is powerful and frustrating
 
-**Tests save you.** We have 200+ test cases. Every one caught a real bug.
+**Tests save you.** I have 200+ test cases. Every one caught a real bug.
 
-**Docs are a feature.** We spent 20% of our time on documentation. It shows.
+**Docs are a feature.** I spent 20% of my time on documentation. It shows.
 
 ## What's Next
 
-This is 4.0, not 1.0 that we're calling 4.0 for marketing. It's genuinely the fourth major architecture.
+This is 4.0, not 1.0 that I'm calling 4.0 for marketing. It's genuinely the fourth major architecture.
 
 For 4.1:
 - GPU acceleration for embedding generation
@@ -77,7 +77,7 @@ For 4.1:
 For 5.0 (someday):
 - Neural index structures
 - End-to-end differentiable search
-- Things we haven't imagined yet
+- Things I haven't imagined yet
 
 ## Thank You
 
@@ -95,4 +95,4 @@ pip install pyvdb
 
 *Let's build something great.*
 
-— *The Hektor Team*
+— *Hektor*

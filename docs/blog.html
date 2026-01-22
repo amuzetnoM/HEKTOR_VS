@@ -584,6 +584,439 @@
         </div>
     </div>
 
+    <!-- Preloaded markdown (embedded so file:// previews work) -->
+    <script type="text/markdown" id="md-blog_posts-the-beginning"># The Beginning: Why I Started Building Hektor
+
+*November 15, 2025*
+
+---
+
+Every meaningful project starts with frustration. Mine began on a cold November night, staring at benchmark results that made no sense.
+
+I'd been evaluating vector databases for a project. Pinecone. Milvus. Qdrant. FAISS. Each one excellent in its own way. Each one missing something I needed.
+
+## The Problem
+
+What I wanted was simple:
+
+1. **Sub-millisecond search** at scale (millions of vectors)
+2. **High recall** (99%+ wasn't negotiable)
+3. **Hybrid search** — vectors + full-text, unified, _enterprised_.
+4. **Production-ready** — not a research prototype
+
+No single solution hit all four. FAISS was fast but didn't do hybrid search. Milvus had features but latency was unpredictable. Qdrant was elegant but I needed more control over quantization.
+
+## The Decision
+
+So I did what engineers do when tools don't exist: I decided to build one.
+
+The name came easily. **Hektor** — the defender. In the Iliad, Hektor was the Trojan hero who stood against impossible odds. My Hektor would defend against the chaos of unstructured data, the flood of embeddings that modern AI systems generate.
+
+## What I'm Building
+
+The architecture crystallized over a few whiteboard sessions:
+
+- **C++23 core** — no compromises on performance
+- **HNSW index** — the best algorithm for approximate nearest neighbor
+- **Perceptual quantization** — compress intelligently, not blindly
+- **Hybrid search engine** — BM25 + vectors, fused properly
+- **Python bindings** — because the world runs on Python
+
+I'm not trying to replace everything. I'm building something that does fewer things, but does them exceptionally well.
+
+## What's Next
+
+This blog will document the journey. The decisions that worked, the mistakes I made, the algorithms I implemented wrong three times before getting them right.
+
+Building in public is terrifying. But it's also the only way to build something that matters.
+
+Let's see where this goes.
+
+---
+
+*— Hektor*</script>
+
+    <script type="text/markdown" id="md-blog_posts-choosing-hnsw"># Why HNSW Won: Choosing Our Index Algorithm
+
+*December 3, 2025*
+
+---
+
+Choosing an index algorithm is like choosing a foundation for a house. Get it wrong, and everything built on top will be compromised.
+
+We spent three weeks evaluating options. Here's what we learned.
+
+## The Contenders
+
+### KD-Trees
+The classic. Beautiful in low dimensions (≤20). Falls apart spectacularly above that. We're dealing with 384-512 dimensional vectors. Next.
+
+### LSH (Locality-Sensitive Hashing)
+Probabilistic guarantees sound good in papers. In practice, you need multiple hash tables to get decent recall, which eats memory. The parameter tuning is also dark magic — `k` hash functions, `L` tables, and pray.
+
+### IVF (Inverted File Index)
+FAISS made this popular. You cluster your data, then search relevant clusters. Fast builds. Good for batch workloads. But for real-time search with frequent updates? The cluster assignments become stale. Rebalancing is expensive.
+
+### HNSW
+A graph where every node connects to its approximate nearest neighbors, organized in hierarchical layers. Like a skip list, but for metric spaces.
+
+## Why HNSW Won
+
+The numbers spoke for themselves:
+
+| Algorithm | Recall@10 | QPS (1M vectors) | Memory Overhead |
+|-----------|-----------|------------------|-----------------|
+| IVF-PQ | 0.89 | 12,000 | Low |
+| LSH | 0.85 | 8,000 | High |
+| HNSW | 0.98 | 5,500 | Medium |
+
+HNSW had the highest recall. Not the fastest raw QPS, but fast enough — and when you factor in that IVF needs reranking to match HNSW's recall, the gap closes.
+
+But the real winner was **operational simplicity**.
+
+## The Operational Argument
+
+HNSW has two main parameters:
+- `M`: connections per node (we use 16)
+- `ef_search`: search queue size (we use 200)
+
+That's it. No cluster count to tune. No hash function parameters. No periodic rebalancing.
+
+When a new vector comes in, we insert it. Takes ~2ms. The graph stays balanced automatically because of how the layers are structured.
+
+For a production system, this simplicity is gold.
+
+## Our Implementation
+
+We wrote HNSW from scratch in C++23. Using hnswlib was tempting, but we needed:
+
+1. **SIMD distance functions** — AVX-512 makes a 4x difference
+2. **Custom memory layout** — cache-friendly node storage
+3. **Concurrent reads during writes** — no global locks
+
+The implementation took six weeks. Worth every hour.
+
+## What We'd Do Differently
+
+If we were building for 10B+ vectors, we'd probably use a hybrid approach — IVF for coarse partitioning, HNSW within partitions. But for our target scale (millions to low billions), pure HNSW is the right call.
+
+---
+
+*Next week: The perceptual quantization rabbit hole. It goes deep.*</script>
+
+    <script type="text/markdown" id="md-blog_posts-quantization-rabbit-hole"># The Quantization Rabbit Hole
+
+*December 18, 2025*
+
+---
+
+"We just need to compress the vectors a bit."
+
+Famous last words.
+
+What started as a simple optimization became a three-week journey through perceptual science, color theory, and the mathematics of human vision. Here's what we learned.
+
+## The Naive Approach
+
+Standard vector quantization is straightforward:
+
+1. Take your 512-dimensional float32 vectors (2KB each)
+2. Quantize to int8 using scalar quantization (512 bytes each)
+3. Save 75% memory
+
+This works. Recall drops from 99.7% to ~95%. Acceptable for some use cases.
+
+But we wanted better.
+
+## Enter Product Quantization
+
+The key insight: divide your vector into subvectors, quantize each independently.
+
+```
+512-dim vector → 8 subvectors of 64 dims each
+Each subvector → mapped to one of 256 centroids
+Result: 8 bytes instead of 2048 bytes (256x compression!)
+```
+
+The magic is in training the centroids. You cluster your subvectors using k-means, and the centroids capture the structure of your data.
+
+We implemented this. Recall: 97%. Memory: 8 bytes per vector.
+
+But then someone asked: *"What if perception matters?"*
+
+## The Perceptual Revelation
+
+Here's a fact that broke my brain: human perception of intensity is **logarithmic**, not linear.
+
+The difference between 0 and 1 (luminance) looks the same as 10 and 11 to a meter. But to your eyes, 0→1 is a massive change while 10→11 is barely noticeable.
+
+This is the Weber-Fechner law. And it means: **uniform quantization wastes bits**.
+
+If you allocate equal precision across the range, you're over-representing changes humans can't perceive and under-representing changes they can.
+
+## PQ Curves and HDR
+
+The video industry solved this decades ago with Perceptual Quantizer (PQ) curves — SMPTE ST.2084.
+
+The curve maps linear luminance to a perceptually uniform space.
+
+```
+PQ(Y) = ((c₁ + c₂·Y^m₁) / (1 + c₃·Y^m₁))^m₂
+```
+
+We adapted this for vectors. Instead of luminance, we apply perceptual curves to embedding magnitudes. Dimensions with high variance get more precision. Dimensions near zero get less.
+
+Result: 98.5% recall at the same 8 bytes per vector.
+
+## Display-Aware Encoding
+
+This is where it gets wild.
+
+Different displays have different capabilities:
+- SDR monitors: 100 nits peak
+- HDR10: 1000 nits
+- HDR4000: 4000 nits
+
+We built a `DisplayAwareQuantizer` that adapts encoding based on target display characteristics. For vector databases, "display" means "downstream model" — what precision does the consumer actually need?
+
+A lightweight retrieval model doesn't need the same precision as a fine-grained reranker.
+
+## The Implementation
+
+Our final quantization system:
+
+```cpp
+namespace vdb::quantization {
+    class ProductQuantizer;       // Standard PQ
+    class ScalarQuantizer;        // Simple 8-bit
+    class DisplayAwareQuantizer;  // Perceptual curves
+    class AdaptiveQuantizer;      // Learns from data
+}
+```
+
+Each has its place:
+- **ProductQuantizer**: Maximum compression, good recall
+- **ScalarQuantizer**: Fast, simple, baseline
+- **DisplayAwareQuantizer**: When perception matters
+- **AdaptiveQuantizer**: When you have training data
+
+## What We Learned
+
+Compression isn't about throwing away data. It's about throwing away the *right* data — the parts that don't matter for your use case.
+
+In images, that's imperceptible details.
+In audio, that's inaudible frequencies.
+In vectors, that's... well, we're still figuring that out.
+
+But the journey was worth it. We're shipping a quantization system that's 10-15% better than standard approaches, with zero additional latency.
+
+---
+
+*Sometimes the rabbit hole is the destination.*</script>
+
+    <script type="text/markdown" id="md-blog_posts-hybrid-search-journey"># Hybrid Search: Where Vectors Meet Words
+
+*January 5, 2026*
+
+---
+
+A user searched for "Apple M3 chip performance benchmarks" and got results about fruit orchards.
+
+This is the semantic search failure mode. The embedding model understood "Apple" as a general concept but missed that in this context, it's a company name. It understood "chip" but associated it with potato chips in some training examples.
+
+Pure semantic search is amazing. Until it isn't.
+
+## The Keyword Problem
+
+Meanwhile, traditional search has the opposite problem. Search for "running shoes" and you won't find "athletic footwear" even though they're synonyms.
+
+Keywords are precise but brittle.
+Semantics are flexible but imprecise.
+
+The answer, obviously, is both.
+
+## Building BM25 From Scratch
+
+BM25 (Best Match 25) is the algorithm behind Elasticsearch, Lucene, and most production search systems. The formula looks scary:
+
+```
+score(D, Q) = Σ IDF(qi) · (f(qi, D) · (k₁ + 1)) / (f(qi, D) + k₁ · (1 - b + b · |D|/avgdl))
+```
+
+But it's really just three intuitions:
+1. **IDF**: Rare terms matter more ("the" appears everywhere, ignore it)
+2. **TF saturation**: First occurrence matters most, diminishing returns after
+3. **Length normalization**: Don't bias toward longer documents
+
+We implemented BM25 in C++ with:
+- Porter stemming
+- Stop word removal  
+- Inverted index with posting lists
+
+Search over 1M documents: 8ms. Fast enough.
+
+## The Fusion Problem
+
+Now you have two lists of results:
+1. Vector search: results ranked by cosine similarity
+2. BM25 search: results ranked by relevance score
+
+How do you combine them?
+
+### Option 1: Weighted Sum
+```
+final_score = α · vector_score + (1-α) · bm25_score
+```
+Simple, but the scales are different. BM25 scores might be 0-20, while cosine similarity is 0-1.
+
+### Option 2: Rank Fusion (RRF)
+```
+RRF_score = Σ 1 / (k + rank_i)
+```
+This ignores actual scores and just uses rank positions. Surprisingly effective.
+
+### Option 3: Learned Fusion
+Train a model to combine scores. More complex, potentially better, requires training data.
+
+We implemented all three. **RRF won for simplicity**. With k=60, it handles most cases well. For power users, we expose the weighted sum with configurable α.
+
+## When Hybrid Shines
+
+Hybrid search crushes pure approaches when queries contain:
+
+- **Named entities**: "NVIDIA 4090 vs AMD 7900 XTX"
+- **Product codes**: "iPhone 15 Pro Max A17"
+- **Technical terms**: "HNSW ef_construction parameter"
+- **Mixed intent**: "best practices kubernetes secrets" (concept + keyword)
+
+For pure conceptual queries ("what is the meaning of life"), vector search alone is fine. For pure keyword queries ("error code 0x8007007E"), BM25 alone is fine.
+
+Hybrid handles everything in between.
+
+## The API
+
+```
+results = db.hybrid_search(
+    query="Apple M3 chip benchmarks",
+    k=10,
+    fusion="rrf",          # or "weighted"
+    vector_weight=0.7,     # for weighted fusion
+    lexical_weight=0.3
+)
+```
+
+Clean and simple. The complexity is hidden where it should be.
+
+## Lessons Learned
+
+1. **Don't choose between paradigms** — combine them
+2. **RRF is underrated** — rank-based fusion is robust and simple
+3. **Let users control the blend** — different queries need different weights
+4. **Keyword matching isn't dead** — it's a feature, not a bug
+
+---
+
+*Two weeks until v4.0 release. The finish line is in sight.*
+</script>
+
+    <script type="text/markdown" id="md-blog_posts-release-day"># Release Day: Hektor 4.0 is Live
+
+*January 22, 2026*
+
+---
+
+We shipped.
+
+After four months of architecture, implementation, debugging, and more debugging — Hektor 4.0 is live.
+
+## What's in the Box
+
+### Core Engine (C++23)
+- **HNSW Index**: Sub-millisecond search at 99%+ recall
+- **SIMD Optimized**: AVX-512 distance functions (8x speedup)
+- **Memory-Mapped Storage**: Handles datasets larger than RAM
+
+### Hybrid Search
+- **BM25 Engine**: Full-text search with proper linguistics
+- **RRF Fusion**: Rank-based score combination
+- **Query Rewriting**: Synonym expansion, spell correction
+
+### Quantization System
+- **Product Quantizer**: 8-32x compression
+- **Perceptual Curves**: PQ, HLG, adaptive gamma
+- **Display-Aware Encoding**: Downstream-optimized precision
+
+### Integrations
+- **Python Bindings**: First-class pyvdb module
+- **REST API**: FastAPI server with JWT auth
+- **OpenTelemetry**: Distributed tracing built-in
+
+### Extras
+- **LLM Engine**: Local inference via llama.cpp
+- **RAG Toolkit**: Chunking, context building, reranking
+- **Multi-format Ingest**: CSV, JSON, PDF, Excel, Parquet, and more
+
+## The Numbers
+
+Benchmarked on SIFT-1M (1 million 128-dim vectors):
+
+| Metric | Hektor 4.0 |
+|--------|------------|
+| Recall@10 | 99.2% |
+| Query Latency (p99) | 2.8ms |
+| Build Time | 45 seconds |
+| Memory | 1.2 GB |
+
+We're competitive with the best open-source options and beat several commercial offerings.
+
+## What We Learned
+
+**The hard parts weren't where we expected.**
+
+Memory management? Straightforward.
+SIMD optimization? Tedious but tractable.
+HNSW implementation? Well-documented.
+
+The hard parts:
+- **Edge cases in hybrid search fusion** — what happens when BM25 returns nothing?
+- **Unicode handling in tokenization** — three weeks of pain
+- **Cross-platform builds** — CMake is powerful and frustrating
+
+**Tests save you.** We have 200+ test cases. Every one caught a real bug.
+
+**Docs are a feature.** We spent 20% of our time on documentation. It shows.
+
+## What's Next
+
+This is 4.0, not 1.0 that we're calling 4.0 for marketing. It's genuinely the fourth major architecture.
+
+For 4.1:
+- GPU acceleration for embedding generation
+- Distributed mode (sharding + replication)
+- Improved adaptive quantization
+
+For 5.0 (someday):
+- Neural index structures
+- End-to-end differentiable search
+- Things we haven't imagined yet
+
+## Thank You
+
+To everyone who gave feedback, reported bugs, asked hard questions — thank you. Building in public is only possible because people engage.
+
+The code is MIT licensed. The research is open. Use it, break it, improve it.
+
+---
+
+*This is just the beginning.*
+
+```
+pip install pyvdb
+```
+
+*Let's build something great.*
+
+— *The Hektor Team*</script>
     <script>
         // Configure marked for better rendering
         marked.setOptions({
@@ -592,6 +1025,14 @@
             headerIds: true,
             mangle: false
         });
+
+        // Helper to read preloaded markdown script tags
+        function preloadMarkdown(file) {
+            if (!file) return null;
+            const id = 'md-' + file.replace(/[\/.]/g, '-');
+            const el = document.getElementById(id);
+            return el ? el.textContent : null;
+        }
 
         // Document Data
         const documents = {
@@ -989,10 +1430,10 @@ This paper presents a comprehensive analysis of OpenTelemetry distributed tracin
             document.getElementById('modal-overlay').classList.add('active');
             document.body.style.overflow = 'hidden';
             
-            let content = doc.content;
-            
-            // If no inline content, try to fetch from file
-            if (!content && doc.file) {
+            let content = doc.content || (doc.file ? preloadMarkdown(doc.file) : null);
+
+                // If no inline content or preloaded script, try to fetch from file
+                if (!content && doc.file) {
                 try {
                     const response = await fetch(doc.file);
                     if (response.ok) {

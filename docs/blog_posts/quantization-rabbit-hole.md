@@ -4,11 +4,11 @@
 
 ---
 
-"We just need to compress the vectors a bit."
+"I just need to compress the vectors a bit."
 
 Famous last words.
 
-What started as a simple optimization became a three-week journey through perceptual science, color theory, and the mathematics of human vision. Here's what we learned.
+What started as a simple optimization became a three-week journey through perceptual science, color theory, and the mathematics of human vision, also arg/sofmax but lets not go there. Here's what I learned.
 
 ## The Naive Approach
 
@@ -20,7 +20,7 @@ Standard vector quantization is straightforward:
 
 This works. Recall drops from 99.7% to ~95%. Acceptable for some use cases.
 
-But we wanted better.
+But I wanted better.
 
 ## Enter Product Quantization
 
@@ -34,13 +34,15 @@ Result: 8 bytes instead of 2048 bytes (256x compression!)
 
 The magic is in training the centroids. You cluster your subvectors using k-means, and the centroids capture the structure of your data.
 
-We implemented this. Recall: 97%. Memory: 8 bytes per vector.
+I implemented this. Recall: 97%. Memory: 8 bytes per vector.
 
 But then someone asked: *"What if perception matters?"*
 
 ## The Perceptual Revelation
 
-Here's a fact that broke my brain: human perception of intensity is **logarithmic**, not linear.
+Here's a fact that broke my brain: 
+
+> human perception of intensity is **logarithmic**, not linear.
 
 The difference between 0 and 1 (luminance) looks the same as 10 and 11 to a meter. But to your eyes, 0→1 is a massive change while 10→11 is barely noticeable.
 
@@ -56,7 +58,7 @@ The curve maps linear luminance to a perceptually uniform space.
 
 ```
 PQ(Y) = ((c₁ + c₂·Y^m₁) / (1 + c₃·Y^m₁))^m₂
-```
+I adapted this for vectors. Instead of luminance, I apply perceptual curves to embedding magnitudes. Dimensions with high variance get more precision. Dimensions near zero get less.
 
 We adapted this for vectors. Instead of luminance, we apply perceptual curves to embedding magnitudes. Dimensions with high variance get more precision. Dimensions near zero get less.
 
@@ -69,13 +71,13 @@ This is where it gets wild.
 Different displays have different capabilities:
 - SDR monitors: 100 nits peak
 - HDR10: 1000 nits
-- HDR4000: 4000 nits
+I built a `DisplayAwareQuantizer` that adapts encoding based on target display characteristics. For vector databases, "display" means "downstream model" — what precision does the consumer actually need?
 
 We built a `DisplayAwareQuantizer` that adapts encoding based on target display characteristics. For vector databases, "display" means "downstream model" — what precision does the consumer actually need?
 
 A lightweight retrieval model doesn't need the same precision as a fine-grained reranker.
 
-## The Implementation
+My final quantization system:
 
 Our final quantization system:
 
@@ -92,15 +94,15 @@ Each has its place:
 - **ProductQuantizer**: Maximum compression, good recall
 - **ScalarQuantizer**: Fast, simple, baseline
 - **DisplayAwareQuantizer**: When perception matters
-- **AdaptiveQuantizer**: When you have training data
+## What I Learnedzer**: When you have training data
 
 ## What We Learned
 
 Compression isn't about throwing away data. It's about throwing away the *right* data — the parts that don't matter for your use case.
 
-In images, that's imperceptible details.
+In vectors, that's... well, I'm still figuring that out.
 In audio, that's inaudible frequencies.
-In vectors, that's... well, we're still figuring that out.
+But the journey was worth it. I'm shipping a quantization system that's 10-15% better than standard approaches, with zero additional latency.
 
 But the journey was worth it. We're shipping a quantization system that's 10-15% better than standard approaches, with zero additional latency.
 
