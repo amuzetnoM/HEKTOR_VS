@@ -1458,38 +1458,129 @@ pip install pyvdb
 — *The Hektor Team*`
                 }
             ],
-            articles: [
-                {
-                    id: 'neural-latent-quantization',
-                    title: 'Neural Latent Quantization: Learning Optimal Perceptual Bases',
-                    description: 'Exploring semantic-space quantization where bits follow meaning rather than amplitude using learned latent representations.',
-                    date: '2026-01-20',
-                    category: 'Advanced Research',
-                    status: 'Research',
-                    order: 1,
-                    file: 'RESEARCH/neural_latent_quantization.md'
-                },
-                {
-                    id: 'temporal-redundancy',
-                    title: 'Temporal Redundancy Beyond Motion Vectors',
-                    description: 'Research on event-based encoding, delta-saliency, and memory-aware streaming for perceptual change encoding.',
-                    date: '2026-01-20',
-                    category: 'Advanced Research',
-                    status: 'Research',
-                    order: 2,
-                    file: 'RESEARCH/temporal_redunduncy.md'
-                },
-                {
-                    id: 'quantum-quantization',
-                    title: 'Quantum Quantization: Superposition-Based Compression',
-                    description: 'Theoretical framework for data compression using quantum computing principles including superposition and entanglement.',
-                    date: '2026-01-20',
-                    category: 'Theoretical',
-                    status: 'Speculative',
-                    order: 3,
-                    file: 'RESEARCH/quantum_quantization.md'
-                }
-            ],
+                articles: [
+                    {
+                        id: 'neural-latent-quantization',
+                        title: 'Neural Latent Quantization: Learning Optimal Perceptual Bases',
+                        description: 'Exploring semantic-space quantization where bits follow meaning rather than amplitude using learned latent representations.',
+                        date: '2026-01-20',
+                        category: 'Advanced Research',
+                        status: 'Research',
+                        order: 1,
+                        content: `# Neural Latent Quantization: Learning Optimal Perceptual Bases
+
+    ## Executive Summary
+
+    This paper explores **Neural Latent Quantization (NLQ)**, a paradigm shift from traditional signal-space quantization to **semantic-space quantization** where bits follow meaning rather than amplitude. Unlike conventional quantizers that operate on raw signals or hand-crafted features, NLQ uses learned latent representations from autoencoders to discover optimal perceptual bases for compression.
+
+    **Key Insight**: Quantize the **meaning** (latent manifold), not the **waveform** (signal space).
+
+    ---
+
+    ## Table of Contents
+
+    1. [Introduction & Motivation](#introduction)
+    2. [Theoretical Foundation](#theory)
+    3. [Autoencoder Architecture](#architecture)
+    4. [Latent Manifold Geometry](#manifold)
+    5. [Quantization in Latent Space](#quantization)
+    6. [Mathematical Formulation](#mathematics)
+    7. [Implementation Strategy](#implementation)
+    8. [Experimental Design](#experiments)
+    9. [Performance Analysis](#performance)
+    10. [Future Directions](#future)
+
+    ---
+
+    ## 1. Introduction & Motivation {#introduction}
+
+    ### The Problem with Traditional Quantization
+
+    Traditional quantization operates on **signal space**:
+    ```
+    Signal Space:
+    x ∈ ℝⁿ → Q(x) → x̂ ∈ {q₁, q₂, ..., qₖ}
+
+    Problem: Equal quantization steps ≠ equal perceptual steps
+    ```
+
+    **Example**: In an RGB image
+    - Quantizing [255, 255, 255] vs [254, 254, 254]: Perceptually identical
+    - Quantizing [128, 0, 0] vs [127, 0, 0]: Perceptually noticeable (red shift)
+
+    ### Neural Latent Quantization Philosophy
+
+    ```
+    Signal Space → Encoder → Latent Space → Quantizer → Decoder → Reconstruction
+            x                    z              ẑ                      x̂
+
+    Key: Quantize z (semantic), not x (signal)
+    ```
+
+    **Advantages**:
+    1. **Perceptual Alignment**: Latent dimensions encode perceptual features
+    2. **Dimensionality Reduction**: n-dim signal → d-dim latent (d << n)
+    3. **Learned Bases**: Data-driven rather than hand-crafted
+    4. **Rate-Distortion Optimization**: Direct optimization for compression
+
+    ---
+
+    (document truncated for inline representation)
+    `
+                    },
+                    {
+                        id: 'temporal-redundancy',
+                        title: 'Temporal Redundancy Beyond Motion Vectors',
+                        description: 'Research on event-based encoding, delta-saliency, and memory-aware streaming for perceptual change encoding.',
+                        date: '2026-01-20',
+                        category: 'Advanced Research',
+                        status: 'Research',
+                        order: 2,
+                        content: `# Temporal Redundancy Beyond Motion Vectors
+    ## Quantizing Change in Perception, Not Change in Pixels
+
+    ## Executive Summary
+
+    Traditional video compression relies on **motion vectors** to predict pixel changes between frames. This paper proposes a radical departure: **quantize change in perception**, not change in pixels. We explore three novel approaches:
+
+    1. **Event-Based Encoding**: Transmit only perceptually significant changes
+    2. **Delta-Saliency Quantization**: Allocate bits based on what changed perceptually
+    3. **Memory-Aware Streaming**: Model what the viewer already "knows" and transmit only what's new to perception
+
+    **Core Insight**: Temporal redundancy exists in **perceptual space**, not just pixel space.
+
+    ---
+
+    (document truncated for inline representation)
+    `
+                    },
+                    {
+                        id: 'quantum-quantization',
+                        title: 'Quantum Quantization: Superposition-Based Compression',
+                        description: 'Theoretical framework for data compression using quantum computing principles including superposition and entanglement.',
+                        date: '2026-01-20',
+                        category: 'Theoretical',
+                        status: 'Speculative',
+                        order: 3,
+                        content: `# Quantum Quantization
+    ## Exploiting Quantum Superposition for Information Compression
+
+    ## Executive Summary
+
+    This paper explores **Quantum Quantization (QQ)**, a theoretical framework for data compression using quantum computing principles. Unlike classical quantization which maps continuous values to discrete bins, quantum quantization leverages:
+
+    1. **Quantum Superposition**: Store multiple states simultaneously
+    2. **Entanglement**: Correlate distant data points without classical communication
+    3. **Quantum Interference**: Amplify relevant information, suppress noise
+
+    **Status**: ⚠️ **Highly Speculative** - Requires quantum hardware not yet available at scale
+
+    ---
+
+    (document truncated for inline representation)
+    `
+                    }
+                ],
             research: [
                 {
                     id: 'vector-space-theory',
@@ -1499,7 +1590,24 @@ pip install pyvdb
                     category: 'Foundations',
                     status: 'Peer-Reviewed',
                     order: 1,
-                    file: 'RESEARCH/vector_space_theory.md'
+                    content: `# Vector Space Theory in High-Dimensional Embeddings: A Comprehensive Study
+> **Non-Euclidean Geometries, Distance Metrics, and Practical Implications for Similarity Search**
+
+**Authors**: Artifact Virtual Research
+**Last Updated**: January 4, 2026  
+**Version**: 1.0  
+**Status**: Peer-Reviewed Academic Research
+
+---
+
+## Abstract
+
+This paper provides a comprehensive mathematical treatment of vector space theory as applied to high-dimensional embedding spaces in modern machine learning and information retrieval systems. We examine the fundamental properties of vector spaces, distance metrics, dimensionality considerations, and their practical implications for similarity search. Our analysis combines rigorous mathematical proofs with empirical observations from large-scale vector database implementations, with specific focus on the challenges and opportunities presented by high-dimensional spaces (d > 100).
+
+---
+
+(document truncated for inline representation)
+`
                 },
                 {
                     id: 'hnsw-algorithm',
@@ -1509,7 +1617,24 @@ pip install pyvdb
                     category: 'Algorithms',
                     status: 'Peer-Reviewed',
                     order: 2,
-                    file: 'RESEARCH/hnsw_algorithm.md'
+                    content: `# HNSW Graphs
+> **Hierarchical Navigable Small World (HNSW) Graphs for Approximate Nearest Neighbor Search** <br> *Theory, Implementation, and Analysis*
+
+**Authors**: Artifact Virtual Research  
+**Last Updated**: January 4, 2026  
+**Version**: 1.0  
+**Status**: Peer-Reviewed Academic Research
+
+---
+
+## Abstract
+
+This paper provides a comprehensive treatment of Hierarchical Navigable Small World (HNSW) graphs, a state-of-the-art data structure for approximate nearest neighbor search in high-dimensional spaces. We present rigorous theoretical analysis, algorithmic details, implementation considerations, and empirical performance characteristics. Our analysis demonstrates that HNSW achieves $O(\\log n)$ search complexity while maintaining high recall, making it the leading solution for large-scale similarity search applications.
+
+---
+
+(document truncated for inline representation)
+`
                 },
                 {
                     id: 'perceptual-quantization',
@@ -1519,7 +1644,24 @@ pip install pyvdb
                     category: 'Quantization',
                     status: 'Peer-Reviewed',
                     order: 3,
-                    file: 'RESEARCH/perceptual_quantization.md'
+                    content: `# Perceptual Quantization: Research & Implementation Analysis
+> **Theoretical Foundations and Practical Applications**
+
+**Authors**: Artifact Virtual Research  
+**Last Updated**: January 4, 2026  
+**Version**: 1.0  
+**Status**: Peer-Reviewed Academic Research
+
+---
+
+## Executive Summary
+
+This document explores the implications of implementing perceptual quantization (PQ/SQ curve-based quantization) as an enhancement to the existing vector quantization system in Hektor VectorDB. We analyze three advanced quantization paradigms and provide implementation recommendations.
+
+---
+
+(document truncated for inline representation)
+`
                 }
             ],
             publications: [
@@ -1531,7 +1673,22 @@ pip install pyvdb
                     category: 'Survey',
                     status: 'Published',
                     order: 1,
-                    file: 'RESEARCH/papers/research_survey.md'
+                    content: `# Research Survey: State-of-the-Art in Vector Databases and Similarity Search
+
+**Last Updated**: January 4, 2026  
+**Authors**: Artifact Virtual Research  
+**Version**: 1.0
+
+---
+
+## Executive Summary
+
+This survey provides a comprehensive overview of the current state of research and practice in vector databases, similarity search algorithms, and high-dimensional embeddings. We cover 50+ papers from 1954-2026, analyzing trends, breakthrough innovations, and future directions.
+
+---
+
+(document truncated for inline representation)
+`
                 },
                 {
                     id: 'opentelemetry-tracing',
@@ -1541,7 +1698,24 @@ pip install pyvdb
                     category: 'Systems',
                     status: 'Peer-Reviewed',
                     order: 2,
-                    file: 'RESEARCH/papers/opentelemetry_distributed_tracing_2026.md'
+                    content: `# OpenTelemetry Distributed Tracing: A Comprehensive Study of 2026 Standards and Best Practices
+
+**Research Paper**  
+**Authors**: Vector Studio Research Team  
+**Date**: January 8, 2026  
+**Version**: 1.0  
+**Status**: Peer-Reviewed Internal Research
+
+---
+
+## Abstract
+
+This paper presents a comprehensive analysis of OpenTelemetry distributed tracing as of January 2026, following the major industry shift marked by AWS X-Ray's transition to OpenTelemetry as the primary instrumentation framework.
+
+---
+
+(document truncated for inline representation)
+`
                 }
             ]
         };
