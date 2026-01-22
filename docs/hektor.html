@@ -192,19 +192,185 @@
         ::-webkit-scrollbar-thumb { background: #3f3f46; border-radius: 4px; }
         ::-webkit-scrollbar-thumb:hover { background: #52525b; }
 
+        /* Navigation */
+        nav {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            z-index: 40;
+            background: rgba(2, 2, 2, 0.8);
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+            border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+        }
+
+        nav .nav-inner {
+            max-width: 1500px;
+            margin: 0 auto;
+            padding: 0 20px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            height: 64px;
+        }
+
+        nav .logo {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            text-decoration: none;
+            color: #fafafa;
+            font-weight: 700;
+            font-size: 18px;
+        }
+
+        nav .logo-box {
+            width: 24px;
+            height: 24px;
+            border-radius: 4px;
+            background: #fafafa;
+        }
+
+        nav .nav-links {
+            display: flex;
+            gap: 32px;
+        }
+
+        nav .nav-links a {
+            color: #71717a;
+            text-decoration: none;
+            font-size: 14px;
+            font-weight: 500;
+            transition: color 0.2s ease;
+        }
+
+        nav .nav-links a:hover,
+        nav .nav-links a.active {
+            color: #fbbf24;
+        }
+
+        .container { padding-top: 84px; }
+
+        /* Animations */
+        @keyframes fadeInUp {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+
+        @keyframes slideInLeft {
+            from { opacity: 0; transform: translateX(-30px); }
+            to { opacity: 1; transform: translateX(0); }
+        }
+
+        @keyframes scaleIn {
+            from { opacity: 0; transform: scale(0.95); }
+            to { opacity: 1; transform: scale(1); }
+        }
+
+        .animate-fade-in-up {
+            animation: fadeInUp 0.6s ease-out forwards;
+        }
+
+        .animate-fade-in {
+            animation: fadeIn 0.5s ease-out forwards;
+        }
+
+        .animate-slide-in-left {
+            animation: slideInLeft 0.5s ease-out forwards;
+        }
+
+        .animate-scale-in {
+            animation: scaleIn 0.4s ease-out forwards;
+        }
+
+        .stat-card {
+            opacity: 0;
+            animation: fadeInUp 0.5s ease-out forwards;
+        }
+
+        .stat-card:nth-child(1) { animation-delay: 0.1s; }
+        .stat-card:nth-child(2) { animation-delay: 0.15s; }
+        .stat-card:nth-child(3) { animation-delay: 0.2s; }
+        .stat-card:nth-child(4) { animation-delay: 0.25s; }
+        .stat-card:nth-child(5) { animation-delay: 0.3s; }
+        .stat-card:nth-child(6) { animation-delay: 0.35s; }
+        .stat-card:nth-child(7) { animation-delay: 0.4s; }
+        .stat-card:nth-child(8) { animation-delay: 0.45s; }
+        .stat-card:nth-child(9) { animation-delay: 0.5s; }
+        .stat-card:nth-child(10) { animation-delay: 0.55s; }
+
+        .section-header {
+            opacity: 0;
+            animation: slideInLeft 0.5s ease-out forwards;
+        }
+
+        .chart-container {
+            opacity: 0;
+            animation: scaleIn 0.5s ease-out forwards;
+        }
+
+        header.glass-panel {
+            animation: fadeInUp 0.7s ease-out forwards;
+        }
+
+        /* Link button */
+        .nav-btn {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            padding: 8px 16px;
+            background: rgba(251, 191, 36, 0.1);
+            border: 1px solid rgba(251, 191, 36, 0.2);
+            border-radius: 8px;
+            color: #fbbf24;
+            font-size: 13px;
+            font-weight: 500;
+            text-decoration: none;
+            transition: all 0.2s ease;
+            margin-top: 16px;
+        }
+
+        .nav-btn:hover {
+            background: rgba(251, 191, 36, 0.2);
+            border-color: rgba(251, 191, 36, 0.4);
+        }
+
         @media (max-width: 768px) {
-            .container { padding: 12px; }
+            .container { padding: 12px; padding-top: 84px; }
             header { padding: 24px; }
             .chart-container { padding: 16px; }
             .chart-wrapper { height: 260px; }
             .chart-wrapper.tall { height: 300px; }
             .section-header { flex-direction: column; align-items: flex-start; gap: 8px; }
             .section-header .section-desc { margin-left: 0; }
+            nav .nav-links { gap: 20px; }
+            nav .nav-links a { font-size: 13px; }
         }
     </style>
 </head>
 <body>
     <div class="noise-overlay"></div>
+    
+    <!-- Navigation -->
+    <nav>
+        <div class="nav-inner">
+            <a href="index.html" class="logo">
+                <div class="logo-box"></div>
+                <span>HEKTOR</span>
+            </a>
+            <div class="nav-links">
+                <a href="hektor.html" class="active">Overview</a>
+                <a href="https://artifact-virtual.gitbook.io/hektor/">Docs</a>
+                <a href="https://github.com/amuzetnoM/hektor.git">GitHub</a>
+            </div>
+        </div>
+    </nav>
     
     <div class="container">
         <header class="glass-panel">
@@ -214,6 +380,12 @@
             </div>
             <h1><span class="gradient-text">Hektor</span> Analysis Dashboard</h1>
             <p class="subtitle" id="metadata">January 21, 2026 • Production-Ready • Billion-Scale Validated</p>
+            <a href="comparison.html" class="nav-btn">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <path d="M16 3h5v5M8 3H3v5M3 16v5h5M21 16v5h-5M9 12h6M12 9v6"/>
+                </svg>
+                View Competitive Comparison
+            </a>
         </header>
 
         <div class="stat-grid" id="stats-container"></div>

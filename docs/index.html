@@ -144,8 +144,8 @@
 
         <!-- Desktop Menu -->
         <div class="hidden md:flex items-baseline space-x-8">
-          <a href="https://hektor-qfl0pf3iy-amuzetnoms-projects.vercel.app"
-            class="text-zinc-400 hover:text-amber-400 transition-colors px-3 py-2 rounded-md text-sm font-medium">Studio</a>
+          <a href="hektor.html"
+            class="text-zinc-400 hover:text-amber-400 transition-colors px-3 py-2 rounded-md text-sm font-medium">Overview</a>
           <a href="https://artifact-virtual.gitbook.io/hektor/"
             class="text-zinc-400 hover:text-amber-400 transition-colors px-3 py-2 rounded-md text-sm font-medium">Docs</a>
           <a href="https://github.com/amuzetnoM/hektor.git"
@@ -173,16 +173,12 @@
   <div id="mobile-menu"
     class="fixed top-0 left-0 h-full w-full bg-[#020202] z-30 transform -translate-x-full transition-transform duration-300 ease-in-out md:hidden">
     <div class="pt-24 px-8 space-y-6">
-      <a href="https://hektor-qfl0pf3iy-amuzetnoms-projects.vercel.app"
-        class="block text-zinc-300 hover:text-amber-400 transition-colors py-2 text-lg font-medium">Studio</a>
+      <a href="hektor.html"
+        class="block text-zinc-300 hover:text-amber-400 transition-colors py-2 text-lg font-medium">Overview</a>
       <a href="https://artifact-virtual.gitbook.io/hektor/"
         class="block text-zinc-300 hover:text-amber-400 transition-colors py-2 text-lg font-medium">Docs</a>
       <a href="https://github.com/amuzetnoM/hektor.git"
         class="block text-zinc-300 hover:text-amber-400 transition-colors py-2 text-lg font-medium">GitHub</a>
-      <a href="https://hektor-qfl0pf3iy-amuzetnoms-projects.vercel.app"
-        class="mt-8 inline-block w-full text-center bg-white text-black font-semibold py-3 px-6 rounded text-base transition-all hover:bg-zinc-200">
-        Launch Studio
-      </a>
     </div>
   </div>
 
@@ -202,7 +198,7 @@
           <div
             class="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-white/5 border border-white/10 mb-8 hover:bg-white/10 transition-colors cursor-default backdrop-blur-md">
             <span class="w-1.5 h-1.5 rounded-full bg-green-500 shadow-[0_0_10px_rgba(34,197,94,0.5)]"></span>
-            <span class="text-xs font-mono font-medium text-zinc-400">Version 3.0.0</span>
+            <span class="text-xs font-mono font-medium text-zinc-400">Version 4.0.0</span>
           </div>
           <h1 class="text-5xl sm:text-7xl md:text-8xl font-bold tracking-tighter text-white mb-8 leading-[0.95]">
             Post-Modern <br />
@@ -215,16 +211,16 @@
             <span class="text-white/80">Hybrid retrieval. Zero-copy access. Sub-millisecond queries.</span>
           </p>
           <div class="flex flex-col sm:flex-row items-center justify-center gap-4">
-            <a href="https://hektor-qfl0pf3iy-amuzetnoms-projects.vercel.app"
+            <a href="hektor.html"
               class="h-12 px-8 rounded-full bg-white text-black font-semibold flex items-center gap-2 hover:bg-zinc-200 transition-colors z-20">
-              Open Studio
+              View Overview
               <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14 5l7 7m0 0l-7 7m7-7H3" />
               </svg>
             </a>
             <button
               class="h-12 px-8 rounded-full border border-white/10 text-zinc-300 font-mono text-sm hover:bg-white/5 transition-colors flex items-center gap-3 group backdrop-blur-sm z-20">
-              <span>$ pip install hektor</span>
+              <span>$ pip install hektor-vdb</span>
               <svg class="w-4 h-4 text-zinc-600 group-hover:text-white transition-colors" fill="none"
                 viewBox="0 0 24 24" stroke="currentColor">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
@@ -1280,6 +1276,7 @@ print(f<span class="text-amber-400">"Found {len(results)} matches in 2ms"</span>
       const fadeInObserver = new IntersectionObserver((entries) => {
         entries.forEach(entry => {
           if (entry.isIntersecting) {
+            entry.target.style.opacity = '';
             entry.target.classList.add('animate-fade-in-up');
             // Optionally unobserve after animation
             fadeInObserver.unobserve(entry.target);
@@ -1315,11 +1312,11 @@ print(f<span class="text-amber-400">"Found {len(results)} matches in 2ms"</span>
       const installButton = document.querySelector('button[class*="pip install"]');
       if (installButton) {
         installButton.addEventListener('click', async () => {
-          const text = 'pip install hektor';
+          const text = 'pip install hektor-vdb';
           try {
             await navigator.clipboard.writeText(text);
             const originalText = installButton.innerHTML;
-            installButton.innerHTML = installButton.innerHTML.replace('pip install hektor', 'Copied!');
+            installButton.innerHTML = installButton.innerHTML.replace('pip install hektor-vdb', 'Copied!');
             setTimeout(() => {
               installButton.innerHTML = originalText;
             }, 2000);
