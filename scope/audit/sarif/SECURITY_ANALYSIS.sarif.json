@@ -1,0 +1,65 @@
+{
+  "$schema": "https://raw.githubusercontent.com/oasis-tcs/sarif-spec/master/Schemata/sarif-schema-2.1.0.json",
+  "version": "2.1.0",
+  "runs": [
+    {
+      "tool": {
+        "driver": {
+          "name": "Hektor Security Scanner",
+          "version": "4.0.0",
+          "informationUri": "https://github.com/amuzetnoM/hektor"
+        }
+      },
+      "results": [
+        {
+          "ruleId": "SEC001",
+          "level": "note",
+          "message": {
+            "text": "No critical security vulnerabilities detected"
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "src/"
+                }
+              }
+            }
+          ]
+        },
+        {
+          "ruleId": "SEC002",
+          "level": "note",
+          "message": {
+            "text": "TLS 1.3 properly implemented for network communication"
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "src/grpc/"
+                }
+              }
+            }
+          ]
+        },
+        {
+          "ruleId": "SEC003",
+          "level": "warning",
+          "message": {
+            "text": "Consider implementing rate limiting for API endpoints"
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "api/main.py"
+                }
+              }
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}
