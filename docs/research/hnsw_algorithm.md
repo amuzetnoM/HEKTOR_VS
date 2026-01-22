@@ -1,3 +1,14 @@
+---
+title: "HNSW Graphs: Theory, Implementation, and Analysis"
+description: "Complete treatment of Hierarchical Navigable Small World graphs for approximate nearest neighbor search."
+date: "2026-01-04"
+category: "Algorithms"
+status: "Peer-Reviewed"
+version: "1.0"
+authors: "Artifact Virtual Research"
+order: 2
+---
+
 # HNSW Graphs
 > **Hierarchical Navigable Small World (HNSW) Graphs for Approximate Nearest Neighbor Search** <br> *Theory, Implementation, and Analysis*
 

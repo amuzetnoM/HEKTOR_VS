@@ -1,0 +1,995 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Blog & Research - Hektor</title>
+    <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><rect width=%22100%22 height=%22100%22 fill=%22white%22/></svg>">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@300;400;500;600;700;800&family=Fira+Code:wght@400;500&family=Crimson+Pro:ital,wght@0,300;0,400;0,500;1,300;1,400&display=swap" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        
+        :root {
+            --bg-primary: #020202;
+            --bg-glass: rgba(255, 255, 255, 0.02);
+            --bg-glass-hover: rgba(255, 255, 255, 0.04);
+            --border-subtle: rgba(255, 255, 255, 0.06);
+            --border-hover: rgba(251, 191, 36, 0.2);
+            --text-primary: #fafafa;
+            --text-secondary: #a1a1aa;
+            --text-muted: #71717a;
+            --accent-primary: #fbbf24;
+            --accent-secondary: #f59e0b;
+            --accent-tertiary: #d946ef;
+        }
+
+        body {
+            font-family: 'Manrope', sans-serif;
+            background-color: var(--bg-primary);
+            color: var(--text-primary);
+            line-height: 1.7;
+            overflow-x: hidden;
+            -webkit-font-smoothing: antialiased;
+        }
+
+        .font-mono { font-family: 'Fira Code', monospace; }
+        .font-serif { font-family: 'Crimson Pro', serif; }
+
+        /* Noise Overlay */
+        .noise-overlay {
+            position: fixed;
+            inset: 0;
+            z-index: 50;
+            pointer-events: none;
+            opacity: 0.03;
+            mix-blend-mode: overlay;
+            background-image: url('data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSI1MDAiIGhlaWdodD0iNTAwIj48ZmlsdGVyIGlkPSJub2lzZSI+PGZlVHVyYnVsZW5jZSB0eXBlPSJmcmFjdGFsTm9pc2UiIGJhc2VGcmVxdWVuY3k9IjAuODUiIG51bU9jdGF2ZXM9IjMiIHN0aXRjaFRpbGVzPSJzdGl0Y2giLz48L2ZpbHRlcj48cmVjdCB3aWR0aD0iMTAwJSIgaGVpZ2h0PSIxMDAlIiBmaWx0ZXI9InVybCgjbm9pc2UpIiBvcGFjaXR5PSIxIi8+PC9zdmc+');
+        }
+
+        /* Navigation */
+        nav {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            z-index: 40;
+            background: rgba(2, 2, 2, 0.8);
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+            border-bottom: 1px solid var(--border-subtle);
+        }
+
+        nav .nav-inner {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 0 24px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            height: 64px;
+        }
+
+        nav .logo {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            text-decoration: none;
+            color: var(--text-primary);
+            font-weight: 700;
+            font-size: 18px;
+            transition: opacity 0.2s ease;
+        }
+
+        nav .logo:hover { opacity: 0.8; }
+
+        nav .logo-box {
+            width: 24px;
+            height: 24px;
+            border-radius: 4px;
+            background: var(--text-primary);
+            box-shadow: 0 0 10px rgba(255, 255, 255, 0.1);
+            transition: box-shadow 0.3s ease;
+        }
+
+        nav .logo:hover .logo-box {
+            box-shadow: 0 0 15px rgba(255, 255, 255, 0.25);
+        }
+
+        nav .nav-links {
+            display: flex;
+            gap: 32px;
+        }
+
+        nav .nav-links a {
+            color: var(--text-muted);
+            text-decoration: none;
+            font-size: 14px;
+            font-weight: 500;
+            transition: color 0.2s ease;
+        }
+
+        nav .nav-links a:hover,
+        nav .nav-links a.active {
+            color: var(--accent-primary);
+        }
+
+        /* Mobile Menu */
+        .mobile-menu-btn {
+            display: none;
+            align-items: center;
+            justify-content: center;
+            width: 40px;
+            height: 40px;
+            border: none;
+            background: transparent;
+            cursor: pointer;
+            color: var(--text-muted);
+            transition: color 0.2s ease;
+        }
+
+        .mobile-menu-btn:hover { color: var(--text-primary); }
+        .mobile-menu-btn svg { width: 24px; height: 24px; }
+        .mobile-menu-btn .close-icon { display: none; }
+        .mobile-menu-btn.active .hamburger-icon { display: none; }
+        .mobile-menu-btn.active .close-icon { display: block; }
+
+        .mobile-sidebar {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: var(--bg-primary);
+            z-index: 35;
+            transform: translateX(-100%);
+            transition: transform 0.3s ease;
+            padding-top: 80px;
+        }
+
+        .mobile-sidebar.active { transform: translateX(0); }
+
+        .mobile-sidebar-inner {
+            padding: 24px 32px;
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
+
+        .mobile-sidebar a {
+            color: var(--text-secondary);
+            text-decoration: none;
+            font-size: 18px;
+            font-weight: 500;
+            padding: 12px 0;
+            border-bottom: 1px solid var(--border-subtle);
+            transition: color 0.2s ease;
+        }
+
+        .mobile-sidebar a:hover,
+        .mobile-sidebar a.active {
+            color: var(--accent-primary);
+        }
+
+        /* Main Container */
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 100px 24px 60px;
+        }
+
+        /* Hero Section */
+        .hero {
+            text-align: center;
+            padding: 60px 0 80px;
+            position: relative;
+        }
+
+        .hero::before {
+            content: '';
+            position: absolute;
+            top: -50px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 600px;
+            height: 300px;
+            background: radial-gradient(ellipse, rgba(251, 191, 36, 0.08) 0%, transparent 70%);
+            pointer-events: none;
+        }
+
+        .hero h1 {
+            font-size: clamp(32px, 6vw, 56px);
+            font-weight: 300;
+            letter-spacing: -0.03em;
+            margin-bottom: 16px;
+            color: var(--text-primary);
+        }
+
+        .hero h1 span {
+            font-weight: 600;
+            background: linear-gradient(135deg, var(--accent-primary), var(--accent-tertiary));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .hero p {
+            font-size: 17px;
+            color: var(--text-muted);
+            max-width: 600px;
+            margin: 0 auto;
+            font-weight: 300;
+        }
+
+        /* Section Navigation */
+        .section-nav {
+            display: flex;
+            justify-content: center;
+            gap: 8px;
+            margin-bottom: 60px;
+            flex-wrap: wrap;
+        }
+
+        .section-nav button {
+            padding: 10px 24px;
+            background: transparent;
+            border: 1px solid var(--border-subtle);
+            border-radius: 100px;
+            color: var(--text-muted);
+            font-size: 13px;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            font-family: inherit;
+        }
+
+        .section-nav button:hover {
+            border-color: var(--border-hover);
+            color: var(--text-secondary);
+        }
+
+        .section-nav button.active {
+            background: rgba(251, 191, 36, 0.1);
+            border-color: rgba(251, 191, 36, 0.3);
+            color: var(--accent-primary);
+        }
+
+        /* Content Sections */
+        .content-section {
+            display: none;
+            animation: fadeIn 0.4s ease;
+        }
+
+        .content-section.active {
+            display: block;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        /* Section Header */
+        .section-header {
+            margin-bottom: 40px;
+        }
+
+        .section-header h2 {
+            font-size: 13px;
+            font-weight: 500;
+            text-transform: uppercase;
+            letter-spacing: 0.1em;
+            color: var(--text-muted);
+            margin-bottom: 8px;
+        }
+
+        .section-header p {
+            font-size: 15px;
+            color: var(--text-secondary);
+            font-weight: 300;
+        }
+
+        /* Card Grid */
+        .card-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(340px, 1fr));
+            gap: 20px;
+        }
+
+        /* Document Card */
+        .doc-card {
+            background: var(--bg-glass);
+            border: 1px solid var(--border-subtle);
+            border-radius: 12px;
+            padding: 28px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .doc-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 1px;
+            background: linear-gradient(90deg, transparent, rgba(251, 191, 36, 0.3), transparent);
+            opacity: 0;
+            transition: opacity 0.3s ease;
+        }
+
+        .doc-card:hover {
+            background: var(--bg-glass-hover);
+            border-color: var(--border-hover);
+            transform: translateY(-2px);
+        }
+
+        .doc-card:hover::before {
+            opacity: 1;
+        }
+
+        .doc-card .card-meta {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            margin-bottom: 16px;
+        }
+
+        .doc-card .card-category {
+            font-size: 10px;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.08em;
+            color: var(--accent-primary);
+            background: rgba(251, 191, 36, 0.1);
+            padding: 4px 10px;
+            border-radius: 4px;
+        }
+
+        .doc-card .card-order {
+            font-size: 11px;
+            color: var(--text-muted);
+            font-family: 'Fira Code', monospace;
+        }
+
+        .doc-card h3 {
+            font-size: 18px;
+            font-weight: 500;
+            color: var(--text-primary);
+            margin-bottom: 10px;
+            line-height: 1.4;
+            letter-spacing: -0.01em;
+        }
+
+        .doc-card .card-description {
+            font-size: 14px;
+            color: var(--text-muted);
+            line-height: 1.6;
+            margin-bottom: 20px;
+            font-weight: 300;
+        }
+
+        .doc-card .card-footer {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding-top: 16px;
+            border-top: 1px solid var(--border-subtle);
+        }
+
+        .doc-card .card-date {
+            font-size: 12px;
+            color: var(--text-muted);
+        }
+
+        .doc-card .card-status {
+            font-size: 10px;
+            font-weight: 500;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            padding: 3px 8px;
+            border-radius: 4px;
+            background: rgba(34, 197, 94, 0.1);
+            color: #22c55e;
+        }
+
+        .doc-card .card-status.draft {
+            background: rgba(251, 191, 36, 0.1);
+            color: var(--accent-primary);
+        }
+
+        .doc-card .card-status.speculative {
+            background: rgba(217, 70, 239, 0.1);
+            color: var(--accent-tertiary);
+        }
+
+        /* Empty State */
+        .empty-state {
+            text-align: center;
+            padding: 80px 20px;
+            color: var(--text-muted);
+        }
+
+        .empty-state svg {
+            width: 48px;
+            height: 48px;
+            margin-bottom: 16px;
+            opacity: 0.3;
+        }
+
+        .empty-state p {
+            font-size: 15px;
+            font-weight: 300;
+        }
+
+        /* Modal */
+        .modal-overlay {
+            position: fixed;
+            inset: 0;
+            background: rgba(0, 0, 0, 0.8);
+            backdrop-filter: blur(8px);
+            z-index: 100;
+            display: none;
+            align-items: flex-start;
+            justify-content: center;
+            padding: 40px 20px;
+            overflow-y: auto;
+        }
+
+        .modal-overlay.active {
+            display: flex;
+        }
+
+        .modal {
+            background: #0a0a0a;
+            border: 1px solid var(--border-subtle);
+            border-radius: 16px;
+            width: 100%;
+            max-width: 900px;
+            max-height: calc(100vh - 80px);
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
+            animation: modalIn 0.3s ease;
+        }
+
+        @keyframes modalIn {
+            from { opacity: 0; transform: translateY(20px) scale(0.98); }
+            to { opacity: 1; transform: translateY(0) scale(1); }
+        }
+
+        .modal-header {
+            padding: 24px 32px;
+            border-bottom: 1px solid var(--border-subtle);
+            display: flex;
+            align-items: flex-start;
+            justify-content: space-between;
+            gap: 20px;
+        }
+
+        .modal-header h2 {
+            font-size: 22px;
+            font-weight: 500;
+            color: var(--text-primary);
+            line-height: 1.3;
+        }
+
+        .modal-header .meta {
+            font-size: 13px;
+            color: var(--text-muted);
+            margin-top: 6px;
+        }
+
+        .modal-close {
+            width: 36px;
+            height: 36px;
+            border: 1px solid var(--border-subtle);
+            border-radius: 8px;
+            background: transparent;
+            color: var(--text-muted);
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.2s ease;
+            flex-shrink: 0;
+        }
+
+        .modal-close:hover {
+            border-color: var(--border-hover);
+            color: var(--text-primary);
+        }
+
+        .modal-content {
+            padding: 32px;
+            overflow-y: auto;
+            flex: 1;
+        }
+
+        /* Article Typography */
+        .article-content {
+            font-family: 'Crimson Pro', serif;
+            font-size: 18px;
+            line-height: 1.8;
+            color: var(--text-secondary);
+        }
+
+        .article-content h1,
+        .article-content h2,
+        .article-content h3,
+        .article-content h4 {
+            font-family: 'Manrope', sans-serif;
+            color: var(--text-primary);
+            margin-top: 2em;
+            margin-bottom: 0.5em;
+            line-height: 1.3;
+        }
+
+        .article-content h1 { font-size: 28px; font-weight: 600; }
+        .article-content h2 { font-size: 22px; font-weight: 500; }
+        .article-content h3 { font-size: 18px; font-weight: 500; }
+        .article-content h4 { font-size: 16px; font-weight: 500; }
+
+        .article-content p {
+            margin-bottom: 1.5em;
+        }
+
+        .article-content a {
+            color: var(--accent-primary);
+            text-decoration: none;
+            border-bottom: 1px solid rgba(251, 191, 36, 0.3);
+            transition: border-color 0.2s ease;
+        }
+
+        .article-content a:hover {
+            border-color: var(--accent-primary);
+        }
+
+        .article-content code {
+            font-family: 'Fira Code', monospace;
+            font-size: 0.85em;
+            background: rgba(255, 255, 255, 0.05);
+            padding: 2px 6px;
+            border-radius: 4px;
+            color: var(--accent-primary);
+        }
+
+        .article-content pre {
+            background: rgba(0, 0, 0, 0.4);
+            border: 1px solid var(--border-subtle);
+            border-radius: 8px;
+            padding: 20px;
+            overflow-x: auto;
+            margin: 1.5em 0;
+        }
+
+        .article-content pre code {
+            background: none;
+            padding: 0;
+            font-size: 14px;
+            color: var(--text-secondary);
+        }
+
+        .article-content blockquote {
+            border-left: 2px solid var(--accent-primary);
+            padding-left: 20px;
+            margin: 1.5em 0;
+            color: var(--text-muted);
+            font-style: italic;
+        }
+
+        .article-content ul,
+        .article-content ol {
+            margin: 1em 0 1.5em 1.5em;
+        }
+
+        .article-content li {
+            margin-bottom: 0.5em;
+        }
+
+        .article-content table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 1.5em 0;
+            font-family: 'Manrope', sans-serif;
+            font-size: 14px;
+        }
+
+        .article-content th,
+        .article-content td {
+            padding: 12px 16px;
+            border: 1px solid var(--border-subtle);
+            text-align: left;
+        }
+
+        .article-content th {
+            background: rgba(255, 255, 255, 0.03);
+            font-weight: 500;
+            color: var(--text-primary);
+        }
+
+        .article-content hr {
+            border: none;
+            border-top: 1px solid var(--border-subtle);
+            margin: 2em 0;
+        }
+
+        /* Responsive */
+        @media (max-width: 768px) {
+            nav .nav-links { display: none; }
+            .mobile-menu-btn { display: flex; }
+            
+            .hero { padding: 40px 0 60px; }
+            .hero h1 { font-size: 32px; }
+            
+            .card-grid { grid-template-columns: 1fr; }
+            
+            .modal { margin: 20px; max-height: calc(100vh - 40px); }
+            .modal-header { padding: 20px; }
+            .modal-content { padding: 20px; }
+            
+            .section-nav { gap: 6px; }
+            .section-nav button { padding: 8px 16px; font-size: 12px; }
+        }
+    </style>
+</head>
+<body>
+    <div class="noise-overlay"></div>
+
+    <!-- Mobile Sidebar -->
+    <div class="mobile-sidebar" id="mobile-sidebar">
+        <div class="mobile-sidebar-inner">
+            <a href="index.html">Home</a>
+            <a href="hektor.html">Overview</a>
+            <a href="https://artifact-virtual.gitbook.io/hektor/">Docs</a>
+            <a href="blog.html" class="active">Blog</a>
+            <a href="https://github.com/amuzetnoM/hektor.git">GitHub</a>
+        </div>
+    </div>
+
+    <!-- Navigation -->
+    <nav>
+        <div class="nav-inner">
+            <a href="index.html" class="logo">
+                <div class="logo-box"></div>
+                <span>HEKTOR</span>
+            </a>
+            <div class="nav-links">
+                <a href="hektor.html">Overview</a>
+                <a href="https://artifact-virtual.gitbook.io/hektor/">Docs</a>
+                <a href="blog.html" class="active">Blog</a>
+                <a href="https://github.com/amuzetnoM/hektor.git">GitHub</a>
+            </div>
+            <button class="mobile-menu-btn" id="mobile-menu-btn">
+                <svg class="hamburger-icon" stroke="currentColor" fill="none" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"/>
+                </svg>
+                <svg class="close-icon" stroke="currentColor" fill="none" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
+                </svg>
+            </button>
+        </div>
+    </nav>
+
+    <div class="container">
+        <!-- Hero -->
+        <div class="hero">
+            <h1>Research & <span>Publications</span></h1>
+            <p>Cutting-edge research in vector databases, quantization theory, and high-dimensional computing.</p>
+        </div>
+
+        <!-- Section Navigation -->
+        <div class="section-nav">
+            <button class="active" data-section="blog">Blog</button>
+            <button data-section="articles">Articles</button>
+            <button data-section="research">Research</button>
+            <button data-section="publications">Publications</button>
+        </div>
+
+        <!-- Blog Section -->
+        <div class="content-section active" id="blog-section">
+            <div class="section-header">
+                <h2>Blog</h2>
+                <p>Updates, announcements, and insights from the Hektor team.</p>
+            </div>
+            <div class="card-grid" id="blog-grid"></div>
+        </div>
+
+        <!-- Articles Section -->
+        <div class="content-section" id="articles-section">
+            <div class="section-header">
+                <h2>Articles</h2>
+                <p>In-depth explorations of advanced topics and emerging technologies.</p>
+            </div>
+            <div class="card-grid" id="articles-grid"></div>
+        </div>
+
+        <!-- Research Section -->
+        <div class="content-section" id="research-section">
+            <div class="section-header">
+                <h2>Research</h2>
+                <p>Foundational research papers on vector space theory, algorithms, and quantization.</p>
+            </div>
+            <div class="card-grid" id="research-grid"></div>
+        </div>
+
+        <!-- Publications Section -->
+        <div class="content-section" id="publications-section">
+            <div class="section-header">
+                <h2>Publications</h2>
+                <p>Peer-reviewed papers and comprehensive surveys.</p>
+            </div>
+            <div class="card-grid" id="publications-grid"></div>
+        </div>
+    </div>
+
+    <!-- Modal -->
+    <div class="modal-overlay" id="modal-overlay">
+        <div class="modal">
+            <div class="modal-header">
+                <div>
+                    <h2 id="modal-title"></h2>
+                    <div class="meta" id="modal-meta"></div>
+                </div>
+                <button class="modal-close" id="modal-close">
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <path d="M18 6L6 18M6 6l12 12"/>
+                    </svg>
+                </button>
+            </div>
+            <div class="modal-content">
+                <div class="article-content" id="modal-content"></div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Document Data
+        const documents = {
+            blog: [
+                {
+                    id: 'welcome',
+                    title: 'Welcome to Hektor Research',
+                    description: 'Introducing our research blog where we share insights, updates, and deep dives into vector database technology.',
+                    date: '2026-01-22',
+                    category: 'Announcement',
+                    status: 'Published',
+                    order: 1,
+                    content: `# Welcome to Hektor Research
+
+We're excited to launch our research blog, a space dedicated to sharing our findings, insights, and explorations in vector database technology.
+
+## What to Expect
+
+This blog will feature:
+
+- **Technical Deep Dives**: Detailed explorations of algorithms, optimizations, and implementation strategies
+- **Research Updates**: Progress reports on ongoing research initiatives
+- **Industry Analysis**: Perspectives on the evolving landscape of vector databases and AI infrastructure
+- **Best Practices**: Practical guidance for building production-ready systems
+
+## Our Mission
+
+At Hektor, we believe that advancing the field requires open collaboration and knowledge sharing. This blog is our contribution to the community.
+
+Stay tuned for more content, and feel free to reach out with topics you'd like us to explore.
+
+*— The Hektor Research Team*
+`
+                }
+            ],
+            articles: [
+                {
+                    id: 'neural-latent-quantization',
+                    title: 'Neural Latent Quantization: Learning Optimal Perceptual Bases',
+                    description: 'Exploring semantic-space quantization where bits follow meaning rather than amplitude using learned latent representations.',
+                    date: '2026-01-20',
+                    category: 'Advanced Research',
+                    status: 'Research',
+                    order: 1,
+                    file: 'RESEARCH/neural_latent_quantization.md'
+                },
+                {
+                    id: 'temporal-redundancy',
+                    title: 'Temporal Redundancy Beyond Motion Vectors',
+                    description: 'Research on event-based encoding, delta-saliency, and memory-aware streaming for perceptual change encoding.',
+                    date: '2026-01-20',
+                    category: 'Advanced Research',
+                    status: 'Research',
+                    order: 2,
+                    file: 'RESEARCH/temporal_redunduncy.md'
+                },
+                {
+                    id: 'quantum-quantization',
+                    title: 'Quantum Quantization: Superposition-Based Compression',
+                    description: 'Theoretical framework for data compression using quantum computing principles including superposition and entanglement.',
+                    date: '2026-01-20',
+                    category: 'Theoretical',
+                    status: 'Speculative',
+                    order: 3,
+                    file: 'RESEARCH/quantum_quantization.md'
+                }
+            ],
+            research: [
+                {
+                    id: 'vector-space-theory',
+                    title: 'Vector Space Theory in High-Dimensional Embeddings',
+                    description: 'Comprehensive mathematical treatment of vector spaces, distance metrics, and their implications for similarity search.',
+                    date: '2026-01-04',
+                    category: 'Foundations',
+                    status: 'Peer-Reviewed',
+                    order: 1,
+                    file: 'RESEARCH/vector_space_theory.md'
+                },
+                {
+                    id: 'hnsw-algorithm',
+                    title: 'HNSW Graphs: Theory, Implementation, and Analysis',
+                    description: 'Complete treatment of Hierarchical Navigable Small World graphs for approximate nearest neighbor search.',
+                    date: '2026-01-04',
+                    category: 'Algorithms',
+                    status: 'Peer-Reviewed',
+                    order: 2,
+                    file: 'RESEARCH/hnsw_algorithm.md'
+                },
+                {
+                    id: 'perceptual-quantization',
+                    title: 'Perceptual Quantization: Research & Implementation',
+                    description: 'Theoretical foundations and practical applications of perceptual quantization for vector compression.',
+                    date: '2026-01-04',
+                    category: 'Quantization',
+                    status: 'Peer-Reviewed',
+                    order: 3,
+                    file: 'RESEARCH/perceptual_quantization.md'
+                }
+            ],
+            publications: [
+                {
+                    id: 'research-survey',
+                    title: 'Research Survey: State-of-the-Art in Vector Databases',
+                    description: 'Comprehensive overview of 50+ papers covering vector databases, similarity search, and embeddings from 1954-2026.',
+                    date: '2026-01-04',
+                    category: 'Survey',
+                    status: 'Published',
+                    order: 1,
+                    file: 'RESEARCH/papers/research_survey.md'
+                },
+                {
+                    id: 'opentelemetry-tracing',
+                    title: 'OpenTelemetry Distributed Tracing: 2026 Standards',
+                    description: 'Comprehensive analysis of OpenTelemetry distributed tracing following AWS X-Ray\'s transition to OTel.',
+                    date: '2026-01-08',
+                    category: 'Systems',
+                    status: 'Peer-Reviewed',
+                    order: 2,
+                    file: 'RESEARCH/papers/opentelemetry_distributed_tracing_2026.md'
+                }
+            ]
+        };
+
+        // Render cards
+        function renderCards(section, containerId) {
+            const container = document.getElementById(containerId);
+            const items = documents[section].sort((a, b) => a.order - b.order);
+            
+            if (items.length === 0) {
+                container.innerHTML = `
+                    <div class="empty-state">
+                        <svg fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/>
+                        </svg>
+                        <p>No content available yet.</p>
+                    </div>
+                `;
+                return;
+            }
+
+            container.innerHTML = items.map(doc => {
+                const statusClass = doc.status.toLowerCase().includes('speculative') ? 'speculative' : 
+                                   doc.status.toLowerCase().includes('draft') || doc.status.toLowerCase().includes('research') ? 'draft' : '';
+                return `
+                    <div class="doc-card" data-id="${doc.id}" data-section="${section}">
+                        <div class="card-meta">
+                            <span class="card-category">${doc.category}</span>
+                            <span class="card-order">#${String(doc.order).padStart(2, '0')}</span>
+                        </div>
+                        <h3>${doc.title}</h3>
+                        <p class="card-description">${doc.description}</p>
+                        <div class="card-footer">
+                            <span class="card-date">${formatDate(doc.date)}</span>
+                            <span class="card-status ${statusClass}">${doc.status}</span>
+                        </div>
+                    </div>
+                `;
+            }).join('');
+
+            // Add click handlers
+            container.querySelectorAll('.doc-card').forEach(card => {
+                card.addEventListener('click', () => openModal(card.dataset.section, card.dataset.id));
+            });
+        }
+
+        function formatDate(dateStr) {
+            const date = new Date(dateStr);
+            return date.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
+        }
+
+        // Modal handling
+        async function openModal(section, id) {
+            const doc = documents[section].find(d => d.id === id);
+            if (!doc) return;
+
+            document.getElementById('modal-title').textContent = doc.title;
+            document.getElementById('modal-meta').textContent = `${doc.category} • ${formatDate(doc.date)} • ${doc.status}`;
+            
+            let content = doc.content;
+            if (!content && doc.file) {
+                try {
+                    const response = await fetch(doc.file);
+                    if (response.ok) {
+                        content = await response.text();
+                        // Remove frontmatter
+                        content = content.replace(/^---[\s\S]*?---\n*/m, '');
+                    }
+                } catch (e) {
+                    content = `*Unable to load content. File: ${doc.file}*`;
+                }
+            }
+            
+            document.getElementById('modal-content').innerHTML = marked.parse(content || '*No content available.*');
+            document.getElementById('modal-overlay').classList.add('active');
+            document.body.style.overflow = 'hidden';
+        }
+
+        function closeModal() {
+            document.getElementById('modal-overlay').classList.remove('active');
+            document.body.style.overflow = '';
+        }
+
+        // Section navigation
+        document.querySelectorAll('.section-nav button').forEach(btn => {
+            btn.addEventListener('click', () => {
+                document.querySelectorAll('.section-nav button').forEach(b => b.classList.remove('active'));
+                btn.classList.add('active');
+                
+                document.querySelectorAll('.content-section').forEach(s => s.classList.remove('active'));
+                document.getElementById(`${btn.dataset.section}-section`).classList.add('active');
+            });
+        });
+
+        // Modal close handlers
+        document.getElementById('modal-close').addEventListener('click', closeModal);
+        document.getElementById('modal-overlay').addEventListener('click', (e) => {
+            if (e.target === e.currentTarget) closeModal();
+        });
+        document.addEventListener('keydown', (e) => {
+            if (e.key === 'Escape') closeModal();
+        });
+
+        // Mobile menu
+        const mobileMenuBtn = document.getElementById('mobile-menu-btn');
+        const mobileSidebar = document.getElementById('mobile-sidebar');
+        
+        mobileMenuBtn.addEventListener('click', () => {
+            mobileMenuBtn.classList.toggle('active');
+            mobileSidebar.classList.toggle('active');
+        });
+
+        mobileSidebar.querySelectorAll('a').forEach(link => {
+            link.addEventListener('click', () => {
+                mobileMenuBtn.classList.remove('active');
+                mobileSidebar.classList.remove('active');
+            });
+        });
+
+        // Initialize
+        renderCards('blog', 'blog-grid');
+        renderCards('articles', 'articles-grid');
+        renderCards('research', 'research-grid');
+        renderCards('publications', 'publications-grid');
+    </script>
+</body>
+</html>

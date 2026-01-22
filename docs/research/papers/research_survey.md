@@ -1,3 +1,14 @@
+---
+title: "Research Survey: State-of-the-Art in Vector Databases"
+description: "Comprehensive overview of 50+ papers covering vector databases, similarity search, and embeddings from 1954-2026."
+date: "2026-01-04"
+category: "Survey"
+status: "Published"
+version: "1.0"
+authors: "Artifact Virtual Research"
+order: 1
+---
+
 # Research Survey: State-of-the-Art in Vector Databases and Similarity Search
 
 **Last Updated**: January 4, 2026  

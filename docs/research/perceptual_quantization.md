@@ -1,3 +1,14 @@
+---
+title: "Perceptual Quantization: Research & Implementation"
+description: "Theoretical foundations and practical applications of perceptual quantization for vector compression."
+date: "2026-01-04"
+category: "Quantization"
+status: "Peer-Reviewed"
+version: "1.0"
+authors: "Artifact Virtual Research"
+order: 3
+---
+
 # Perceptual Quantization: Research & Implementation Analysis
 > **Theoretical Foundations and Practical Applications**
 

@@ -1,3 +1,14 @@
+---
+title: "Vector Space Theory in High-Dimensional Embeddings"
+description: "Comprehensive mathematical treatment of vector spaces, distance metrics, and their implications for similarity search."
+date: "2026-01-04"
+category: "Foundations"
+status: "Peer-Reviewed"
+version: "1.0"
+authors: "Artifact Virtual Research"
+order: 1
+---
+
 # Vector Space Theory in High-Dimensional Embeddings: A Comprehensive Study
 > **Non-Euclidean Geometries, Distance Metrics, and Practical Implications for Similarity Search**
 

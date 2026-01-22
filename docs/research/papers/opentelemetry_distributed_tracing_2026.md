@@ -1,3 +1,14 @@
+---
+title: "OpenTelemetry Distributed Tracing: 2026 Standards"
+description: "Comprehensive analysis of OpenTelemetry distributed tracing following AWS X-Ray's transition to OTel."
+date: "2026-01-08"
+category: "Systems"
+status: "Peer-Reviewed"
+version: "1.0"
+authors: "Vector Studio Research Team"
+order: 2
+---
+
 # OpenTelemetry Distributed Tracing: A Comprehensive Study of 2026 Standards and Best Practices
 
 **Research Paper**  
