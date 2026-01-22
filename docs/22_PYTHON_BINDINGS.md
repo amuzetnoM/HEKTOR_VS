@@ -3,7 +3,7 @@ title: "Python Bindings"
 description: "Python API reference and examples"
 version: "3.0.0"
 last_updated: "2026-01-08"
-sidebar_position: 21
+sidebar_position: 22
 category: "Reference"
 ---
 ![Version](https://img.shields.io/badge/version-3.0.0-blue?style=flat-square)

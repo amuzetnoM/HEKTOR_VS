@@ -3,7 +3,7 @@ title: "Contributing Guide"
 description: "How to contribute to Vector Studio"
 version: "3.0.0"
 last_updated: "2026-01-06"
-sidebar_position: 23
+sidebar_position: 25
 category: "Guide"
 ---
 

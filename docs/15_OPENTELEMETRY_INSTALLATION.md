@@ -1,3 +1,18 @@
+---
+title: "OpenTelemetry Installation"
+description: "Guide to install and set up OpenTelemetry with Vector Studio"
+version: "3.0.0"
+last_updated: "2026-01-08"
+sidebar_position: 15
+category: "Observability"
+
+---
+![Version](https://img.shields.io/badge/version-3.0.0-blue?style=flat-square)
+![Last Updated](https://img.shields.io/badge/updated-2026--01--08-green?style=flat-square)
+![Type](https://img.shields.io/badge/type-operations-yellow?style=flat-square)
+![Backend](https://img.shields.io/badge/backend-cpp-blue?style=flat-square)
+
+
 # OpenTelemetry Installation and Setup Guide
 
 ## Quick Start
