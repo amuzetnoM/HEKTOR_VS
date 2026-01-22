@@ -1,13 +1,13 @@
 ---
 title: "Quantization"
 description: "Vector compression and quantization techniques"
-version: "3.0.0"
-last_updated: "2026-01-20"
+version: "4.0.0"
+last_updated: "2026-01-22"
 sidebar_position: 14
 category: "Optimization"
 ---
-![Version](https://img.shields.io/badge/version-3.0.0-blue?style=flat-square)
-![Last Updated](https://img.shields.io/badge/updated-2026--01--20-green?style=flat-square)
+![Version](https://img.shields.io/badge/version-4.0.0-blue?style=flat-square)
+![Last Updated](https://img.shields.io/badge/updated-2026--01--22-green?style=flat-square)
 ![Type](https://img.shields.io/badge/type-advanced-red?style=flat-square)
 
 ## Table of Contents

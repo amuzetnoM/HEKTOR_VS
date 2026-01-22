@@ -1,14 +1,14 @@
 ---
 title: "Quick Start"
 description: "Quick deployment with Docker and Kubernetes"
-version: "3.0.0"
-last_updated: "2026-01-08"
+version: "4.0.0"
+last_updated: "2026-01-22"
 sidebar_position: 3
 category: "Tutorial"
 ---
 
-![Version](https://img.shields.io/badge/version-3.0.0-blue?style=flat-square)
-![Last Updated](https://img.shields.io/badge/updated-2026--01--08-green?style=flat-square)
+![Version](https://img.shields.io/badge/version-4.0.0-blue?style=flat-square)
+![Last Updated](https://img.shields.io/badge/updated-2026--01--22-green?style=flat-square)
 ![Deployment](https://img.shields.io/badge/deployment-docker%20%7C%20k8s-blue?style=flat-square)
 
 # Quick Start

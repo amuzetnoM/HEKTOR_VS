@@ -2,8 +2,8 @@
 
 > **Hektor Vector Database** - Comprehensive Documentation
 
-**Version**: 3.0.0  
-**Last Updated**: 2026-01-20  
+**Version**: 4.0.0  
+**Last Updated**: 2026-01-22  
 **Total Documents**: 25+
 
 ---

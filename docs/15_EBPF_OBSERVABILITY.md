@@ -1,13 +1,13 @@
 ---
 title: "eBPF Observability Integration"
 description: "Advanced kernel-level observability using eBPF for continuous profiling and zero-overhead monitoring"
-version: "3.0.0"
-last_updated: "2026-01-08"
+version: "4.0.0"
+last_updated: "2026-01-22"
 sidebar_position: 15.6
 category: "Observability"
 ---
-![Version](https://img.shields.io/badge/version-3.0.0-blue?style=flat-square)
-![Last Updated](https://img.shields.io/badge/updated-2026--01--08-green?style=flat-square)
+![Version](https://img.shields.io/badge/version-4.0.0-blue?style=flat-square)
+![Last Updated](https://img.shields.io/badge/updated-2026--01--22-green?style=flat-square)
 ![Status](https://img.shields.io/badge/status-cutting--edge-orange?style=flat-square)
 
 # eBPF Observability Integration
