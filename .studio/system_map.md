@@ -1,5 +1,6 @@
-# HEKTOR SYSTEM MAP v4.0.0
-## Machine-Readable Exhaustive System Documentation
+# HEKTOR SYSTEM MAP 
+> Machine-Readable Exhaustive System Documentation <br>
+> v4.0.0
 ---
 ```
 SYSTEM_ID: HEKTOR
