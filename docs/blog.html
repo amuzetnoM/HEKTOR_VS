@@ -791,7 +791,54 @@ Stay tuned for more content, and feel free to reach out with topics you'd like u
                     category: 'Advanced Research',
                     status: 'Research',
                     order: 1,
-                    file: 'RESEARCH/neural_latent_quantization.md'
+                    file: 'RESEARCH/neural_latent_quantization.md',
+                    content: `# Neural Latent Quantization: Learning Optimal Perceptual Bases
+
+## Executive Summary
+
+This paper explores **Neural Latent Quantization (NLQ)**, a paradigm shift from traditional signal-space quantization to **semantic-space quantization** where bits follow meaning rather than amplitude.
+
+**Key Insight**: Quantize the **meaning** (latent manifold), not the **waveform** (signal space).
+
+## Core Concepts
+
+### Traditional vs Neural Quantization
+
+| Aspect | Traditional | Neural Latent |
+|--------|-------------|---------------|
+| Space | Signal domain | Learned manifold |
+| Basis | Fixed (DCT, wavelets) | Learned |
+| Adaptation | None or limited | Data-driven |
+| Semantics | None | Preserved |
+
+### The Latent Manifold
+
+Neural networks learn to map high-dimensional data onto lower-dimensional manifolds where:
+- Similar items cluster together
+- Semantic relationships are preserved
+- Quantization boundaries align with perceptual boundaries
+
+## Mathematical Foundation
+
+The encoder-decoder framework:
+\`\`\`
+E: X → Z  (Encoder: data to latent)
+Q: Z → Ẑ  (Quantizer: continuous to discrete)
+D: Ẑ → X̂  (Decoder: latent to reconstruction)
+\`\`\`
+
+Loss function: **L = Reconstruction + Rate + Perceptual**
+
+## Applications
+
+1. **Image Compression**: Learn perceptually-aligned bases
+2. **Audio Coding**: Semantic audio quantization
+3. **Video Streaming**: Temporal-semantic compression
+4. **Vector Databases**: Embedding quantization
+
+---
+
+*Full paper available in RESEARCH/neural_latent_quantization.md*`
                 },
                 {
                     id: 'temporal-redundancy',
@@ -801,7 +848,49 @@ Stay tuned for more content, and feel free to reach out with topics you'd like u
                     category: 'Advanced Research',
                     status: 'Research',
                     order: 2,
-                    file: 'RESEARCH/temporal_redunduncy.md'
+                    file: 'RESEARCH/temporal_redunduncy.md',
+                    content: `# Temporal Redundancy Beyond Motion Vectors
+
+## Abstract
+
+Traditional video compression relies heavily on motion vectors to exploit temporal redundancy. This research explores **next-generation approaches** that go beyond simple block matching.
+
+## Key Innovations
+
+### 1. Event-Based Encoding
+Instead of frames, encode **changes**:
+- Neuromorphic-inspired sensing
+- Asynchronous event streams
+- Microsecond temporal resolution
+
+### 2. Delta-Saliency Compression
+Allocate bits based on **perceptual importance**:
+- Eye-tracking informed
+- Attention-weighted quantization
+- Context-aware bit allocation
+
+### 3. Memory-Aware Streaming
+Leverage **human visual memory**:
+- Exploit temporal masking
+- Predictive preloading
+- Attention persistence models
+
+## Theoretical Framework
+
+\`\`\`
+Temporal_Bits = f(ΔSaliency, Motion_Complexity, Perceptual_Threshold)
+\`\`\`
+
+## Applications
+
+- Ultra-low latency video
+- VR/AR streaming
+- Surveillance systems
+- Scientific imaging
+
+---
+
+*Full paper available in RESEARCH/temporal_redunduncy.md*`
                 },
                 {
                     id: 'quantum-quantization',
@@ -811,7 +900,52 @@ Stay tuned for more content, and feel free to reach out with topics you'd like u
                     category: 'Theoretical',
                     status: 'Speculative',
                     order: 3,
-                    file: 'RESEARCH/quantum_quantization.md'
+                    file: 'RESEARCH/quantum_quantization.md',
+                    content: `# Quantum Quantization: Superposition-Based Compression
+
+## ⚠️ Speculative Research
+
+This paper explores **theoretical possibilities** at the intersection of quantum computing and data compression. Implementation remains speculative pending advances in quantum hardware.
+
+## Core Concept
+
+**Quantum Superposition** allows a qubit to exist in multiple states simultaneously. What if we could use this property for compression?
+
+### Classical vs Quantum Bits
+
+| Property | Classical | Quantum |
+|----------|-----------|---------|
+| States | 0 or 1 | α|0⟩ + β|1⟩ |
+| Storage | Definite | Probabilistic |
+| Measurement | Non-destructive | Collapses state |
+
+## Theoretical Framework
+
+### Quantum Codebook
+\`\`\`
+|ψ⟩ = Σᵢ αᵢ|codewordᵢ⟩
+\`\`\`
+A single quantum state encodes a **superposition of all codewords**.
+
+### Entanglement-Based Correlation
+Use quantum entanglement to encode correlations between data elements without explicit storage.
+
+## Challenges
+
+1. **Decoherence**: Quantum states decay rapidly
+2. **Measurement**: Reading destroys superposition
+3. **Error Correction**: Quantum error rates
+4. **Scalability**: Current hardware limitations
+
+## Potential Applications
+
+- Quantum-native data formats
+- Exponential compression ratios (theoretical)
+- Quantum machine learning integration
+
+---
+
+*Full paper available in RESEARCH/quantum_quantization.md*`
                 }
             ],
             research: [
@@ -823,7 +957,65 @@ Stay tuned for more content, and feel free to reach out with topics you'd like u
                     category: 'Foundations',
                     status: 'Peer-Reviewed',
                     order: 1,
-                    file: 'RESEARCH/vector_space_theory.md'
+                    file: 'RESEARCH/vector_space_theory.md',
+                    content: `# Vector Space Theory in High-Dimensional Embeddings
+
+## Introduction
+
+Vector spaces form the mathematical foundation of modern embedding-based systems. This paper provides a rigorous treatment of the concepts underlying vector databases.
+
+## Fundamental Concepts
+
+### Vector Space Definition
+
+A vector space V over field F satisfies:
+1. **Closure** under addition and scalar multiplication
+2. **Associativity** and **commutativity** of addition
+3. **Distributivity** of scalar multiplication
+4. **Identity elements** (zero vector, scalar 1)
+
+### Inner Product Spaces
+
+For vectors u, v in V:
+\`\`\`
+⟨u, v⟩ : V × V → ℝ
+\`\`\`
+
+Properties: conjugate symmetry, linearity, positive-definiteness.
+
+## Distance Metrics
+
+### Euclidean (L2)
+\`\`\`
+d(x, y) = √(Σᵢ (xᵢ - yᵢ)²)
+\`\`\`
+
+### Cosine Similarity
+\`\`\`
+cos(θ) = (x · y) / (‖x‖ × ‖y‖)
+\`\`\`
+
+### Dot Product
+\`\`\`
+x · y = Σᵢ xᵢyᵢ
+\`\`\`
+
+## The Curse of Dimensionality
+
+In high dimensions (d > 100):
+- Distance concentration
+- Sparsity of data
+- Computational challenges
+
+## Implications for Similarity Search
+
+1. **Index structures** must adapt to high-D geometry
+2. **Approximate methods** become necessary
+3. **Dimensionality reduction** trades accuracy for speed
+
+---
+
+*Full mathematical treatment in RESEARCH/vector_space_theory.md*`
                 },
                 {
                     id: 'hnsw-algorithm',
@@ -833,7 +1025,67 @@ Stay tuned for more content, and feel free to reach out with topics you'd like u
                     category: 'Algorithms',
                     status: 'Peer-Reviewed',
                     order: 2,
-                    file: 'RESEARCH/hnsw_algorithm.md'
+                    file: 'RESEARCH/hnsw_algorithm.md',
+                    content: `# HNSW Graphs: Theory, Implementation, and Analysis
+
+## Overview
+
+**Hierarchical Navigable Small World (HNSW)** graphs are the state-of-the-art algorithm for approximate nearest neighbor search, achieving logarithmic search complexity.
+
+## Algorithm Structure
+
+### Multi-Layer Graph
+\`\`\`
+Layer L (sparse):    o---o---o
+Layer L-1:           o-o-o-o-o-o
+...
+Layer 0 (dense):     ooooooooooooo
+\`\`\`
+
+### Key Parameters
+
+| Parameter | Description | Typical Value |
+|-----------|-------------|---------------|
+| M | Max connections per node | 16 |
+| ef_construction | Build-time search width | 200 |
+| ef_search | Query-time search width | 50 |
+| M_max | Max connections in layer 0 | 2M |
+
+## Search Algorithm
+
+1. Start at entry point (top layer)
+2. Greedily traverse to closest node
+3. Descend to next layer
+4. At layer 0, expand search with ef neighbors
+5. Return top-k results
+
+## Complexity Analysis
+
+- **Build**: O(n × log(n) × M)
+- **Search**: O(log(n) × M)
+- **Memory**: O(n × M × d)
+
+## Hektor Implementation
+
+\`\`\`cpp
+class HnswIndex {
+    void add(VectorId id, VectorView vec);
+    SearchResults search(VectorView query, size_t k);
+    void set_ef_search(size_t ef);
+};
+\`\`\`
+
+## Performance Benchmarks
+
+| Dataset | Recall@10 | QPS |
+|---------|-----------|-----|
+| SIFT-1M | 0.98 | 5,000 |
+| GIST-1M | 0.95 | 2,500 |
+| GloVe | 0.97 | 4,200 |
+
+---
+
+*Full implementation details in RESEARCH/hnsw_algorithm.md*`
                 },
                 {
                     id: 'perceptual-quantization',
@@ -843,7 +1095,62 @@ Stay tuned for more content, and feel free to reach out with topics you'd like u
                     category: 'Quantization',
                     status: 'Peer-Reviewed',
                     order: 3,
-                    file: 'RESEARCH/perceptual_quantization.md'
+                    file: 'RESEARCH/perceptual_quantization.md',
+                    content: `# Perceptual Quantization: Research & Implementation
+
+## Abstract
+
+Perceptual quantization allocates bits based on human perception rather than signal energy, achieving superior quality at equivalent bitrates.
+
+## Theoretical Foundation
+
+### Human Visual System (HVS)
+
+The eye's response to light is **non-linear**:
+- Weber-Fechner Law: ΔI/I = constant
+- Stevens' Power Law: S = k × I^0.33
+
+### Transfer Functions
+
+| Standard | Curve | Peak Luminance |
+|----------|-------|----------------|
+| sRGB | Gamma 2.2 | 100 nits |
+| PQ (ST.2084) | Perceptual | 10,000 nits |
+| HLG | Hybrid | 1,000 nits |
+
+## PQ Curve (SMPTE ST.2084)
+
+\`\`\`
+E = ((c1 + c2×Y^m1) / (1 + c3×Y^m1))^m2
+
+where:
+  Y = normalized luminance
+  c1 = 0.8359375
+  c2 = 18.8515625
+  c3 = 18.6875
+  m1 = 0.1593017578
+  m2 = 78.84375
+\`\`\`
+
+## Implementation in Hektor
+
+\`\`\`cpp
+namespace vdb::quantization {
+    class ProductQuantizer;      // 8-32x compression
+    class ScalarQuantizer;       // Per-dimension
+    class DisplayAwareQuantizer; // PQ/HLG curves
+}
+\`\`\`
+
+## Applications
+
+1. **HDR Video**: Efficient 10-bit encoding
+2. **Vector Embeddings**: Perceptual similarity preservation
+3. **Image Storage**: Quality-optimized compression
+
+---
+
+*Full implementation in RESEARCH/perceptual_quantization.md*`
                 }
             ],
             publications: [
@@ -855,7 +1162,62 @@ Stay tuned for more content, and feel free to reach out with topics you'd like u
                     category: 'Survey',
                     status: 'Published',
                     order: 1,
-                    file: 'RESEARCH/papers/research_survey.md'
+                    file: 'RESEARCH/papers/research_survey.md',
+                    content: `# Research Survey: State-of-the-Art in Vector Databases
+
+## Abstract
+
+This survey reviews **50+ foundational papers** spanning 70 years of research in vector databases, similarity search, and high-dimensional indexing.
+
+## Historical Timeline
+
+### 1954-1990: Foundations
+- **1954**: k-d trees (Bentley)
+- **1975**: Locality Sensitive Hashing concepts
+- **1984**: R-trees (Guttman)
+
+### 1990-2010: Scalability Era
+- **1998**: LSH formalized (Indyk & Motwani)
+- **2002**: Spectral hashing
+- **2004**: Product Quantization foundations
+
+### 2010-2020: Deep Learning Revolution
+- **2013**: Word2Vec (Mikolov et al.)
+- **2014**: GloVe embeddings
+- **2016**: HNSW (Malkov & Yashunin)
+- **2018**: BERT embeddings
+
+### 2020-2026: Production Systems
+- **2020**: FAISS, Milvus, Pinecone emergence
+- **2023**: GPT embeddings, vector DB explosion
+- **2026**: Hybrid search standardization
+
+## Key Papers by Category
+
+### Indexing Algorithms
+| Paper | Year | Impact |
+|-------|------|--------|
+| HNSW | 2016 | Dominant ANN algorithm |
+| IVF | 2011 | Foundation of FAISS |
+| Annoy | 2015 | Tree-based ANN |
+
+### Quantization
+| Paper | Year | Impact |
+|-------|------|--------|
+| PQ | 2011 | 8-32x compression |
+| OPQ | 2013 | Rotation optimization |
+| ScaNN | 2020 | Anisotropic quantization |
+
+## Conclusions
+
+Vector databases represent convergence of:
+1. Decades of algorithmic research
+2. Deep learning embeddings
+3. Distributed systems engineering
+
+---
+
+*Full survey with 50+ citations in RESEARCH/papers/research_survey.md*`
                 },
                 {
                     id: 'opentelemetry-tracing',
@@ -865,7 +1227,68 @@ Stay tuned for more content, and feel free to reach out with topics you'd like u
                     category: 'Systems',
                     status: 'Peer-Reviewed',
                     order: 2,
-                    file: 'RESEARCH/papers/opentelemetry_distributed_tracing_2026.md'
+                    file: 'RESEARCH/papers/opentelemetry_distributed_tracing_2026.md',
+                    content: `# OpenTelemetry Distributed Tracing: 2026 Standards
+
+## Executive Summary
+
+Following **AWS X-Ray's transition to OpenTelemetry** (announced Q4 2025), OTel has become the universal standard for distributed tracing. This paper analyzes the 2026 landscape.
+
+## The OTel Standard
+
+### Three Pillars
+1. **Traces**: Request flow across services
+2. **Metrics**: Quantitative measurements
+3. **Logs**: Discrete events
+
+### Key Components
+
+\`\`\`
+SDK (instrumentation)
+    ↓
+Collector (processing)
+    ↓
+Backend (storage/visualization)
+\`\`\`
+
+## Hektor Integration
+
+\`\`\`cpp
+// TelemetryConfig in Hektor
+struct TelemetryConfig {
+    bool enable_tracing = true;
+    string service_name = "hektor";
+    string otlp_endpoint = "localhost:4317";
+    double sampling_ratio = 1.0;
+};
+\`\`\`
+
+### Instrumented Operations
+- Vector insertions
+- Search queries  
+- Index builds
+- Quantization
+
+## Industry Adoption (2026)
+
+| Provider | Status |
+|----------|--------|
+| AWS | Migrated from X-Ray |
+| GCP | Native support |
+| Azure | Native support |
+| Datadog | Full compatibility |
+| Grafana | Full compatibility |
+
+## Best Practices
+
+1. **Sampling**: Use tail-based sampling for errors
+2. **Context Propagation**: W3C Trace Context standard
+3. **Semantic Conventions**: Follow OTel conventions
+4. **Resource Attributes**: service.name, deployment.environment
+
+---
+
+*Full analysis in RESEARCH/papers/opentelemetry_distributed_tracing_2026.md*`
                 }
             ]
         };
@@ -925,23 +1348,55 @@ Stay tuned for more content, and feel free to reach out with topics you'd like u
             document.getElementById('modal-title').textContent = doc.title;
             document.getElementById('modal-meta').textContent = `${doc.category} • ${formatDate(doc.date)} • ${doc.status}`;
             
-            let content = doc.content;
-            if (!content && doc.file) {
+            // If we have inline content, show it immediately
+            if (doc.content) {
+                document.getElementById('modal-content').innerHTML = marked.parse(doc.content);
+                document.getElementById('modal-overlay').classList.add('active');
+                document.body.style.overflow = 'hidden';
+                return;
+            }
+            
+            // Otherwise, show loading state and try to fetch
+            document.getElementById('modal-content').innerHTML = '<p style="color: var(--text-muted); font-style: italic;">Loading content...</p>';
+            document.getElementById('modal-overlay').classList.add('active');
+            document.body.style.overflow = 'hidden';
+            
+            let content = null;
+            if (doc.file) {
                 try {
                     const response = await fetch(doc.file);
                     if (response.ok) {
                         content = await response.text();
-                        // Remove frontmatter
-                        content = content.replace(/^---[\s\S]*?---\n*/m, '');
+                        // Remove frontmatter (YAML between --- markers)
+                        content = content.replace(/^---[\s\S]*?---\s*/m, '');
+                    } else {
+                        console.error('Failed to fetch:', doc.file, response.status);
+                        content = `*Unable to load content (HTTP ${response.status}). File: ${doc.file}*`;
                     }
                 } catch (e) {
-                    content = `*Unable to load content. File: ${doc.file}*`;
+                    console.error('Fetch error:', e);
+                    // If fetch fails (e.g., file:// protocol), show a helpful message
+                    content = `## Content Preview
+
+This article requires loading from: \`${doc.file}\`
+
+**To view the full content**, please either:
+1. Serve this page via HTTP (e.g., \`python -m http.server 8000\` in the docs folder)
+2. View the source file directly: [${doc.file}](${doc.file})
+
+---
+
+### Abstract
+
+${doc.description}
+
+---
+
+*Note: Direct file access is restricted by browser security policies when opening HTML files directly.*`;
                 }
             }
             
             document.getElementById('modal-content').innerHTML = marked.parse(content || '*No content available.*');
-            document.getElementById('modal-overlay').classList.add('active');
-            document.body.style.overflow = 'hidden';
         }
 
         function closeModal() {
