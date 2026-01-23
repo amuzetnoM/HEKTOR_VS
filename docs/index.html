@@ -1,1256 +1,442 @@
 <!DOCTYPE html>
 <html lang="en" class="scroll-smooth">
-
 <head>
-  <meta charset="UTF-8">
-  <title>⬜HECKTOR </title>
-  <link rel="icon"
-    href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><rect width=%22100%22 height=%22100%22 fill=%22white%22/></svg>">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <script src="https://cdn.tailwindcss.com"></script>
-  <link rel="stylesheet" href="assets/css/theme.css">
+    <meta charset="UTF-8">
+    <title>HEKTOR | CHROMATIC VECTOR ENGINE</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@200;400;800&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --c1: #ff00c1;
+            --c2: #00fff9;
+            --c3: #7000ff;
+            --bg: #030305;
+        }
+
+        body {
+            background-color: var(--bg);
+            font-family: 'Plus Jakarta Sans', sans-serif;
+            color: #fff;
+            overflow-x: hidden;
+        }
+
+        .mono { font-family: 'Space Mono', monospace; }
+
+        /* Refractive Glassmorphism */
+        .prism-glass {
+            background: rgba(255, 255, 255, 0.01);
+            backdrop-filter: blur(25px) saturate(200%);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .prism-glass::before {
+            content: '';
+            position: absolute;
+            top: -50%; left: -50%; width: 200%; height: 200%;
+            background: conic-gradient(
+                from 0deg at 50% 50%,
+                transparent 0deg,
+                rgba(255, 0, 193, 0.1) 60deg,
+                rgba(0, 255, 249, 0.1) 120deg,
+                transparent 180deg
+            );
+            animation: rotate 12s linear infinite;
+            pointer-events: none;
+        }
+
+        @keyframes rotate {
+            from { transform: rotate(0deg); }
+            to { transform: rotate(360deg); }
+        }
+
+        /* Chromatic Flux Background */
+        .flux-container {
+            position: fixed;
+            inset: 0;
+            z-index: -1;
+            filter: blur(140px);
+            opacity: 0.4;
+        }
+
+        .flux-orb {
+            position: absolute;
+            width: 60vw;
+            height: 60vw;
+            border-radius: 50%;
+            mix-blend-mode: screen;
+            animation: flux 25s infinite alternate ease-in-out;
+        }
+
+        @keyframes flux {
+            0% { transform: translate(-20%, -20%) scale(1); background: var(--c1); }
+            50% { transform: translate(20%, 10%) scale(1.2); background: var(--c2); }
+            100% { transform: translate(-10%, 20%) scale(0.9); background: var(--c3); }
+        }
+
+        /* Refractive Text */
+        .text-refractive {
+            background: linear-gradient(
+                to right,
+                #fff 20%,
+                #00fff9 40%,
+                #ff00c1 60%,
+                #fff 80%
+            );
+            background-size: 200% auto;
+            color: transparent;
+            -webkit-background-clip: text;
+            background-clip: text;
+            animation: shine 6s linear infinite;
+            filter: drop-shadow(0 0 10px rgba(0, 255, 249, 0.3));
+        }
+
+        @keyframes shine {
+            to { background-position: 200% center; }
+        }
+
+        /* Scanline Effect */
+        .scanline {
+            width: 100%;
+            height: 2px;
+            background: linear-gradient(90deg, transparent, rgba(0, 255, 249, 0.5), transparent);
+            position: absolute;
+            top: 0;
+            animation: scan 4s linear infinite;
+            z-index: 50;
+        }
+
+        @keyframes scan {
+            0% { transform: translateY(-100%); opacity: 0; }
+            50% { opacity: 1; }
+            100% { transform: translateY(100vh); opacity: 0; }
+        }
+
+        /* Interactive Prism Button */
+        .prism-btn {
+            position: relative;
+            background: white;
+            color: black;
+            font-weight: 800;
+            padding: 1rem 2.5rem;
+            border-radius: 4px;
+            transition: all 0.4s cubic-bezier(0.23, 1, 0.32, 1);
+            overflow: hidden;
+        }
+
+        .prism-btn:hover {
+            transform: scale(1.05) translateY(-2px);
+            box-shadow: 0 0 40px rgba(255, 255, 255, 0.4);
+        }
+
+        .prism-btn::after {
+            content: '';
+            position: absolute;
+            inset: 0;
+            background: linear-gradient(45deg, transparent, rgba(255, 0, 193, 0.4), rgba(0, 255, 249, 0.4), transparent);
+            transform: translateX(-100%);
+            transition: transform 0.6s;
+        }
+
+        .prism-btn:hover::after {
+            transform: translateX(100%);
+        }
+
+        .noise-overlay {
+            position: fixed;
+            inset: 0;
+            z-index: 999;
+            pointer-events: none;
+            opacity: 0.05;
+            background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noiseFilter'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.65' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noiseFilter)'/%3E%3C/svg%3E");
+        }
+
+        .reveal {
+            opacity: 0;
+            transform: translateY(30px);
+            transition: all 1s cubic-bezier(0.23, 1, 0.32, 1);
+        }
+
+        .reveal.active {
+            opacity: 1;
+            transform: translateY(0);
+        }
+
+        .metric-bar {
+            height: 4px;
+            background: rgba(255,255,255,0.1);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .metric-fill {
+            position: absolute;
+            height: 100%;
+            left: 0;
+            background: linear-gradient(90deg, var(--c2), var(--c1));
+            width: 0;
+            transition: width 2s ease-out;
+        }
+    </style>
 </head>
+<body class="selection:bg-cyan-500/40">
 
-<body class="bg-[#020202] text-zinc-100 font-sans selection:bg-amber-500/30">
-
-  <!-- Global Matte Noise Overlay -->
-  <div class="fixed inset-0 z-50 pointer-events-none opacity-[0.04] mix-blend-overlay"
-    style="background-image: url('data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSI1MDAiIGhlaWdodD0iNTAwIj48ZmlsdGVyIGlkPSJub2lzZSI+PHZlVHVyYnVsZW5jZSB0eXBlPSJmcmFjdGFsTm9pc2UiIGJhc2VGcmVxdWVuY3k9IjAuODUiIG51bT1vY3RhdmVzPSIzIiBzdGl0Y2hUaWxlcz0ic3RpdGNoIi8+PC9maWx0ZXI+PHJlY3Qgd2lkdGg9IjEwMCUiIGhlaWdodD0iMTAwJSIgZmlsdGVyPSJ1cmwoI25vaXNlKSIgb3BhY2l0eT0iMSIvPjwvc3ZnPg==')">
-  </div>
-
-  <!-- Header -->
-  <nav class="fixed top-0 left-0 right-0 z-40 border-b border-white/5 bg-[#020202]/80 backdrop-blur-md">
-    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-      <div class="flex items-center justify-between h-20">
-
-        <!-- Logo -->
-        <a href="index.html" class="flex-shrink-0 flex items-center gap-3 cursor-pointer group">
-          <div
-            class="w-7 h-7 rounded-sm bg-zinc-100 shadow-[0_0_15px_rgba(255,255,255,0.1)] group-hover:shadow-[0_0_20px_rgba(255,255,255,0.3)] transition-all duration-500">
-          </div>
-          <span class="text-xl font-bold tracking-tight text-white">HEKTOR</span>
-        </a>
-
-        <!-- Desktop Menu -->
-        <div class="hidden md:flex items-baseline space-x-8">
-          <a href="hektor.html"
-            class="text-zinc-400 hover:text-amber-400 transition-colors px-3 py-2 rounded-md text-sm font-medium">Overview</a>
-          <a href="https://artifact-virtual.gitbook.io/hektor/"
-            class="text-zinc-400 hover:text-amber-400 transition-colors px-3 py-2 rounded-md text-sm font-medium">Docs</a>
-          <a href="blog.html"
-            class="text-zinc-400 hover:text-amber-400 transition-colors px-3 py-2 rounded-md text-sm font-medium">Blog</a>
-          <a href="https://github.com/amuzetnoM/hektor.git"
-            class="text-zinc-400 hover:text-amber-400 transition-colors px-3 py-2 rounded-md text-sm font-medium">GitHub</a>
-        </div>
-
-        <!-- Mobile Menu Button -->
-        <div class="md:hidden">
-          <button id="mobile-menu-button"
-            class="inline-flex items-center justify-center p-2 rounded-md text-zinc-400 hover:text-white hover:bg-zinc-800 focus:outline-none focus:ring-2 focus:ring-inset focus:ring-white">
-            <span class="sr-only">Open main menu</span>
-            <svg class="h-6 w-6" id="hamburger-icon" stroke="currentColor" fill="none" viewBox="0 0 24 24">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16" />
-            </svg>
-            <svg class="h-6 w-6 hidden" id="close-icon" stroke="currentColor" fill="none" viewBox="0 0 24 24">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
-            </svg>
-          </button>
-        </div>
-      </div>
+    <div class="noise-overlay"></div>
+    <div class="scanline"></div>
+    
+    <div class="flux-container">
+        <div class="flux-orb" style="top: -10%; left: -10%;"></div>
+        <div class="flux-orb" style="bottom: -10%; right: -10%; animation-delay: -5s;"></div>
     </div>
-  </nav>
 
-  <!-- Mobile Menu Sidebar -->
-  <div id="mobile-menu"
-    class="fixed top-0 left-0 h-full w-full bg-[#020202] z-30 transform -translate-x-full transition-transform duration-300 ease-in-out md:hidden">
-    <div class="pt-24 px-8 space-y-6">
-      <a href="index.html"
-        class="block text-amber-400 py-2 text-lg font-medium border-b border-white/5">Home</a>
-      <a href="hektor.html"
-        class="block text-zinc-300 hover:text-amber-400 transition-colors py-2 text-lg font-medium border-b border-white/5">Overview</a>
-      <a href="comparison.html"
-        class="block text-zinc-300 hover:text-amber-400 transition-colors py-2 text-lg font-medium border-b border-white/5">Comparison</a>
-      <a href="https://artifact-virtual.gitbook.io/hektor/"
-        class="block text-zinc-300 hover:text-amber-400 transition-colors py-2 text-lg font-medium border-b border-white/5">Docs</a>
-      <a href="blog.html"
-        class="block text-zinc-300 hover:text-amber-400 transition-colors py-2 text-lg font-medium border-b border-white/5">Blog</a>
-      <a href="https://github.com/amuzetnoM/hektor.git"
-        class="block text-zinc-300 hover:text-amber-400 transition-colors py-2 text-lg font-medium border-b border-white/5">GitHub</a>
-    </div>
-  </div>
+    <!-- Navigation -->
+    <nav class="fixed top-0 w-full z-[100] px-8 py-6">
+        <div class="max-w-7xl mx-auto flex justify-between items-center">
+            <div class="flex items-center gap-4">
+                <div class="w-10 h-10 border-2 border-white rotate-45 flex items-center justify-center group hover:border-cyan-400 transition-colors duration-500">
+                    <div class="w-4 h-4 bg-white group-hover:bg-cyan-400 transition-colors duration-500"></div>
+                </div>
+                <span class="text-2xl font-extrabold tracking-tighter">HEKTOR</span>
+            </div>
+            
+            <div class="hidden md:flex gap-12 text-[10px] mono tracking-[0.3em] uppercase text-zinc-400">
+                <a href="#" class="hover:text-white transition-colors relative group">
+                    Engine
+                    <span class="absolute -bottom-2 left-0 w-0 h-[1px] bg-cyan-400 group-hover:w-full transition-all"></span>
+                </a>
+                <a href="#" class="hover:text-white transition-colors relative group">
+                    Hardware
+                    <span class="absolute -bottom-2 left-0 w-0 h-[1px] bg-magenta-400 group-hover:w-full transition-all"></span>
+                </a>
+                <a href="#" class="hover:text-white transition-colors relative group">
+                    Spectral API
+                    <span class="absolute -bottom-2 left-0 w-0 h-[1px] bg-white group-hover:w-full transition-all"></span>
+                </a>
+            </div>
 
-
-  <main class="pt-20"> <!-- Padding for fixed navbar -->
-
-    <!-- Hero Section -->
-    <section class="relative pt-24 pb-24 px-4 sm:px-6 lg:px-8 overflow-hidden">
-      <div
-        class="absolute top-0 left-1/2 -translate-x-1/2 w-[1000px] h-[600px] bg-amber-900/20 rounded-full blur-[120px] pointer-events-none opacity-60">
-      </div>
-      <div
-        class="absolute top-20 right-0 w-[600px] h-[600px] bg-violet-900/20 rounded-full blur-[100px] pointer-events-none opacity-60">
-      </div>
-      <div class="relative max-w-7xl mx-auto z-10">
-        <div class="text-center max-w-4xl mx-auto mb-16">
-          <div
-            class="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-white/5 border border-white/10 mb-8 hover:bg-white/10 transition-colors cursor-default backdrop-blur-md">
-            <span class="w-1.5 h-1.5 rounded-full bg-green-500 shadow-[0_0_10px_rgba(34,197,94,0.5)]"></span>
-            <span class="text-xs font-mono font-medium text-zinc-400">Version 4.0.0</span>
-          </div>
-          <h1 class="text-5xl sm:text-7xl md:text-8xl font-bold tracking-tighter text-white mb-8 leading-[0.95]">
-            Post-Modern <br />
-            <span
-              class="text-transparent bg-clip-text bg-gradient-to-r from-amber-400 via-orange-500 to-pink-500">Vector
-              Database</span>
-          </h1>
-          <p class="text-xl text-zinc-500 max-w-2xl mx-auto leading-relaxed mb-10">
-            Built for the semantic web. SIMD-optimized search at machine speed. <br />
-            <span class="text-white/80">Hybrid retrieval. Zero-copy access. Sub-millisecond queries.</span>
-          </p>
-          <div class="flex flex-col sm:flex-row items-center justify-center gap-4">
-            <a href="hektor.html"
-              class="h-12 px-8 rounded-full bg-white text-black font-semibold flex items-center gap-2 hover:bg-zinc-200 transition-colors z-20">
-              Overview
-              <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14 5l7 7m0 0l-7 7m7-7H3" />
-              </svg>
-            </a>
-            <button
-              class="h-12 px-8 rounded-full border border-white/10 text-zinc-300 font-mono text-sm hover:bg-white/5 transition-colors flex items-center gap-3 group backdrop-blur-sm z-20">
-              <span>$ pip install hektor-vdb</span>
-              <svg class="w-4 h-4 text-zinc-600 group-hover:text-white transition-colors" fill="none"
-                viewBox="0 0 24 24" stroke="currentColor">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                  d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z" />
-              </svg>
+            <button class="px-6 py-2 border border-white/20 rounded-full text-[10px] mono tracking-widest hover:bg-white hover:text-black transition-all">
+                v4.0.2-STABLE
             </button>
-          </div>
         </div>
-        <!-- Code Block Component -->
-        <div id="code-block-wrapper" class="max-w-4xl mx-auto relative group z-10">
-          <div
-            class="absolute -inset-1 bg-gradient-to-r from-amber-500/20 to-violet-600/20 rounded-xl blur-2xl opacity-20 group-hover:opacity-40 transition duration-1000">
-          </div>
-          <div class="relative glass-panel rounded-lg overflow-hidden shadow-2xl border border-white/5">
-            <div class="flex items-center px-4 py-3 bg-[#15101e] border-b border-white/5">
-              <div class="flex gap-2 mr-6 opacity-40">
-                <div class="w-2.5 h-2.5 rounded-full bg-zinc-500"></div>
-                <div class="w-2.5 h-2.5 rounded-full bg-zinc-500"></div>
-                <div class="w-2.5 h-2.5 rounded-full bg-zinc-500"></div>
-              </div>
-              <div class="flex gap-6" id="code-tabs">
-                <button data-lang="cpp"
-                  class="code-tab text-amber-400 border-b border-amber-400 pb-1 text-xs font-mono font-medium transition-all">main.cpp</button>
-                <button data-lang="python"
-                  class="code-tab text-zinc-500 hover:text-zinc-300 pb-1 text-xs font-mono font-medium transition-all">client.py</button>
-                <button data-lang="rust"
-                  class="code-tab text-zinc-500 hover:text-zinc-300 pb-1 text-xs font-mono font-medium transition-all">main.rs</button>
-              </div>
-            </div>
-            <div class="p-6 bg-[#0a080f] overflow-x-auto">
-              <pre
-                class="font-mono text-sm leading-relaxed"><code id="code-content" class="block text-zinc-300"></code></pre>
-            </div>
-          </div>
-        </div>
-      </div>
-    </section>
+    </nav>
 
-    <!-- Architecture Diagram Section -->
-    <section class="py-24 px-4 sm:px-6 lg:px-8 max-w-7xl mx-auto">
-      <div class="text-center mb-16">
-        <h2 class="text-4xl md:text-5xl font-bold text-white mb-6 tracking-tight">
-          Architecture <span class="gradient-text">Built Different</span>
-        </h2>
-        <p class="text-lg text-zinc-500 max-w-2xl mx-auto">
-          From embedding generation to SIMD-optimized search, every layer is engineered for performance.
-        </p>
-      </div>
-
-      <!-- Architecture Flow Diagram -->
-      <div class="relative max-w-6xl mx-auto">
-        <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
-
-          <!-- Ingestion Layer -->
-          <div class="relative group">
-            <div
-              class="absolute -inset-1 bg-gradient-to-r from-blue-500/20 to-cyan-500/20 rounded-xl blur-xl opacity-0 group-hover:opacity-100 transition-all duration-500">
-            </div>
-            <div
-              class="relative bg-zinc-900/50 border border-white/10 rounded-xl p-8 hover:border-cyan-500/30 transition-all duration-300">
-              <div class="flex items-center gap-3 mb-6">
-                <div
-                  class="w-10 h-10 rounded-lg bg-cyan-500/10 border border-cyan-500/20 flex items-center justify-center">
-                  <svg class="w-5 h-5 text-cyan-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                      d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12" />
-                  </svg>
+    <!-- Main Content -->
+    <main>
+        <!-- Hero -->
+        <section class="min-h-screen flex flex-col justify-center items-center px-6 relative">
+            <div class="max-w-6xl w-full text-center space-y-12">
+                <div class="reveal">
+                    <span class="inline-block px-4 py-1 rounded-full border border-cyan-500/30 bg-cyan-500/5 text-cyan-400 mono text-[10px] tracking-widest uppercase mb-6">
+                        System Ready: All Cores Online
+                    </span>
+                    <h1 class="text-[clamp(3rem,12vw,9rem)] font-extrabold leading-[0.85] tracking-tighter italic">
+                        <span class="text-refractive">REFRACTIVE</span><br/>
+                        <span class="text-white">THINKING.</span>
+                    </h1>
                 </div>
-                <h3 class="text-lg font-bold text-white">Ingestion</h3>
-              </div>
-              <ul class="space-y-3 text-sm text-zinc-400">
-                <li class="flex items-start gap-2">
-                  <span class="text-cyan-400 mt-1">→</span>
-                  <span>JSON, CSV, Parquet, PDF</span>
-                </li>
-                <li class="flex items-start gap-2">
-                  <span class="text-cyan-400 mt-1">→</span>
-                  <span>Real-time streaming</span>
-                </li>
-                <li class="flex items-start gap-2">
-                  <span class="text-cyan-400 mt-1">→</span>
-                  <span>Batch processing</span>
-                </li>
-                <li class="flex items-start gap-2">
-                  <span class="text-cyan-400 mt-1">→</span>
-                  <span>Schema validation</span>
-                </li>
-              </ul>
-            </div>
-            <!-- Arrow indicator -->
-            <div class="hidden md:block absolute top-1/2 -right-3 transform -translate-y-1/2 z-10">
-              <svg class="w-6 h-6 text-zinc-700" fill="currentColor" viewBox="0 0 24 24">
-                <path d="M8.59 16.59L13.17 12 8.59 7.41 10 6l6 6-6 6-1.41-1.41z" />
-              </svg>
-            </div>
-          </div>
 
-          <!-- Embedding & Index Layer -->
-          <div class="relative group">
-            <div
-              class="absolute -inset-1 bg-gradient-to-r from-amber-500/20 to-orange-500/20 rounded-xl blur-xl opacity-0 group-hover:opacity-100 transition-all duration-500">
-            </div>
-            <div
-              class="relative bg-zinc-900/50 border border-white/10 rounded-xl p-8 hover:border-amber-500/30 transition-all duration-300">
-              <div class="flex items-center gap-3 mb-6">
-                <div
-                  class="w-10 h-10 rounded-lg bg-amber-500/10 border border-amber-500/20 flex items-center justify-center">
-                  <svg class="w-5 h-5 text-amber-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                      d="M9 3v2m6-2v2M9 19v2m6-2v2M5 9H3m2 6H3m18-6h-2m2 6h-2M7 19h10a2 2 0 002-2V7a2 2 0 00-2-2H7a2 2 0 00-2 2v10a2 2 0 002 2zM9 9h6v6H9V9z" />
-                  </svg>
+                <p class="reveal max-w-2xl mx-auto text-zinc-400 text-lg md:text-xl font-light leading-relaxed">
+                    Hektor is a high-performance spectral database engine. Built for 
+                    <span class="text-white italic">multi-modal neural search</span> 
+                    at a fraction of the latency. Powered by sub-atomic SIMD operations.
+                </p>
+
+                <div class="reveal flex flex-wrap justify-center gap-6 pt-8">
+                    <button class="prism-btn uppercase tracking-tighter">Deploy Infrastructure</button>
+                    <button class="px-10 py-4 bg-zinc-900/50 backdrop-blur border border-white/10 rounded-sm mono text-sm hover:border-white/40 transition-all flex items-center gap-3">
+                        <span class="w-2 h-2 rounded-full bg-green-500 animate-pulse"></span>
+                        View Documentation
+                    </button>
                 </div>
-                <h3 class="text-lg font-bold text-white">Processing</h3>
-              </div>
-              <ul class="space-y-3 text-sm text-zinc-400">
-                <li class="flex items-start gap-2">
-                  <span class="text-amber-400 mt-1">→</span>
-                  <span>ONNX embeddings (MiniLM, CLIP)</span>
-                </li>
-                <li class="flex items-start gap-2">
-                  <span class="text-amber-400 mt-1">→</span>
-                  <span>HNSW index construction</span>
-                </li>
-                <li class="flex items-start gap-2">
-                  <span class="text-amber-400 mt-1">→</span>
-                  <span>BM25 full-text indexing</span>
-                </li>
-                <li class="flex items-start gap-2">
-                  <span class="text-amber-400 mt-1">→</span>
-                  <span>Memory-mapped storage</span>
-                </li>
-              </ul>
             </div>
-            <!-- Arrow indicator -->
-            <div class="hidden md:block absolute top-1/2 -right-3 transform -translate-y-1/2 z-10">
-              <svg class="w-6 h-6 text-zinc-700" fill="currentColor" viewBox="0 0 24 24">
-                <path d="M8.59 16.59L13.17 12 8.59 7.41 10 6l6 6-6 6-1.41-1.41z" />
-              </svg>
+            
+            <div class="absolute bottom-10 left-1/2 -translate-x-1/2 reveal">
+                <div class="w-[1px] h-20 bg-gradient-to-b from-white to-transparent"></div>
             </div>
-          </div>
+        </section>
 
-          <!-- Query & Retrieval Layer -->
-          <div class="relative group">
-            <div
-              class="absolute -inset-1 bg-gradient-to-r from-violet-500/20 to-purple-500/20 rounded-xl blur-xl opacity-0 group-hover:opacity-100 transition-all duration-500">
-            </div>
-            <div
-              class="relative bg-zinc-900/50 border border-white/10 rounded-xl p-8 hover:border-violet-500/30 transition-all duration-300">
-              <div class="flex items-center gap-3 mb-6">
-                <div
-                  class="w-10 h-10 rounded-lg bg-violet-500/10 border border-violet-500/20 flex items-center justify-center">
-                  <svg class="w-5 h-5 text-violet-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                      d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
-                  </svg>
+        <!-- Technical Specs -->
+        <section class="py-32 px-6">
+            <div class="max-w-7xl mx-auto grid grid-cols-1 lg:grid-cols-12 gap-12 items-center">
+                <div class="lg:col-span-7 space-y-8 reveal">
+                    <h2 class="text-5xl font-extrabold tracking-tighter italic">The Silicon Path.</h2>
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
+                        <div class="prism-glass p-8 group">
+                            <div class="text-cyan-400 mono text-xs mb-4">01 // CORE_LATENCY</div>
+                            <h3 class="text-2xl font-bold mb-3">Sub-millisecond Retrieval</h3>
+                            <p class="text-zinc-400 text-sm leading-relaxed">Optimized HNSW algorithms written in raw C++ with custom assembly kernels for AVX-512 extensions.</p>
+                            <div class="mt-6 metric-bar"><div class="metric-fill" data-width="98%"></div></div>
+                        </div>
+                        <div class="prism-glass p-8 group">
+                            <div class="text-magenta-400 mono text-xs mb-4">02 // THROUGHPUT</div>
+                            <h3 class="text-2xl font-bold mb-3">1.2M Queries / Sec</h3>
+                            <p class="text-zinc-400 text-sm leading-relaxed">Massively parallel architecture allows linear scaling across distributed nodes without consistency drift.</p>
+                            <div class="mt-6 metric-bar"><div class="metric-fill" data-width="85%"></div></div>
+                        </div>
+                    </div>
                 </div>
-                <h3 class="text-lg font-bold text-white">Retrieval</h3>
-              </div>
-              <ul class="space-y-3 text-sm text-zinc-400">
-                <li class="flex items-start gap-2">
-                  <span class="text-violet-400 mt-1">→</span>
-                  <span>SIMD vector search (AVX-512)</span>
-                </li>
-                <li class="flex items-start gap-2">
-                  <span class="text-violet-400 mt-1">→</span>
-                  <span>Hybrid fusion (RRF, Weighted)</span>
-                </li>
-                <li class="flex items-start gap-2">
-                  <span class="text-violet-400 mt-1">→</span>
-                  <span>Metadata filtering</span>
-                </li>
-                <li class="flex items-start gap-2">
-                  <span class="text-violet-400 mt-1">→</span>
-                  <span>Sub-3ms p99 latency</span>
-                </li>
-              </ul>
-            </div>
-          </div>
 
-        </div>
+                <div class="lg:col-span-5 reveal">
+                    <div class="prism-glass rounded-xl overflow-hidden border-white/10 shadow-2xl">
+                        <div class="px-6 py-4 bg-white/5 border-b border-white/5 flex gap-2">
+                            <div class="w-3 h-3 rounded-full bg-red-500/40"></div>
+                            <div class="w-3 h-3 rounded-full bg-amber-500/40"></div>
+                            <div class="w-3 h-3 rounded-full bg-green-500/40"></div>
+                        </div>
+                        <div class="p-8 mono text-xs leading-relaxed text-cyan-50/70">
+                            <pre class="whitespace-pre-wrap"><span class="text-magenta-400"># Initializing Spectral Flux Engine</span>
+<span class="text-zinc-500">>>></span> <span class="text-white">import</span> hektor_v4 as hkt
 
-        <!-- Data Flow Visualization -->
-        <div class="mt-16 p-8 border border-white/5 rounded-xl bg-zinc-950/50">
-          <h4 class="text-sm font-mono text-zinc-500 uppercase tracking-wider mb-6">Data Flow Pipeline</h4>
-          <div class="flex flex-col md:flex-row items-center justify-between gap-4">
-            <div class="flex-1 text-center">
-              <div
-                class="inline-block px-4 py-2 rounded-lg bg-cyan-500/10 border border-cyan-500/20 text-cyan-400 text-sm font-mono mb-2">
-                Raw Data
-              </div>
-              <p class="text-xs text-zinc-600">Documents, Images, Text</p>
-            </div>
-            <svg class="w-8 h-8 text-zinc-700 rotate-90 md:rotate-0" fill="currentColor" viewBox="0 0 24 24">
-              <path d="M8.59 16.59L13.17 12 8.59 7.41 10 6l6 6-6 6-1.41-1.41z" />
-            </svg>
-            <div class="flex-1 text-center">
-              <div
-                class="inline-block px-4 py-2 rounded-lg bg-amber-500/10 border border-amber-500/20 text-amber-400 text-sm font-mono mb-2">
-                Embeddings
-              </div>
-              <p class="text-xs text-zinc-600">512-dim Vectors</p>
-            </div>
-            <svg class="w-8 h-8 text-zinc-700 rotate-90 md:rotate-0" fill="currentColor" viewBox="0 0 24 24">
-              <path d="M8.59 16.59L13.17 12 8.59 7.41 10 6l6 6-6 6-1.41-1.41z" />
-            </svg>
-            <div class="flex-1 text-center">
-              <div
-                class="inline-block px-4 py-2 rounded-lg bg-violet-500/10 border border-violet-500/20 text-violet-400 text-sm font-mono mb-2">
-                HNSW Index
-              </div>
-              <p class="text-xs text-zinc-600">Graph Structure</p>
-            </div>
-            <svg class="w-8 h-8 text-zinc-700 rotate-90 md:rotate-0" fill="currentColor" viewBox="0 0 24 24">
-              <path d="M8.59 16.59L13.17 12 8.59 7.41 10 6l6 6-6 6-1.41-1.41z" />
-            </svg>
-            <div class="flex-1 text-center">
-              <div
-                class="inline-block px-4 py-2 rounded-lg bg-green-500/10 border border-green-500/20 text-green-400 text-sm font-mono mb-2">
-                Results
-              </div>
-              <p class="text-xs text-zinc-600">Ranked & Filtered</p>
-            </div>
-          </div>
-        </div>
-      </div>
-    </section>
+<span class="text-zinc-500">>>></span> db = hkt.<span class="text-cyan-400">connect</span>(
+        endpoint=<span class="text-orange-300">"spectral.node.local"</span>,
+        shards=<span class="text-white">16</span>,
+        mode=<span class="text-orange-300">"ultra_low_latency"</span>
+    )
 
-    <!-- Performance Features Bento Grid -->
-    <section class="py-24 px-4 sm:px-6 lg:px-8 max-w-7xl mx-auto border-t border-white/5">
-      <div class="mb-16 max-w-2xl">
-        <h2 class="text-4xl md:text-5xl font-bold text-white mb-6 tracking-tight">
-          Engineered for <span class="text-white">[</span><span class="gradient-text">Throughput</span><span
-            class="text-white">]</span>
-        </h2>
-        <p class="text-lg text-zinc-500 leading-relaxed">
-          Most vector databases are wrappers around wrappers. Hektor is bare metal. <br />We engineered the bottleneck
-          out of
-          the system.
-        </p>
-      </div>
-      <div class="grid grid-cols-1 md:grid-cols-3 md:grid-rows-2 gap-6 md:h-[600px]">
-        <div
-          class="md:col-span-2 md:row-span-2 relative group overflow-hidden rounded-sm border border-white/10 bg-[#08080a] hover:border-white/20 transition-all duration-300 flex flex-col min-h-[500px] md:min-h-0">
-          <div class="p-10 relative z-10 flex flex-col h-full justify-between">
-            <div>
-              <div class="flex items-center gap-3 mb-6">
-                <div
-                  class="px-2 py-1 bg-amber-500/10 border border-amber-500/20 text-amber-500 text-xs font-mono font-bold uppercase tracking-wider">
-                  Instruction Set</div>
-                <span class="text-zinc-600 font-mono text-xs">AVX-512 / NEON</span>
-              </div>
-              <h3 class="text-3xl font-bold text-white mb-4 tracking-tight">SIMD Parallelization</h3>
-              <p class="text-zinc-400 text-lg max-w-md leading-relaxed">
-                We process 16 dimensions per cycle using explicit compiler intrinsics. Hektor treats your CPU as a
-                vector processor, not a scalar one.
-              </p>
-            </div>
-            <div class="mt-12 flex-1 flex items-end gap-1.5 opacity-80 h-40">
-              <div class="w-full bg-zinc-900 border border-zinc-800 h-[40%] relative overflow-hidden">
-                <div class="absolute bottom-0 w-full h-1 bg-amber-500"></div>
-              </div>
-              <div class="w-full bg-zinc-900 border border-zinc-800 h-[60%] relative overflow-hidden">
-                <div class="absolute bottom-0 w-full h-1 bg-amber-500"></div>
-              </div>
-              <div class="w-full bg-amber-900/10 border border-amber-500/30 h-[85%] relative overflow-hidden">
-                <div class="absolute inset-0 bg-amber-500/10"></div>
-                <div class="absolute bottom-0 w-full h-full bg-gradient-to-t from-amber-500/40 to-transparent"></div>
-              </div>
-              <div class="w-full bg-zinc-900 border border-zinc-800 h-[55%] relative overflow-hidden">
-                <div class="absolute bottom-0 w-full h-1 bg-amber-500"></div>
-              </div>
-              <div class="w-full bg-amber-900/10 border border-amber-500/30 h-[90%] relative overflow-hidden">
-                <div class="absolute inset-0 bg-amber-500/10"></div>
-                <div class="absolute bottom-0 w-full h-full bg-gradient-to-t from-amber-500/40 to-transparent"></div>
-              </div>
-              <div class="w-full bg-zinc-900 border border-zinc-800 h-[45%] relative overflow-hidden">
-                <div class="absolute bottom-0 w-full h-1 bg-amber-500"></div>
-              </div>
-              <div class="w-full bg-zinc-900 border border-zinc-800 h-[30%] relative overflow-hidden">
-                <div class="absolute bottom-0 w-full h-1 bg-amber-500"></div>
-              </div>
-              <div class="w-full bg-amber-900/10 border border-amber-500/30 h-[75%] relative overflow-hidden">
-                <div class="absolute inset-0 bg-amber-500/10"></div>
-                <div class="absolute bottom-0 w-full h-full bg-gradient-to-t from-amber-500/40 to-transparent"></div>
-              </div>
-            </div>
-            <div class="flex justify-between mt-2 text-[10px] font-mono text-zinc-600 uppercase tracking-widest">
-              <span>Lane 0</span>
-              <span>SIMD Registry Output</span>
-              <span>Lane 7</span>
-            </div>
-          </div>
-        </div>
-        <div
-          class="relative group overflow-hidden rounded-sm border border-white/10 bg-[#08080a] hover:border-white/20 transition-all duration-300">
-          <div class="p-8 relative z-10 flex flex-col h-full">
-            <div class="flex justify-between items-start mb-4">
-              <h3 class="text-lg font-bold text-white">Zero-Copy Access</h3>
-              <span class="text-[10px] font-mono border border-zinc-700 text-zinc-400 px-1.5 py-0.5 rounded">MMAP</span>
-            </div>
-            <div
-              class="flex-1 mt-2 font-mono text-[10px] leading-relaxed text-zinc-600 overflow-hidden bg-zinc-950/50 p-3 rounded border border-white/5 select-none">
-              <div class="flex gap-3"><span
-                  class="text-zinc-700 border-r border-zinc-800 pr-2 select-none">0x0040</span><span
-                  class="text-zinc-500"><span class="text-white font-bold">48</span> 8B 05 <span
-                    class="text-white font-bold">2A</span></span></div>
-              <div class="flex gap-3"><span
-                  class="text-zinc-700 border-r border-zinc-800 pr-2 select-none">0x0048</span><span
-                  class="text-zinc-500">F2 <span class="text-violet-400">0F</span> 10 05</span></div>
-              <div class="flex gap-3"><span
-                  class="text-zinc-700 border-r border-zinc-800 pr-2 select-none">0x0050</span><span
-                  class="text-zinc-500">66 <span class="text-violet-400">0F</span> EF C0</span></div>
-              <div class="flex gap-3"><span
-                  class="text-zinc-700 border-r border-zinc-800 pr-2 select-none">0x0058</span><span
-                  class="text-zinc-500">F2 0F 58 C1</span></div>
-              <div class="flex gap-3 opacity-50"><span
-                  class="text-zinc-700 border-r border-zinc-800 pr-2 select-none">0x0060</span><span
-                  class="text-zinc-500">C3 90 90 90</span></div>
-            </div>
-            <p class="text-xs text-zinc-500 mt-4 leading-relaxed">Data is mapped directly from NVMe to virtual memory.
-              No serialization overhead.</p>
-          </div>
-        </div>
-        <div
-          class="relative group overflow-hidden rounded-sm border border-white/10 bg-[#08080a] hover:border-white/20 transition-all duration-300">
-          <div class="p-8 relative z-10 flex flex-col h-full">
-            <div class="flex justify-between items-start mb-4">
-              <h3 class="text-lg font-bold text-white">No GC Pauses</h3>
-              <span
-                class="text-[10px] font-mono border border-zinc-700 text-zinc-400 px-1.5 py-0.5 rounded">RT-SAFE</span>
-            </div>
-            <div class="flex-1 mt-4 relative border-l border-b border-zinc-800">
-              <div
-                class="absolute inset-0 bg-[linear-gradient(rgba(255,255,255,0.03)_1px,transparent_1px),linear-gradient(90deg,rgba(255,255,255,0.03)_1px,transparent_1px)] bg-[size:10px_10px]">
-              </div>
-              <svg class="absolute inset-0 w-full h-full text-zinc-700" preserveAspectRatio="none">
-                <path d="M0,80 L20,80 L25,20 L30,80 L60,80 L65,10 L70,80 L100,80" fill="none" stroke="currentColor"
-                  stroke-width="1" vector-effect="non-scaling-stroke" stroke-dasharray="2 2" />
-              </svg>
-              <svg class="absolute inset-0 w-full h-full text-green-500" preserveAspectRatio="none">
-                <path d="M0,85 L100,85" fill="none" stroke="currentColor" stroke-width="1.5"
-                  vector-effect="non-scaling-stroke" />
-              </svg>
-              <div class="absolute top-2 right-2 text-[9px] font-mono text-zinc-600">JVM Heap</div>
-              <div class="absolute bottom-4 right-2 text-[9px] font-mono text-green-500">C++ RAII</div>
-            </div>
-            <p class="text-xs text-zinc-500 mt-4 leading-relaxed">Deterministic tail latency. Memory is managed via
-              RAII, not a background collector.</p>
-          </div>
-        </div>
-      </div>
-    </section>
+<span class="text-zinc-500">>>></span> result = db.<span class="text-cyan-400">query</span>(
+        vector=neural_embedding,
+        metric=<span class="text-orange-300">"refractive_cosine"</span>,
+        top_k=<span class="text-white">5</span>
+    )
 
-    <!-- Use Cases Section -->
-    <section class="py-24 px-4 sm:px-6 lg:px-8 max-w-7xl mx-auto border-t border-white/5">
-      <div class="text-center mb-16">
-        <h2 class="text-4xl md:text-5xl font-bold text-white mb-6 tracking-tight">
-          Built For <span class="gradient-text">Real-World Impact</span>
-        </h2>
-        <p class="text-lg text-zinc-500 max-w-2xl mx-auto">
-          From semantic search to RAG pipelines, Hektor powers production applications at scale.
-        </p>
-      </div>
-
-      <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
-        <!-- Use Case 1: Semantic Search -->
-        <div
-          class="relative group overflow-hidden rounded-xl border border-white/10 bg-gradient-to-br from-zinc-900/80 to-zinc-950/80 p-8 hover:border-cyan-500/30 transition-all duration-300">
-          <div class="absolute top-0 right-0 w-32 h-32 bg-cyan-500/5 rounded-full blur-3xl"></div>
-          <div class="relative z-10">
-            <div
-              class="w-12 h-12 rounded-lg bg-cyan-500/10 border border-cyan-500/20 flex items-center justify-center mb-6">
-              <svg class="w-6 h-6 text-cyan-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                  d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
-              </svg>
-            </div>
-            <h3 class="text-2xl font-bold text-white mb-4">Semantic Search</h3>
-            <p class="text-zinc-400 mb-6 leading-relaxed">
-              Find documents by meaning, not just keywords. Perfect for knowledge bases, documentation, and content
-              discovery.
-            </p>
-            <div class="space-y-2 text-sm">
-              <div class="flex items-center gap-2 text-zinc-500">
-                <span class="text-cyan-400">✓</span>
-                <span>Cross-lingual understanding</span>
-              </div>
-              <div class="flex items-center gap-2 text-zinc-500">
-                <span class="text-cyan-400">✓</span>
-                <span>Contextual relevance ranking</span>
-              </div>
-              <div class="flex items-center gap-2 text-zinc-500">
-                <span class="text-cyan-400">✓</span>
-                <span>Real-time updates</span>
-              </div>
-            </div>
-          </div>
-        </div>
-
-        <!-- Use Case 2: RAG Pipelines -->
-        <div
-          class="relative group overflow-hidden rounded-xl border border-white/10 bg-gradient-to-br from-zinc-900/80 to-zinc-950/80 p-8 hover:border-violet-500/30 transition-all duration-300">
-          <div class="absolute top-0 right-0 w-32 h-32 bg-violet-500/5 rounded-full blur-3xl"></div>
-          <div class="relative z-10">
-            <div
-              class="w-12 h-12 rounded-lg bg-violet-500/10 border border-violet-500/20 flex items-center justify-center mb-6">
-              <svg class="w-6 h-6 text-violet-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                  d="M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0014 18.469V19a2 2 0 11-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z" />
-              </svg>
-            </div>
-            <h3 class="text-2xl font-bold text-white mb-4">RAG Pipelines</h3>
-            <p class="text-zinc-400 mb-6 leading-relaxed">
-              Retrieval-Augmented Generation with LlamaIndex and LangChain integration. Ground your LLM responses in
-              facts.
-            </p>
-            <div class="space-y-2 text-sm">
-              <div class="flex items-center gap-2 text-zinc-500">
-                <span class="text-violet-400">✓</span>
-                <span>Semantic chunking strategies</span>
-              </div>
-              <div class="flex items-center gap-2 text-zinc-500">
-                <span class="text-violet-400">✓</span>
-                <span>Hybrid retrieval fusion</span>
-              </div>
-              <div class="flex items-center gap-2 text-zinc-500">
-                <span class="text-violet-400">✓</span>
-                <span>Citation & source tracking</span>
-              </div>
-            </div>
-          </div>
-        </div>
-
-        <!-- Use Case 3: Recommendation Systems -->
-        <div
-          class="relative group overflow-hidden rounded-xl border border-white/10 bg-gradient-to-br from-zinc-900/80 to-zinc-950/80 p-8 hover:border-amber-500/30 transition-all duration-300">
-          <div class="absolute top-0 right-0 w-32 h-32 bg-amber-500/5 rounded-full blur-3xl"></div>
-          <div class="relative z-10">
-            <div
-              class="w-12 h-12 rounded-lg bg-amber-500/10 border border-amber-500/20 flex items-center justify-center mb-6">
-              <svg class="w-6 h-6 text-amber-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                  d="M11.049 2.927c.3-.921 1.603-.921 1.902 0l1.519 4.674a1 1 0 00.95.69h4.915c.969 0 1.371 1.24.588 1.81l-3.976 2.888a1 1 0 00-.363 1.118l1.518 4.674c.3.922-.755 1.688-1.538 1.118l-3.976-2.888a1 1 0 00-1.176 0l-3.976 2.888c-.783.57-1.838-.197-1.538-1.118l1.518-4.674a1 1 0 00-.363-1.118l-3.976-2.888c-.784-.57-.38-1.81.588-1.81h4.914a1 1 0 00.951-.69l1.519-4.674z" />
-              </svg>
-            </div>
-            <h3 class="text-2xl font-bold text-white mb-4">Recommendations</h3>
-            <p class="text-zinc-400 mb-6 leading-relaxed">
-              Build intelligent recommendation engines that understand user preferences and content similarity.
-            </p>
-            <div class="space-y-2 text-sm">
-              <div class="flex items-center gap-2 text-zinc-500">
-                <span class="text-amber-400">✓</span>
-                <span>Collaborative filtering</span>
-              </div>
-              <div class="flex items-center gap-2 text-zinc-500">
-                <span class="text-amber-400">✓</span>
-                <span>Content-based matching</span>
-              </div>
-              <div class="flex items-center gap-2 text-zinc-500">
-                <span class="text-amber-400">✓</span>
-                <span>Real-time personalization</span>
-              </div>
-            </div>
-          </div>
-        </div>
-
-        <!-- Use Case 4: Image Search -->
-        <div
-          class="relative group overflow-hidden rounded-xl border border-white/10 bg-gradient-to-br from-zinc-900/80 to-zinc-950/80 p-8 hover:border-pink-500/30 transition-all duration-300">
-          <div class="absolute top-0 right-0 w-32 h-32 bg-pink-500/5 rounded-full blur-3xl"></div>
-          <div class="relative z-10">
-            <div
-              class="w-12 h-12 rounded-lg bg-pink-500/10 border border-pink-500/20 flex items-center justify-center mb-6">
-              <svg class="w-6 h-6 text-pink-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                  d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
-              </svg>
-            </div>
-            <h3 class="text-2xl font-bold text-white mb-4">Visual Search</h3>
-            <p class="text-zinc-400 mb-6 leading-relaxed">
-              Search images by content with CLIP embeddings. Perfect for e-commerce, media libraries, and visual
-              discovery.
-            </p>
-            <div class="space-y-2 text-sm">
-              <div class="flex items-center gap-2 text-zinc-500">
-                <span class="text-pink-400">✓</span>
-                <span>Text-to-image search</span>
-              </div>
-              <div class="flex items-center gap-2 text-zinc-500">
-                <span class="text-pink-400">✓</span>
-                <span>Image-to-image similarity</span>
-              </div>
-              <div class="flex items-center gap-2 text-zinc-500">
-                <span class="text-pink-400">✓</span>
-                <span>Cross-modal retrieval</span>
-              </div>
-            </div>
-          </div>
-        </div>
-      </div>
-    </section>
-
-    <!-- Performance Metrics Section -->
-    <section class="py-24 px-4 sm:px-6 lg:px-8 max-w-7xl mx-auto border-t border-white/5">
-      <div class="text-center mb-16">
-        <h2 class="text-4xl md:text-5xl font-bold text-white mb-6 tracking-tight">
-          Performance That <span class="gradient-text">Speaks Numbers</span>
-        </h2>
-        <p class="text-lg text-zinc-500 max-w-2xl mx-auto">
-          Benchmarked on real-world workloads. No synthetic tests, no marketing fluff.
-        </p>
-      </div>
-
-      <!-- Metrics Grid -->
-      <div class="grid grid-cols-1 md:grid-cols-4 gap-6 mb-12">
-        <div class="relative group">
-          <div
-            class="absolute -inset-1 bg-gradient-to-br from-green-500/20 to-emerald-500/20 rounded-xl blur-xl opacity-0 group-hover:opacity-100 transition-all duration-500">
-          </div>
-          <div
-            class="relative bg-zinc-900/50 border border-white/10 rounded-xl p-8 text-center hover:border-green-500/30 transition-all">
-            <div class="text-5xl font-bold text-green-400 mb-2">
-              < 3ms</div>
-                <div class="text-sm text-zinc-500 uppercase tracking-wider">p99 Latency</div>
-                <div class="text-xs text-zinc-600 mt-2">1M vectors</div>
-            </div>
-          </div>
-          <div class="relative group">
-            <div
-              class="absolute -inset-1 bg-gradient-to-br from-cyan-500/20 to-blue-500/20 rounded-xl blur-xl opacity-0 group-hover:opacity-100 transition-all duration-500">
-            </div>
-            <div
-              class="relative bg-zinc-900/50 border border-white/10 rounded-xl p-8 text-center hover:border-cyan-500/30 transition-all">
-              <div class="text-5xl font-bold text-cyan-400 mb-2">10K+</div>
-              <div class="text-sm text-zinc-500 uppercase tracking-wider">QPS</div>
-              <div class="text-xs text-zinc-600 mt-2">Distributed mode</div>
-            </div>
-          </div>
-          <div class="relative group">
-            <div
-              class="absolute -inset-1 bg-gradient-to-br from-violet-500/20 to-purple-500/20 rounded-xl blur-xl opacity-0 group-hover:opacity-100 transition-all duration-500">
-            </div>
-            <div
-              class="relative bg-zinc-900/50 border border-white/10 rounded-xl p-8 text-center hover:border-violet-500/30 transition-all">
-              <div class="text-5xl font-bold text-violet-400 mb-2">99.4%</div>
-              <div class="text-sm text-zinc-500 uppercase tracking-wider">Recall@10</div>
-              <div class="text-xs text-zinc-600 mt-2">HNSW ef=200</div>
-            </div>
-          </div>
-          <div class="relative group">
-            <div
-              class="absolute -inset-1 bg-gradient-to-br from-amber-500/20 to-orange-500/20 rounded-xl blur-xl opacity-0 group-hover:opacity-100 transition-all duration-500">
-            </div>
-            <div
-              class="relative bg-zinc-900/50 border border-white/10 rounded-xl p-8 text-center hover:border-amber-500/30 transition-all">
-              <div class="text-5xl font-bold text-amber-400 mb-2">16x</div>
-              <div class="text-sm text-zinc-500 uppercase tracking-wider">SIMD Speedup</div>
-              <div class="text-xs text-zinc-600 mt-2">AVX-512 vs scalar</div>
-            </div>
-          </div>
-        </div>
-
-        <!-- Comparison Chart -->
-        <div class="relative max-w-4xl mx-auto">
-          <div class="bg-zinc-900/50 border border-white/10 rounded-xl p-8 md:p-12">
-            <h3 class="text-2xl font-bold text-white mb-8 text-center">Latency Comparison</h3>
-            <div class="space-y-6">
-              <!-- Hektor -->
-              <div>
-                <div class="flex items-center justify-between mb-2">
-                  <span class="text-sm font-medium text-white">Hektor (C++)</span>
-                  <span class="text-xs font-mono text-green-400">2.5ms</span>
+<span class="text-zinc-500">>>></span> <span class="text-magenta-400">print</span>(f<span class="text-orange-300">"Match found in {result.time}μs"</span>)</pre>
+                        </div>
+                    </div>
                 </div>
-                <div class="relative h-8 bg-zinc-800/50 rounded-full overflow-hidden">
-                  <div class="absolute inset-y-0 left-0 bg-gradient-to-r from-green-500 to-emerald-500 rounded-full"
-                    style="width: 15%;"></div>
-                </div>
-              </div>
-              <!-- Pinecone -->
-              <div>
-                <div class="flex items-center justify-between mb-2">
-                  <span class="text-sm font-medium text-zinc-400">Pinecone (Cloud)</span>
-                  <span class="text-xs font-mono text-zinc-500">~50ms</span>
-                </div>
-                <div class="relative h-8 bg-zinc-800/50 rounded-full overflow-hidden">
-                  <div class="absolute inset-y-0 left-0 bg-zinc-600 rounded-full" style="width: 50%;"></div>
-                </div>
-              </div>
-              <!-- Weaviate -->
-              <div>
-                <div class="flex items-center justify-between mb-2">
-                  <span class="text-sm font-medium text-zinc-400">Weaviate (Go)</span>
-                  <span class="text-xs font-mono text-zinc-500">~12ms</span>
-                </div>
-                <div class="relative h-8 bg-zinc-800/50 rounded-full overflow-hidden">
-                  <div class="absolute inset-y-0 left-0 bg-zinc-600 rounded-full" style="width: 30%;"></div>
-                </div>
-              </div>
-              <!-- Qdrant -->
-              <div>
-                <div class="flex items-center justify-between mb-2">
-                  <span class="text-sm font-medium text-zinc-400">Qdrant (Rust)</span>
-                  <span class="text-xs font-mono text-zinc-500">~8ms</span>
-                </div>
-                <div class="relative h-8 bg-zinc-800/50 rounded-full overflow-hidden">
-                  <div class="absolute inset-y-0 left-0 bg-zinc-600 rounded-full" style="width: 22%;"></div>
-                </div>
-              </div>
             </div>
-            <p class="text-xs text-zinc-600 text-center mt-6">
-              Benchmark: 1M vectors, 512 dimensions, k=10, same hardware (Intel i7-12700H)
-            </p>
-          </div>
+        </section>
+
+        <!-- Prismatic Grid -->
+        <section class="py-32 px-6 bg-white/[0.02]">
+            <div class="max-w-7xl mx-auto">
+                <div class="flex justify-between items-end mb-16 reveal">
+                    <div>
+                        <h2 class="text-4xl font-extrabold tracking-tighter mb-4 italic">Distributed Flux.</h2>
+                        <p class="text-zinc-500 mono text-sm uppercase tracking-widest">Across regions // Across dimensions</p>
+                    </div>
+                    <div class="hidden md:block text-right">
+                        <div class="text-6xl font-black text-refractive">0.00%</div>
+                        <div class="text-[10px] mono text-zinc-600 uppercase">Packet Fragmentation</div>
+                    </div>
+                </div>
+
+                <div class="grid grid-cols-2 md:grid-cols-4 gap-px bg-white/10 border border-white/10 reveal">
+                    <div class="p-12 bg-[#030305] hover:bg-white/[0.05] transition-colors group">
+                        <div class="text-3xl font-bold mb-2 group-hover:text-refractive transition-all">64GB</div>
+                        <div class="text-[10px] mono text-zinc-500">MIN RAM REQUIREMENT</div>
+                    </div>
+                    <div class="p-12 bg-[#030305] hover:bg-white/[0.05] transition-colors group">
+                        <div class="text-3xl font-bold mb-2 group-hover:text-refractive transition-all">AVX</div>
+                        <div class="text-[10px] mono text-zinc-500">HARDWARE ACCELERATION</div>
+                    </div>
+                    <div class="p-12 bg-[#030305] hover:bg-white/[0.05] transition-colors group">
+                        <div class="text-3xl font-bold mb-2 group-hover:text-refractive transition-all">99.99</div>
+                        <div class="text-[10px] mono text-zinc-500">UPTIME GUARANTEE</div>
+                    </div>
+                    <div class="p-12 bg-[#030305] hover:bg-white/[0.05] transition-colors group">
+                        <div class="text-3xl font-bold mb-2 group-hover:text-refractive transition-all">ZERO</div>
+                        <div class="text-[10px] mono text-zinc-500">COLD-START PENALTY</div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- CTA Section -->
+        <section class="py-48 px-6 text-center overflow-hidden relative">
+            <div class="max-w-4xl mx-auto reveal relative z-10">
+                <h2 class="text-6xl md:text-8xl font-black tracking-tighter italic mb-12">
+                    RECODE THE <span class="text-refractive">FUTURE</span>.
+                </h2>
+                <div class="flex flex-col sm:flex-row justify-center gap-6">
+                    <button class="prism-btn text-xl px-12 py-6 rounded-none">Get API Key</button>
+                    <button class="px-12 py-6 border-2 border-white font-bold text-xl hover:bg-white hover:text-black transition-all">Join Discord</button>
+                </div>
+            </div>
+            <!-- Prismatic Background Glow for CTA -->
+            <div class="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[600px] h-[600px] bg-gradient-to-r from-magenta-500/20 to-cyan-500/20 blur-[120px] rounded-full"></div>
+        </section>
+    </main>
+
+    <footer class="border-t border-white/5 py-20 px-8">
+        <div class="max-w-7xl mx-auto flex flex-col md:flex-row justify-between items-start md:items-center gap-12">
+            <div class="space-y-4">
+                <div class="flex items-center gap-3">
+                    <div class="w-6 h-6 border-2 border-white rotate-45"></div>
+                    <span class="text-xl font-bold tracking-tighter">HEKTOR</span>
+                </div>
+                <p class="text-zinc-600 mono text-[10px] uppercase tracking-widest max-w-xs">
+                    Next-generation vector processing for the neural age. Made for creators by engineers.
+                </p>
+            </div>
+
+            <div class="grid grid-cols-2 gap-12 md:gap-24">
+                <div class="space-y-4">
+                    <h4 class="text-white font-bold text-sm">PRODUCT</h4>
+                    <ul class="text-zinc-500 mono text-[10px] space-y-2 uppercase tracking-widest">
+                        <li><a href="#" class="hover:text-white transition-colors">Core Engine</a></li>
+                        <li><a href="#" class="hover:text-white transition-colors">Benchmarks</a></li>
+                        <li><a href="#" class="hover:text-white transition-colors">Enterprise</a></li>
+                    </ul>
+                </div>
+                <div class="space-y-4">
+                    <h4 class="text-white font-bold text-sm">SYSTEM</h4>
+                    <ul class="text-zinc-500 mono text-[10px] space-y-2 uppercase tracking-widest">
+                        <li><a href="#" class="hover:text-white transition-colors">GitHub</a></li>
+                        <li><a href="#" class="hover:text-white transition-colors">Documentation</a></li>
+                        <li><a href="#" class="hover:text-white transition-colors">Status</a></li>
+                    </ul>
+                </div>
+            </div>
         </div>
-    </section>
-
-    <!-- CTA -->
-    <section class="py-32 px-4 text-center relative overflow-hidden">
-      <div class="absolute inset-0 bg-gradient-to-b from-transparent via-amber-900/5 to-transparent"></div>
-      <div class="max-w-3xl mx-auto relative z-10">
-        <h2 class="text-5xl md:text-6xl font-bold text-white mb-8 tracking-tighter">
-          Ready to build something <span class="gradient-text">extraordinary</span>?
-        </h2>
-        <p class="text-lg text-zinc-500 mb-12 max-w-2xl mx-auto">
-          Join developers building the next generation of semantic search, RAG, and recommendation systems.
-        </p>
-        <div class="flex flex-col sm:flex-row justify-center gap-6">
-          <a href="https://vector-studio-937668381187.us-west1.run.app"
-            class="inline-flex items-center justify-center px-8 py-4 bg-white text-black font-bold rounded-lg hover:bg-zinc-200 transition-all hover:scale-105 transform duration-200 shadow-lg z-20">
-            <span>Get Started Free</span>
-            <svg class="w-5 h-5 ml-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14 5l7 7m0 0l-7 7m7-7H3" />
-            </svg>
-          </a>
-          <a href="https://artifact-virtual.gitbook.io/hektor/"
-            class="inline-flex items-center justify-center px-8 py-4 border border-zinc-800 text-zinc-300 font-bold rounded-lg hover:bg-zinc-900 transition-all hover:scale-105 transform duration-200 z-20 backdrop-blur-sm bg-black/20">
-            <span>Read Documentation</span>
-            <svg class="w-5 h-5 ml-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253" />
-            </svg>
-          </a>
+        <div class="max-w-7xl mx-auto mt-20 pt-8 border-t border-white/5 flex justify-between items-center text-[8px] mono text-zinc-700 tracking-[0.4em] uppercase">
+            <span>© 2024 HEKTOR SYSTEMS. ALL RIGHTS RESERVED.</span>
+            <span class="hidden md:block">EST. BY ARTIFACT VIRTUAL</span>
         </div>
+    </footer>
 
-        <!-- Social Proof -->
-        <div class="mt-16 flex flex-wrap items-center justify-center gap-8 text-sm text-zinc-600">
-          <div class="flex items-center gap-2">
-            <svg class="w-5 h-5 text-green-500" fill="currentColor" viewBox="0 0 20 20">
-              <path fill-rule="evenodd"
-                d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z"
-                clip-rule="evenodd" />
-            </svg>
-            <span>Open Source (MIT)</span>
-          </div>
-          <div class="flex items-center gap-2">
-            <svg class="w-5 h-5 text-cyan-500" fill="currentColor" viewBox="0 0 20 20">
-              <path fill-rule="evenodd"
-                d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z"
-                clip-rule="evenodd" />
-            </svg>
-            <span>Production Ready</span>
-          </div>
-          <div class="flex items-center gap-2">
-            <svg class="w-5 h-5 text-violet-500" fill="currentColor" viewBox="0 0 20 20">
-              <path fill-rule="evenodd"
-                d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z"
-                clip-rule="evenodd" />
-            </svg>
-            <span>Active Development</span>
-          </div>
-        </div>
-      </div>
-    </section>
+    <script>
+        // Reveal elements on scroll
+        const observerOptions = {
+            threshold: 0.1
+        };
 
-    <!-- Getting Started Section -->
-    <section class="py-24 px-4 sm:px-6 lg:px-8 max-w-7xl mx-auto border-t border-white/5">
-      <div class="text-center mb-16">
-        <h2 class="text-4xl md:text-5xl font-bold text-white mb-6 tracking-tight">
-          Get Started in <span class="gradient-text">60 Seconds</span>
-        </h2>
-        <p class="text-lg text-zinc-500 max-w-2xl mx-auto">
-          From installation to your first query. No complex setup, no infrastructure to manage.
-        </p>
-      </div>
+        const observer = new IntersectionObserver((entries) => {
+            entries.forEach(entry => {
+                if (entry.isIntersecting) {
+                    entry.target.classList.add('active');
+                    
+                    // Fill metric bars when visible
+                    const fill = entry.target.querySelector('.metric-fill');
+                    if (fill) {
+                        fill.style.width = fill.getAttribute('data-width');
+                    }
+                }
+            });
+        }, observerOptions);
 
-      <div class="max-w-4xl mx-auto">
-        <!-- Installation Steps -->
-        <div class="space-y-8">
-          <!-- Step 1 -->
-          <div class="relative pl-8 pb-8 border-l-2 border-zinc-800">
-            <div
-              class="absolute -left-3 top-0 w-6 h-6 rounded-full bg-cyan-500 flex items-center justify-center text-xs font-bold text-black">
-              1</div>
-            <h3 class="text-xl font-bold text-white mb-3">Install Hektor</h3>
-            <div class="bg-zinc-900/50 border border-white/10 rounded-lg p-4 font-mono text-sm mb-3">
-              <span class="text-zinc-500">$</span> <span class="text-cyan-400">pip install</span> <span
-                class="text-white">hektor</span>
-            </div>
-            <p class="text-sm text-zinc-500">Or build from source for maximum performance and customization.</p>
-          </div>
+        document.querySelectorAll('.reveal').forEach(el => observer.observe(el));
 
-          <!-- Step 2 -->
-          <div class="relative pl-8 pb-8 border-l-2 border-zinc-800">
-            <div
-              class="absolute -left-3 top-0 w-6 h-6 rounded-full bg-amber-500 flex items-center justify-center text-xs font-bold text-black">
-              2</div>
-            <h3 class="text-xl font-bold text-white mb-3">Create Your First Collection</h3>
-            <div class="bg-zinc-900/50 border border-white/10 rounded-lg p-4 font-mono text-sm overflow-x-auto">
-              <pre class="text-zinc-300"><span class="text-violet-400">import</span> hektor
-
-client = hektor.Client()
-collection = client.create_collection(
-    name=<span class="text-amber-400">"documents"</span>,
-    dimension=<span class="text-orange-400">512</span>,
-    metric=<span class="text-amber-400">"cosine"</span>
-)</pre>
-            </div>
-          </div>
-
-          <!-- Step 3 -->
-          <div class="relative pl-8">
-            <div
-              class="absolute -left-3 top-0 w-6 h-6 rounded-full bg-violet-500 flex items-center justify-center text-xs font-bold text-white">
-              3</div>
-            <h3 class="text-xl font-bold text-white mb-3">Add Data & Search</h3>
-            <div class="bg-zinc-900/50 border border-white/10 rounded-lg p-4 font-mono text-sm overflow-x-auto">
-              <pre
-                class="text-zinc-300"><span class="text-zinc-500"># Add documents</span>
-collection.add(
-    texts=[<span class="text-amber-400">"AI and machine learning"</span>, <span class="text-amber-400">"Deep neural networks"</span>],
-    metadata=[{<span class="text-amber-400">"source"</span>: <span class="text-amber-400">"paper1"</span>}, {<span class="text-amber-400">"source"</span>: <span class="text-amber-400">"paper2"</span>}]
-)
-
-<span class="text-zinc-500"># Semantic search</span>
-results = collection.search(
-    query=<span class="text-amber-400">"artificial intelligence"</span>,
-    top_k=<span class="text-orange-400">5</span>
-)
-
-<span class="text-violet-400">for</span> result <span class="text-violet-400">in</span> results:
-    <span class="text-violet-400">print</span>(<span class="text-green-400">f</span><span class="text-amber-400">"{result.text} (score: {result.score})"</span>)</pre>
-            </div>
-          </div>
-        </div>
-
-        <!-- Additional Resources -->
-        <div class="mt-16 grid grid-cols-1 md:grid-cols-3 gap-6">
-          <a href="https://artifact-virtual.gitbook.io/hektor/"
-            class="group relative overflow-hidden rounded-xl border border-white/10 bg-zinc-900/50 p-6 hover:border-cyan-500/30 transition-all">
-            <div class="flex items-center gap-3 mb-3">
-              <svg class="w-5 h-5 text-cyan-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                  d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253" />
-              </svg>
-              <span class="font-bold text-white">Documentation</span>
-            </div>
-            <p class="text-sm text-zinc-500">Complete guides and API reference</p>
-          </a>
-          <a href="https://github.com/amuzetnoM/hektor.git"
-            class="group relative overflow-hidden rounded-xl border border-white/10 bg-zinc-900/50 p-6 hover:border-violet-500/30 transition-all">
-            <div class="flex items-center gap-3 mb-3">
-              <svg class="w-5 h-5 text-violet-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                  d="M10 20l4-16m4 4l4 4-4 4M6 16l-4-4 4-4" />
-              </svg>
-              <span class="font-bold text-white">Examples</span>
-            </div>
-            <p class="text-sm text-zinc-500">Real-world code samples and tutorials</p>
-          </a>
-          <a href="#"
-            class="group relative overflow-hidden rounded-xl border border-white/10 bg-zinc-900/50 p-6 hover:border-amber-500/30 transition-all">
-            <div class="flex items-center gap-3 mb-3">
-              <svg class="w-5 h-5 text-amber-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                  d="M17 8h2a2 2 0 012 2v6a2 2 0 01-2 2h-2v4l-4-4H9a1.994 1.994 0 01-1.414-.586m0 0L11 14h4a2 2 0 002-2V6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2v4l.586-.586z" />
-              </svg>
-              <span class="font-bold text-white">Discord</span>
-            </div>
-            <p class="text-sm text-zinc-500">Join our community for support</p>
-          </a>
-        </div>
-      </div>
-    </section>
-
-    <!-- FAQ Section -->
-    <section class="py-24 px-4 sm:px-6 lg:px-8 max-w-4xl mx-auto border-t border-white/5">
-      <div class="text-center mb-16">
-        <h2 class="text-4xl md:text-5xl font-bold text-white mb-6 tracking-tight">
-          Frequently Asked <span class="gradient-text">Questions</span>
-        </h2>
-      </div>
-
-      <div class="space-y-4">
-        <!-- FAQ 1 -->
-        <details
-          class="group bg-zinc-900/50 border border-white/10 rounded-xl overflow-hidden hover:border-white/20 transition-all">
-          <summary class="cursor-pointer p-6 flex items-center justify-between">
-            <span class="text-lg font-semibold text-white">How is Hektor different from Pinecone or Weaviate?</span>
-            <svg class="w-5 h-5 text-zinc-500 group-open:rotate-180 transition-transform" fill="none"
-              viewBox="0 0 24 24" stroke="currentColor">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" />
-            </svg>
-          </summary>
-          <div class="px-6 pb-6 text-zinc-400">
-            Hektor is an embedded database written in C++ with explicit SIMD optimizations. We're not a cloud service or
-            a managed offering. You run Hektor in your own infrastructure with zero network latency and deterministic
-            performance. Our focus is on raw speed and memory efficiency.
-          </div>
-        </details>
-
-        <!-- FAQ 2 -->
-        <details
-          class="group bg-zinc-900/50 border border-white/10 rounded-xl overflow-hidden hover:border-white/20 transition-all">
-          <summary class="cursor-pointer p-6 flex items-center justify-between">
-            <span class="text-lg font-semibold text-white">Can I use Hektor in production?</span>
-            <svg class="w-5 h-5 text-zinc-500 group-open:rotate-180 transition-transform" fill="none"
-              viewBox="0 0 24 24" stroke="currentColor">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" />
-            </svg>
-          </summary>
-          <div class="px-6 pb-6 text-zinc-400">
-            Yes! Hektor v3.0 is production-ready with comprehensive documentation, extensive test coverage, distributed
-            system support, and observability features including Prometheus metrics. We have users running Hektor in
-            production for semantic search, RAG pipelines, and recommendation systems.
-          </div>
-        </details>
-
-        <!-- FAQ 3 -->
-        <details
-          class="group bg-zinc-900/50 border border-white/10 rounded-xl overflow-hidden hover:border-white/20 transition-all">
-          <summary class="cursor-pointer p-6 flex items-center justify-between">
-            <span class="text-lg font-semibold text-white">What embedding models does Hektor support?</span>
-            <svg class="w-5 h-5 text-zinc-500 group-open:rotate-180 transition-transform" fill="none"
-              viewBox="0 0 24 24" stroke="currentColor">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" />
-            </svg>
-          </summary>
-          <div class="px-6 pb-6 text-zinc-400">
-            Hektor comes with ONNX Runtime integration for local embedding generation. We ship with MiniLM-L6-v2 for
-            text and CLIP ViT-B/32 for images. You can also use external embeddings from OpenAI, Cohere, or any custom
-            model. We're model-agnostic—just provide the vectors.
-          </div>
-        </details>
-
-        <!-- FAQ 4 -->
-        <details
-          class="group bg-zinc-900/50 border border-white/10 rounded-xl overflow-hidden hover:border-white/20 transition-all">
-          <summary class="cursor-pointer p-6 flex items-center justify-between">
-            <span class="text-lg font-semibold text-white">Does Hektor support hybrid search?</span>
-            <svg class="w-5 h-5 text-zinc-500 group-open:rotate-180 transition-transform" fill="none"
-              viewBox="0 0 24 24" stroke="currentColor">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" />
-            </svg>
-          </summary>
-          <div class="px-6 pb-6 text-zinc-400">
-            Absolutely. Hektor v3.0 includes full BM25 full-text search with 5 fusion algorithms (RRF, Weighted Sum,
-            CombSUM, CombMNZ, Borda Count). You get the best of both worlds: semantic understanding from vectors and
-            precise keyword matching from BM25.
-          </div>
-        </details>
-
-        <!-- FAQ 5 -->
-        <details
-          class="group bg-zinc-900/50 border border-white/10 rounded-xl overflow-hidden hover:border-white/20 transition-all">
-          <summary class="cursor-pointer p-6 flex items-center justify-between">
-            <span class="text-lg font-semibold text-white">How do I scale Hektor horizontally?</span>
-            <svg class="w-5 h-5 text-zinc-500 group-open:rotate-180 transition-transform" fill="none"
-              viewBox="0 0 24 24" stroke="currentColor">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" />
-            </svg>
-          </summary>
-          <div class="px-6 pb-6 text-zinc-400">
-            Hektor v3.0 includes distributed system support with replication (async/sync/semi-sync), sharding
-            (hash/range/consistent), and automatic service discovery. Deploy on Kubernetes with our Helm charts, or use
-            Docker Compose for simpler setups. We also provide gRPC clients for multi-language support.
-          </div>
-        </details>
-
-        <!-- FAQ 6 -->
-        <details
-          class="group bg-zinc-900/50 border border-white/10 rounded-xl overflow-hidden hover:border-white/20 transition-all">
-          <summary class="cursor-pointer p-6 flex items-center justify-between">
-            <span class="text-lg font-semibold text-white">Is there a hosted version of Hektor?</span>
-            <svg class="w-5 h-5 text-zinc-500 group-open:rotate-180 transition-transform" fill="none"
-              viewBox="0 0 24 24" stroke="currentColor">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" />
-            </svg>
-          </summary>
-          <div class="px-6 pb-6 text-zinc-400">
-            Currently, Hektor is self-hosted only. This gives you complete control over your data and infrastructure.
-            However, we're exploring managed offerings for teams that prefer a hands-off approach. Join our Discord to
-            stay updated.
-          </div>
-        </details>
-      </div>
-    </section>
-
-  </main>
-
-  <!-- Footer -->
-  <footer class="border-t border-white/5 py-12 bg-[#020202]">
-    <div class="max-w-7xl mx-auto px-6 flex flex-col md:flex-row justify-between items-center gap-6">
-      <div class="flex items-center gap-2">
-        <div class="w-5 h-5 bg-zinc-100 rounded-sm"></div>
-        <span class="font-bold text-white tracking-tight">HEKTOR</span>
-      </div>
-      <div class="flex gap-8 text-sm text-zinc-500">
-        <a href="https://artifact-virtual.gitbook.io/hektor/" class="hover:text-white transition-colors">Docs</a>
-        <a href="https://github.com/amuzetnoM/hektor.git" class="hover:text-white transition-colors">GitHub</a>
-        <a href="#" class="hover:text-white transition-colors">Discord</a>
-      </div>
-      <div class="text-xs text-zinc-600 font-mono">
-        © 2025 ARTIFACT VIRTUAL
-      </div>
-    </div>
-  </footer>
-
-  <script>
-    document.addEventListener('DOMContentLoaded', function () {
-
-      // --- Code Block Interactivity ---
-      const codeSnippets = {
-        cpp: `
-<span class="text-violet-400">#include</span> <span class="text-green-400">&lt;hektor/core.hpp&gt;</span>
-
-<span class="text-violet-400">int</span> main() {
-    <span class="text-zinc-500">// Initialize the zero-copy engine</span>
-    <span class="text-violet-400">auto</span> db = hektor::db::create(<span class="text-amber-400">"data/"</span>);
-
-    <span class="text-zinc-500">// Define HNSW schema</span>
-    <span class="text-violet-400">auto</span> schema = hektor::schema::builder()
-        .name(<span class="text-amber-400">"research_papers"</span>)
-        .metric(hektor::metric::cosine)
-        .dim(<span class="text-orange-400">1536</span>)
-        .build();
-
-    db->create_collection(schema);
-    
-    <span class="text-zinc-500">// SIMD-accelerated insertion</span>
-    db->insert_batch(vectors);
-}`,
-        python: `
-<span class="text-violet-400">import</span> hektor
-
-<span class="text-zinc-500"># Connect to the C++ Daemon via gRPC</span>
-client = hektor.Client(<span class="text-amber-400">"localhost:9090"</span>)
-
-<span class="text-zinc-500"># Perform hybrid search</span>
-results = client.collection(<span class="text-amber-400">"research_papers"</span>).query(
-    vector=[<span class="text-orange-400">0.1</span>, <span class="text-orange-400">0.5</span>, ...],
-    top_k=<span class="text-orange-400">5</span>,
-    <span class="text-zinc-500"># Runs directly on the C++ indexing thread</span>
-    filter=hektor.Filter(<span class="text-amber-400">"year"</span>) > <span class="text-orange-400">2023</span>
-)
-
-print(f<span class="text-amber-400">"Found {len(results)} matches in 2ms"</span>)`,
-        rust: `
-<span class="text-violet-400">use</span> hektor::prelude::*;
-
-<span class="text-violet-400">fn</span> main() -> Result<()> {
-    <span class="text-zinc-500">// Zero-overhead bindings</span>
-    <span class="text-violet-400">let</span> client = Client::connect(<span class="text-amber-400">"http://127.0.0.1:9090"</span>)?;
-    
-    <span class="text-violet-400">let</span> results = client
-        .collection(<span class="text-amber-400">"images"</span>)
-        .search(query_vec)
-        .limit(<span class="text-orange-400">10</span>)
-        .await?;
-        
-    println!(<span class="text-amber-400">"{:?}"</span>, results);
-    Ok(())
-}`
-      };
-
-      const codeContentEl = document.getElementById('code-content');
-      const codeTabs = document.querySelectorAll('.code-tab');
-
-      function updateCode(lang) {
-        if (codeContentEl && codeSnippets[lang]) {
-          codeContentEl.innerHTML = codeSnippets[lang];
-        }
-      }
-
-      codeTabs.forEach(tab => {
-        tab.addEventListener('click', () => {
-          const lang = tab.getAttribute('data-lang');
-
-          // Update tab styles
-          codeTabs.forEach(t => {
-            t.classList.remove('text-amber-400', 'border-b', 'border-amber-400');
-            t.classList.add('text-zinc-500', 'hover:text-zinc-300');
-          });
-          tab.classList.add('text-amber-400', 'border-b', 'border-amber-400');
-          tab.classList.remove('text-zinc-500', 'hover:text-zinc-300');
-
-          // Update content
-          updateCode(lang);
-        });
-      });
-
-      // Initialize with default view
-      updateCode('cpp');
-
-      // --- Mobile Menu Interactivity ---
-      const mobileMenuButton = document.getElementById('mobile-menu-button');
-      const mobileMenu = document.getElementById('mobile-menu');
-      const hamburgerIcon = document.getElementById('hamburger-icon');
-      const closeIcon = document.getElementById('close-icon');
-
-      mobileMenuButton.addEventListener('click', () => {
-        mobileMenu.classList.toggle('-translate-x-full');
-        hamburgerIcon.classList.toggle('hidden');
-        closeIcon.classList.toggle('hidden');
-      });
-
-      // --- Parallax Scroll Effects ---
-      let ticking = false;
-      let lastScrollY = window.scrollY;
-
-      function handleParallax() {
-        const scrollY = window.scrollY;
-        const scrollDelta = scrollY - lastScrollY;
-
-        // Hero background elements
-        const heroBlurs = document.querySelectorAll('.absolute.blur-\\[120px\\], .absolute.blur-\\[100px\\]');
-        heroBlurs.forEach((blur, index) => {
-          const speed = 0.5 + (index * 0.2);
-          const currentTransform = blur.style.transform || '';
-          const currentY = parseFloat(currentTransform.match(/translateY\(([^)]+)px\)/)?.[1] || 0);
-          blur.style.transform = `translateY(${currentY + (scrollDelta * speed)}px)`;
+        // Cursor movement for subtle prism light shift
+        document.addEventListener('mousemove', (e) => {
+            const x = e.clientX / window.innerWidth;
+            const y = e.clientY / window.innerHeight;
+            
+            const orbs = document.querySelectorAll('.flux-orb');
+            orbs.forEach((orb, i) => {
+                const shift = (i + 1) * 30;
+                orb.style.transform = `translate(${x * shift}px, ${y * shift}px) scale(${1 + (x * 0.1)})`;
+            });
         });
 
-        lastScrollY = scrollY;
-        ticking = false;
-      }
-
-      function requestParallax() {
-        if (!ticking) {
-          window.requestAnimationFrame(handleParallax);
-          ticking = true;
-        }
-      }
-
-      window.addEventListener('scroll', requestParallax, { passive: true });
-
-      // --- Intersection Observer for Fade-in Animations ---
-      const observerOptions = {
-        root: null,
-        rootMargin: '0px',
-        threshold: 0.1
-      };
-
-      const fadeInObserver = new IntersectionObserver((entries) => {
-        entries.forEach(entry => {
-          if (entry.isIntersecting) {
-            entry.target.style.opacity = '';
-            entry.target.classList.add('animate-fade-in-up');
-            // Optionally unobserve after animation
-            fadeInObserver.unobserve(entry.target);
-          }
-        });
-      }, observerOptions);
-
-      // Observe sections for fade-in
-      document.querySelectorAll('section').forEach((section, index) => {
-        section.style.opacity = '0';
-        section.style.animationDelay = `${index * 0.1}s`;
-        fadeInObserver.observe(section);
-      });
-
-      // --- Smooth Scroll for Anchor Links ---
-      document.querySelectorAll('a[href^="#"]').forEach(anchor => {
-        anchor.addEventListener('click', function (e) {
-          const href = this.getAttribute('href');
-          if (href !== '#') {
-            e.preventDefault();
-            const target = document.querySelector(href);
-            if (target) {
-              target.scrollIntoView({
-                behavior: 'smooth',
-                block: 'start'
-              });
-            }
-          }
-        });
-      });
-
-      // --- Copy Install Command on Click ---
-      const installButton = document.querySelector('button[class*="pip install"]');
-      if (installButton) {
-        installButton.addEventListener('click', async () => {
-          const text = 'pip install hektor-vdb';
-          try {
-            await navigator.clipboard.writeText(text);
-            const originalText = installButton.innerHTML;
-            installButton.innerHTML = installButton.innerHTML.replace('pip install hektor-vdb', 'Copied!');
-            setTimeout(() => {
-              installButton.innerHTML = originalText;
-            }, 2000);
-          } catch (err) {
-            console.error('Failed to copy:', err);
-          }
-        });
-      }
-
-      // --- Animate Metrics on Scroll ---
-      const metricsObserver = new IntersectionObserver((entries) => {
-        entries.forEach(entry => {
-          if (entry.isIntersecting) {
-            const metric = entry.target;
-            const targetText = metric.textContent.trim();
-
-            // Animate numbers
-            if (targetText.includes('ms') || targetText.includes('QPS') || targetText.includes('%') || targetText.includes('x')) {
-              metric.style.opacity = '0';
-              setTimeout(() => {
-                metric.style.transition = 'opacity 0.5s ease-out';
-                metric.style.opacity = '1';
-              }, 100);
-            }
-
-            metricsObserver.unobserve(metric);
-          }
-        });
-      }, observerOptions);
-
-      document.querySelectorAll('.text-5xl').forEach(metric => {
-        metricsObserver.observe(metric);
-      });
-
-    });
-  </script>
-
+        // Initialize pre-reveal for top elements
+        setTimeout(() => {
+            document.querySelectorAll('section:first-child .reveal').forEach(el => el.classList.add('active'));
+        }, 100);
+    </script>
 </body>
-
 </html>
+
