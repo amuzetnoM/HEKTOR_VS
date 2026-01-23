@@ -1119,6 +1119,4 @@ const Viewport3D: React.FC<ViewportProps> = ({
 
 ---
 
-**Document Status**: Draft v1.0  
-**Next Review**: Before implementation kickoff  
-**Approvers**: Architecture team, UX team, Product owner
+

@@ -1,0 +1,113 @@
+{
+  "bomFormat": "CycloneDX",
+  "specVersion": "1.4",
+  "version": 1,
+  "metadata": {
+    "timestamp": "2026-01-22T00:00:00Z",
+    "component": {
+      "type": "application",
+      "name": "hektor-vdb",
+      "version": "4.0.0",
+      "description": "High-performance vector database"
+    }
+  },
+  "components": [
+    {
+      "type": "library",
+      "name": "numpy",
+      "version": "1.26.0",
+      "licenses": [
+        {
+          "license": {
+            "id": "BSD-3-Clause"
+          }
+        }
+      ]
+    },
+    {
+      "type": "library",
+      "name": "pybind11",
+      "version": "2.11.0",
+      "licenses": [
+        {
+          "license": {
+            "id": "BSD-3-Clause"
+          }
+        }
+      ]
+    },
+    {
+      "type": "library",
+      "name": "onnxruntime",
+      "version": "1.19.0",
+      "licenses": [
+        {
+          "license": {
+            "id": "MIT"
+          }
+        }
+      ]
+    },
+    {
+      "type": "library",
+      "name": "huggingface-hub",
+      "version": "0.26.0",
+      "licenses": [
+        {
+          "license": {
+            "id": "Apache-2.0"
+          }
+        }
+      ]
+    },
+    {
+      "type": "library",
+      "name": "transformers",
+      "version": "4.46.0",
+      "licenses": [
+        {
+          "license": {
+            "id": "Apache-2.0"
+          }
+        }
+      ]
+    },
+    {
+      "type": "library",
+      "name": "sqlite",
+      "version": "3.x",
+      "licenses": [
+        {
+          "license": {
+            "id": "Public Domain"
+          }
+        }
+      ]
+    },
+    {
+      "type": "library",
+      "name": "curl",
+      "version": "7.x",
+      "licenses": [
+        {
+          "license": {
+            "id": "MIT"
+          }
+        }
+      ]
+    },
+    {
+      "type": "library",
+      "name": "zlib",
+      "version": "1.x",
+      "licenses": [
+        {
+          "license": {
+            "id": "Zlib"
+          }
+        }
+      ]
+    }
+  ],
+  "dependencies": []
+}
