@@ -2,7 +2,7 @@
 
 ## Purpose
 
-The `.studio` directory serves as HEKTOR's **centralized technical documentation hub**, containing machine-readable, exhaustive system specifications designed for rapid system understanding by developers, AI systems, and automated tools.
+The `.studio` directory serves as HEKTOR's **centralized technical hub**, containing machine-readable, exhaustive system specifications designed for rapid system understanding by developers, AI systems, and automated tools.
 
 ## Contents
 
