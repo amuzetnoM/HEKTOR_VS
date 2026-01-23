@@ -1,0 +1,6 @@
+{
+  "dimension": 512,
+  "hnsw_m": 16,
+  "metric": 0,
+  "version": 1
+}
