@@ -10,6 +10,7 @@ This index provides a comprehensive guide to all research materials in the Vecto
 research/
 ├── README.md                              # Main research directory overview
 ├── HEKTOR_BLEEDING_EDGE_ANALYSIS.md       # Technology assessment (27.9 KB)
+├── HEKTOR_IMPLEMENTATION_ROADMAP.md       # Master implementation plan (29 KB) ⭐ NEW
 ├── LATENCY_OPTIMIZATION.md                # Latency optimization research (31.6 KB)
 ├── SCALE_OPTIMIZATION.md                  # Scale and distributed systems (44.6 KB)
 ├── SECURITY_RESEARCH.md                   # Security and encryption (40.1 KB)
@@ -22,7 +23,7 @@ research/
     └── paper_citations.md                 # Complete citations (20.6 KB)
 ```
 
-**Total Content**: 368+ KB of research materials (134 KB academic + 116 KB optimization + 28 KB assessment + 33 KB competitive + 24 KB Hektor + 22 KB visualization + 11 KB tests)
+**Total Content**: 397+ KB of research materials (134 KB academic + 116 KB optimization + 57 KB strategic planning + 33 KB competitive + 24 KB Hektor + 22 KB visualization + 11 KB tests)
 
 ---
 
@@ -117,6 +118,69 @@ research/
 - Understanding competitive differentiation opportunities
 - Justifying investment in spectral/perceptual features
 - Roadmap for becoming true "spectral database"
+
+---
+
+### 3.1. [HEKTOR Implementation Roadmap: Master Plan](HEKTOR_IMPLEMENTATION_ROADMAP.md)
+
+**Extremely detailed 18-month implementation roadmap to transform HEKTOR into definitive spectral/perceptual database**
+
+**Contents**:
+- 6 parallel tracks: Spectral Foundation, Latency, Scale, Security, DevEx, Operations
+- Milestone-by-milestone specifications with code examples
+- Resource allocation: team structure, budget breakdown ($1.2M-$1.8M)
+- Risk management and mitigation strategies
+- Success metrics (technical and business)
+- Strong opinions and recommendations from engineering leadership
+
+**Format**: 29 KB, 810 lines, master implementation plan  
+**Focus**: Detailed execution roadmap with technical specifications  
+**Timeline**: 18 months (Q2 2026 - Q3 2027)
+
+**Track 1 - Spectral Foundation** (Destroys the gap):
+- M1.1: Color spaces (LAB, LCH, CIEDE2000) - Q2 2026, $80K-$120K
+- M1.2: Perceptual metrics (SSIM, MS-SSIM) - Q3 2026, $90K-$130K
+- M1.3: Spectral wavelength (hyperspectral 10-200 bands) - Q4 2026-Q1 2027, $180K-$270K
+- M1.4: Psychophysical models (HVS, CSF, JND) - Q2 2027, $100K-$150K
+
+**Track 2 - Latency Optimization**:
+- Compiler optimization (PGO/LTO): 15-25% improvement
+- OS-level (real-time, CPU isolation): 30-50% jitter reduction
+- Hardware access (DPDK/SPDK): 50-70% network latency reduction
+- **Result**: 2.9ms → 0.8ms p99 latency (72% improvement)
+
+**Track 3 - Scale & Distribution**:
+- Weighted consistent hashing: 90% less rebalancing
+- Multi-region replication: 99.99% availability, <100ms lag
+- Kinetic sharding: 40-60% latency reduction for skewed workloads
+- **Result**: 100M/node → 10B cluster (100x scale)
+
+**Track 4 - Security & Privacy**:
+- Post-quantum TLS (Kyber): Quantum-resistant communication
+- SGX enclaves: Data invisibility to OS (10-30% overhead)
+- Homomorphic encryption: Maximum security (optional)
+- **Result**: Quantum-resistant, compliant (GDPR, HIPAA)
+
+**Opinionated Recommendations**:
+1. ⭐⭐⭐⭐⭐ Spectral first, everything else second (existential priority)
+2. ⭐⭐⭐ Skip homomorphic encryption initially (SGX sufficient)
+3. ⭐⭐⭐⭐ Kinetic sharding worth the risk (novel contribution)
+4. ⭐⭐⭐⭐⭐ Aggressive timeline necessary (18 months to maintain lead)
+5. ⭐⭐⭐⭐⭐ Build showcase apps ($100K: fashion, agriculture, medical, materials, art)
+6. ⭐⭐⭐⭐ Academic partnerships critical (MIT, Stanford, UC Berkeley, NASA)
+7. ⭐⭐⭐⭐⭐ Premium pricing justified (3x: $1.50 vs $0.50/GB/month)
+8. ⭐⭐⭐⭐⭐ Avoid feature creep (lock roadmap Q2 2026)
+
+**Investment & ROI**:
+- Total investment: $1.2M-$1.8M over 18 months
+- Expected ROI: 5-10x through premium pricing and new markets
+- Revenue target: $500K → $10M (20x growth)
+- Customer target: 5 → 50 enterprise customers
+
+**Competitive Position After Completion**:
+- 6/8 unique features vs. competitors (Pinecone, Weaviate, Milvus, Qdrant)
+- #1 market position in image-intensive applications
+- Only spectral/perceptual vector database in existence
 
 ---
 
