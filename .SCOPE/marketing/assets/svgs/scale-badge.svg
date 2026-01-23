@@ -1,0 +1,10 @@
+<svg width="200" height="80" viewBox="0 0 200 80" xmlns="http://www.w3.org/2000/svg">
+  <!-- Scale Badge: Billion-Scale -->
+  <rect width="200" height="80" rx="8" fill="#f8fafc" stroke="#e2e8f0" stroke-width="2"/>
+  
+  <text x="100" y="28" font-family="'Inter', Arial, sans-serif" font-size="14" font-weight="600" fill="#64748b" text-anchor="middle">SCALE</text>
+  
+  <text x="100" y="55" font-family="'JetBrains Mono', 'Courier New', monospace" font-size="32" font-weight="700" fill="#10b981" text-anchor="middle">1B+</text>
+  
+  <text x="100" y="70" font-family="'Inter', Arial, sans-serif" font-size="10" font-weight="500" fill="#94a3b8" text-anchor="middle">Vectors per cluster</text>
+</svg>

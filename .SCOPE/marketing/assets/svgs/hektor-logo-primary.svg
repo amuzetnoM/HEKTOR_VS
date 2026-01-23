@@ -1,0 +1,28 @@
+<svg width="200" height="60" viewBox="0 0 200 60" xmlns="http://www.w3.org/2000/svg">
+  <!-- HEKTOR Primary Logo -->
+  <defs>
+    <linearGradient id="spektral" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#6366f1;stop-opacity:1" />
+      <stop offset="100%" style="stop-color:#8b5cf6;stop-opacity:1" />
+    </linearGradient>
+  </defs>
+  
+  <!-- Icon: Stylized "H" with vector/spectrum element -->
+  <g id="icon">
+    <rect x="5" y="10" width="8" height="40" fill="url(#spektral)" rx="2"/>
+    <rect x="25" y="10" width="8" height="40" fill="url(#spektral)" rx="2"/>
+    <rect x="13" y="26" width="12" height="8" fill="url(#spektral)" rx="2"/>
+    <!-- Spectrum lines -->
+    <line x1="38" y1="15" x2="48" y2="15" stroke="#6366f1" stroke-width="2" opacity="0.6"/>
+    <line x1="38" y1="22" x2="48" y2="22" stroke="#7c3aed" stroke-width="2" opacity="0.7"/>
+    <line x1="38" y1="29" x2="48" y2="29" stroke="#8b5cf6" stroke-width="2" opacity="0.8"/>
+    <line x1="38" y1="36" x2="48" y2="36" stroke="#a78bfa" stroke-width="2" opacity="0.9"/>
+    <line x1="38" y1="43" x2="48" y2="43" stroke="#c4b5fd" stroke-width="2" opacity="1"/>
+  </g>
+  
+  <!-- Text: HEKTOR -->
+  <text x="60" y="40" font-family="'Inter', 'SF Pro', Arial, sans-serif" font-size="28" font-weight="700" fill="#1e293b">HEKTOR</text>
+  
+  <!-- Tagline -->
+  <text x="60" y="52" font-family="'Inter', Arial, sans-serif" font-size="9" font-weight="500" fill="#64748b" letter-spacing="0.5">SPECTRAL VECTOR DATABASE</text>
+</svg>

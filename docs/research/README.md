@@ -12,7 +12,69 @@ All research papers in this directory are:
 
 ## Articles
 
-### 1. [Vector Space Theory in High-Dimensional Embeddings](vector_space_theory.md)
+### Performance Optimization Research
+
+#### 1. [Latency Optimization: Ultra-Low Latency Techniques](LATENCY_OPTIMIZATION.md)
+
+**Topics Covered**:
+- Direct hardware access techniques (RDMA, DPDK, SPDK)
+- Custom LLVM compiler optimizations (PGO, LTO, auto-vectorization)
+- OS scheduling bypass methods (real-time kernel, CPU isolation, NUMA)
+- Performance projections and implementation roadmap
+- Trade-offs analysis for HEKTOR deployment
+
+**Key Techniques**:
+- RDMA for zero-copy network transfers (5-10x faster)
+- DPDK for userspace packet processing (<5μs latency)
+- SPDK for direct NVMe access (3-5x faster)
+- Profile-guided optimization (10-15% improvement)
+- Real-time scheduling and CPU isolation (30-50% variance reduction)
+
+**Performance Target**: 2.9ms → 0.8ms p99 latency (72% improvement)
+
+---
+
+#### 2. [Scale Optimization: Distributed Architecture for Billion-Scale](SCALE_OPTIMIZATION.md)
+
+**Topics Covered**:
+- Elastic sharding strategies (consistent hashing, adaptive range sharding)
+- Heterogeneous node cluster architectures (tiered storage, CPU/GPU hybrid)
+- Multi-region synchronization techniques (async, sync, quorum replication)
+- Kinetic sharding: Novel adaptive partitioning concept
+- Cost optimization through resource specialization
+
+**Key Innovations**:
+- Weighted consistent hashing (90% less data movement)
+- Tiered storage architecture (74% cost savings)
+- Multi-region replication (<100ms lag, 99.99% availability)
+- **Kinetic sharding**: Adaptive partitioning based on query patterns (63% latency reduction)
+
+**Scale Target**: 100M vectors/node → 10B vectors/cluster
+
+---
+
+#### 3. [Security Research: Post-Quantum Encryption and Privacy](SECURITY_RESEARCH.md)
+
+**Topics Covered**:
+- Lattice-based encryption fundamentals (NTRU, LWE, R-LWE, Kyber)
+- Vector embedding encryption integration (CKKS, MPC, OPE)
+- Data invisibility to engine kernel (SGX, TrustZone, Nitro Enclaves)
+- Compliance and regulatory considerations (GDPR, HIPAA, PCI-DSS, SOC2)
+- Security vs. performance trade-offs
+
+**Key Technologies**:
+- CRYSTALS-Kyber (7-35x faster than RSA, quantum-resistant)
+- CKKS homomorphic encryption (computation on encrypted data)
+- Intel SGX enclaves (10-30% overhead, protection against malicious OS)
+- ARM TrustZone for mobile/IoT deployments
+
+**Security Target**: Privacy-preserving search for healthcare, finance, government
+
+---
+
+### Fundamental Research
+
+#### 4. [Vector Space Theory in High-Dimensional Embeddings](vector_space_theory.md)
 
 **Topics Covered**:
 - Mathematical foundations of vector spaces
@@ -37,7 +99,7 @@ All research papers in this directory are:
 
 ---
 
-### 2. [Hierarchical Navigable Small World (HNSW) Graphs](hnsw_algorithm.md)
+#### 5. [Hierarchical Navigable Small World (HNSW) Graphs](hnsw_algorithm.md)
 
 **Topics Covered**:
 - Small world network theory (Watts-Strogatz, Kleinberg)
