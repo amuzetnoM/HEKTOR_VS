@@ -9,6 +9,7 @@ This index provides a comprehensive guide to all research materials in the Vecto
 ```
 research/
 ├── README.md                              # Main research directory overview
+├── HEKTOR_BLEEDING_EDGE_ANALYSIS.md       # Technology assessment (27.9 KB)
 ├── LATENCY_OPTIMIZATION.md                # Latency optimization research (31.6 KB)
 ├── SCALE_OPTIMIZATION.md                  # Scale and distributed systems (44.6 KB)
 ├── SECURITY_RESEARCH.md                   # Security and encryption (40.1 KB)
@@ -21,7 +22,7 @@ research/
     └── paper_citations.md                 # Complete citations (20.6 KB)
 ```
 
-**Total Content**: 340+ KB of research materials (134 KB academic + 116 KB optimization + 33 KB competitive + 24 KB Hektor + 22 KB visualization + 11 KB tests)
+**Total Content**: 368+ KB of research materials (134 KB academic + 116 KB optimization + 28 KB assessment + 33 KB competitive + 24 KB Hektor + 22 KB visualization + 11 KB tests)
 
 ---
 
@@ -88,7 +89,38 @@ research/
 
 ---
 
-### 3. [Security Research: Post-Quantum Encryption and Privacy](SECURITY_RESEARCH.md)
+### 3. [HEKTOR Bleeding Edge Analysis: Perceptual Database Technology](HEKTOR_BLEEDING_EDGE_ANALYSIS.md)
+
+**Strategic assessment of existing vs. needed bleeding-edge technology**
+
+**Contents**:
+- Analysis of HEKTOR as world's first perceptual vector database
+- Existing bleeding-edge technology (perceptual quantization, PQ/HLG curves)
+- Missing spectral/perceptual features (color spaces, wavelength processing)
+- Technology gaps: perceptual foundation vs. spectral extension
+- Implementation priorities and roadmap (4 phases, 12-16 months)
+- Competitive differentiation and market positioning
+
+**Format**: 27.9 KB, 6 major sections, strategic roadmap  
+**Focus**: Technology assessment and strategic planning  
+**Timeline**: Q2 2026 - Q2 2027 phased implementation
+
+**Key Findings**:
+- HEKTOR unique: Only vector database with HDR-aware perceptual quantization
+- Gap: Perceptual quantization exists, but spectral features missing
+- Needed: Color space support (LAB, LCH), wavelength processing, perceptual metrics
+- Investment: $360K-$525K over 12-16 months for full spectral capabilities
+- Market: Medical imaging, remote sensing, agriculture, materials science
+
+**Use Cases**:
+- Strategic planning for HEKTOR development
+- Understanding competitive differentiation opportunities
+- Justifying investment in spectral/perceptual features
+- Roadmap for becoming true "spectral database"
+
+---
+
+### 4. [Security Research: Post-Quantum Encryption and Privacy](SECURITY_RESEARCH.md)
 
 **Comprehensive security and privacy techniques for sensitive data**
 
@@ -119,7 +151,7 @@ research/
 
 ---
 
-### 4. [Comprehensive Competitor Analysis and Market Research](COMPETITOR_ANALYSIS.md)
+### 5. [Comprehensive Competitor Analysis and Market Research](COMPETITOR_ANALYSIS.md)
 
 **Comprehensive competitive landscape analysis of the vector database market**
 
@@ -150,7 +182,7 @@ research/
 
 ---
 
-### 5. [Hektor Deep Dive Analysis](HEKTOR_ANALYSIS.md)
+### 6. [Hektor Deep Dive Analysis](HEKTOR_ANALYSIS.md)
 
 **Technical research, benchmarking, and performance documentation for Hektor**
 
@@ -186,7 +218,7 @@ research/
 
 ---
 
-### 6. [Interactive Competitive Comparison Dashboard](COMPETITIVE_COMPARISON.html)
+### 7. [Interactive Competitive Comparison Dashboard](COMPETITIVE_COMPARISON.html)
 
 **Visual stakeholder-ready comparison with responsive charts**
 
@@ -227,7 +259,7 @@ research/
 
 ---
 
-### 7. [Vector Space Theory](vector_space_theory.md)
+### 8. [Vector Space Theory](vector_space_theory.md)
 
 **Comprehensive mathematical treatment of vector spaces in machine learning**
 
@@ -258,7 +290,7 @@ research/
 
 ---
 
-### 8. [HNSW Algorithm](hnsw_algorithm.md)
+### 9. [HNSW Algorithm](hnsw_algorithm.md)
 
 **Complete analysis of Hierarchical Navigable Small World graphs**
 
@@ -291,7 +323,7 @@ research/
 
 ## Supporting Materials
 
-### 9. [Research Survey](papers/research_survey.md)
+### 10. [Research Survey](papers/research_survey.md)
 
 **State-of-the-art survey covering 50+ papers from 1954-2026**
 
@@ -322,7 +354,7 @@ research/
 
 ---
 
-### 10. [Annotated Bibliography](references/annotated_bibliography.md)
+### 11. [Annotated Bibliography](references/annotated_bibliography.md)
 
 **Detailed annotations of 18 key papers**
 
@@ -354,7 +386,7 @@ research/
 
 ---
 
-### 11. [Complete Citations](references/paper_citations.md)
+### 12. [Complete Citations](references/paper_citations.md)
 
 **Full bibliographic information for 30 papers**
 
