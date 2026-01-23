@@ -1,4 +1,5 @@
-# The Beginning: Why I Started Building Hektor
+# The Beginning
+> Why I Started Building Hektor
 
 *November 15, 2025*
 
