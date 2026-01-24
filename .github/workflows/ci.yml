@@ -224,6 +224,9 @@ jobs:
     name: Security Scan
     runs-on: ubuntu-latest
     timeout-minutes: 10
+    permissions:
+      security-events: write
+      contents: read
     
     steps:
     - name: Checkout
