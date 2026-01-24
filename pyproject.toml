@@ -113,10 +113,14 @@ CMAKE_BUILD_TYPE = "Release"
 [tool.cibuildwheel]
 # Build for common platforms
 build = ["cp310-*", "cp311-*", "cp312-*", "cp313-*"]
-skip = ["*-musllinux_*", "pp*"]
+# Skip musllinux (compatibility issues), PyPy, and older manylinux (no C++23 support)
+skip = ["*-musllinux_*", "pp*", "*-manylinux_i686", "*-manylinux2014_*"]
 
 [tool.cibuildwheel.linux]
-before-all = "yum install -y cmake gcc-c++ || apt-get update && apt-get install -y cmake g++"
+# Use manylinux_2_28 for GCC 11+ which supports C++23
+manylinux-x86_64-image = "manylinux_2_28"
+manylinux-aarch64-image = "manylinux_2_28"
+before-all = "yum install -y cmake ninja-build libcurl-devel"
 archs = ["x86_64", "aarch64"]
 
 [tool.cibuildwheel.macos]

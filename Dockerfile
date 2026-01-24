@@ -31,26 +31,23 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
     # SIMD/AVX2 support for llama.cpp
     gcc-multilib \
     g++-multilib \
-    # Python
-    python3.11 \
-    python3.11-dev \
+    # Python 3.12 (default in Ubuntu 24.04)
+    python3 \
+    python3-dev \
     python3-pip \
+    python3-venv \
     && rm -rf /var/lib/apt/lists/*
 
-# Set Python 3.11 as default
-RUN update-alternatives --install /usr/bin/python3 python3 /usr/bin/python3.11 1 && \
-    update-alternatives --install /usr/bin/python python /usr/bin/python3.11 1
-
 # Upgrade pip
-RUN python3 -m pip install --upgrade pip setuptools wheel
+RUN python3 -m pip install --upgrade pip setuptools wheel --break-system-packages
 
 # Copy source code
 WORKDIR /build
 COPY . .
 
 # Install Python dependencies
-RUN pip3 install --no-cache-dir -r requirements.txt && \
-    pip3 install --no-cache-dir -r api/requirements.txt
+RUN pip3 install --no-cache-dir --break-system-packages -r requirements.txt && \
+    pip3 install --no-cache-dir --break-system-packages -r api/requirements.txt
 
 # Download ONNX models
 RUN python3 scripts/download_models.py --all || echo "Model download failed, continuing..."
@@ -71,7 +68,7 @@ RUN export CFLAGS="-mavx2 -mfma -mf16c" && \
 
 # Install Python bindings
 RUN cd build && \
-    pip3 install --no-cache-dir .
+    pip3 install --no-cache-dir --break-system-packages .
 
 # ============================================================================
 # Stage 2: Runtime - Minimal production image
