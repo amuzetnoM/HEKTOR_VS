@@ -57,19 +57,30 @@ RUN pip3 install --no-cache-dir --break-system-packages -r requirements.txt && \
 RUN mkdir -p models && \
     (python3 scripts/download_models.py --all || echo "Model download failed, continuing...")
 
-# Configure and build C++ backend with explicit AVX2 support
-RUN export CFLAGS="-mavx2 -mfma -mf16c" && \
-    export CXXFLAGS="-mavx2 -mfma -mf16c" && \
-    cmake -B build -G Ninja \
-    -DCMAKE_BUILD_TYPE=Release \
-    -DCMAKE_INSTALL_PREFIX=/usr/local \
-    -DCMAKE_C_FLAGS="-mavx2 -mfma -mf16c" \
-    -DCMAKE_CXX_FLAGS="-mavx2 -mfma -mf16c" \
-    -DVDB_BUILD_PYTHON=ON \
-    -DVDB_BUILD_TESTS=OFF \
-    -DVDB_USE_AVX2=ON \
-    -DVDB_USE_LLAMA_CPP=ON \
-    && cmake --build build --target install -j$(nproc)
+# Configure and build C++ backend
+# Use architecture-specific flags (AVX2 for x86, NEON for ARM64)
+RUN if [ "$(dpkg --print-architecture)" = "amd64" ]; then \
+        export CFLAGS="-mavx2 -mfma -mf16c" && \
+        export CXXFLAGS="-mavx2 -mfma -mf16c" && \
+        cmake -B build -G Ninja \
+        -DCMAKE_BUILD_TYPE=Release \
+        -DCMAKE_INSTALL_PREFIX=/usr/local \
+        -DCMAKE_C_FLAGS="-mavx2 -mfma -mf16c" \
+        -DCMAKE_CXX_FLAGS="-mavx2 -mfma -mf16c" \
+        -DVDB_BUILD_PYTHON=ON \
+        -DVDB_BUILD_TESTS=OFF \
+        -DVDB_USE_AVX2=ON \
+        -DVDB_USE_LLAMA_CPP=ON; \
+    else \
+        cmake -B build -G Ninja \
+        -DCMAKE_BUILD_TYPE=Release \
+        -DCMAKE_INSTALL_PREFIX=/usr/local \
+        -DVDB_BUILD_PYTHON=ON \
+        -DVDB_BUILD_TESTS=OFF \
+        -DVDB_USE_AVX2=OFF \
+        -DVDB_USE_LLAMA_CPP=ON; \
+    fi && \
+    cmake --build build --target install -j$(nproc)
 
 # Install Python bindings from source root
 RUN pip3 install --no-cache-dir --break-system-packages /build
