@@ -13,6 +13,7 @@ ENV DEBIAN_FRONTEND=noninteractive
 ENV PYTHONUNBUFFERED=1
 
 # Install build dependencies
+# Note: gcc-multilib/g++-multilib are x86-only, install conditionally based on architecture
 RUN apt-get update && apt-get install -y --no-install-recommends \
     build-essential \
     cmake \
@@ -28,15 +29,18 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
     libcurl4-openssl-dev \
     zlib1g-dev \
     libssl-dev \
-    # SIMD/AVX2 support for llama.cpp
-    gcc-multilib \
-    g++-multilib \
     # Python 3.12 (default in Ubuntu 24.04)
     python3 \
     python3-dev \
     python3-pip \
     python3-venv \
     && rm -rf /var/lib/apt/lists/*
+
+# Install multilib packages only on x86 (for SIMD/AVX2 support with llama.cpp)
+RUN if [ "$(dpkg --print-architecture)" = "amd64" ]; then \
+        apt-get update && apt-get install -y --no-install-recommends gcc-multilib g++-multilib && \
+        rm -rf /var/lib/apt/lists/*; \
+    fi
 
 # Upgrade pip - use --ignore-installed to avoid conflicts with Debian-managed packages
 RUN python3 -m pip install --ignore-installed --break-system-packages pip setuptools wheel
