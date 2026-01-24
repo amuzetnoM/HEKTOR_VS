@@ -132,7 +132,8 @@ jobs:
         # Build configuration
         CIBW_BUILD_VERBOSITY: 1
         CIBW_ENVIRONMENT: CMAKE_BUILD_PARALLEL_LEVEL=4 CIBUILDWHEEL=1
-        # macOS config is handled via pyproject.toml overrides for per-architecture settings
+        # macOS requires 10.15+ for std::filesystem
+        CIBW_ENVIRONMENT_MACOS: MACOSX_DEPLOYMENT_TARGET=10.15 CMAKE_BUILD_PARALLEL_LEVEL=4 CIBUILDWHEEL=1
         
         # Test - verify installation and import
         CIBW_TEST_COMMAND: python -c "import sys; print('Python:', sys.version); import pyvdb; print('Version:', pyvdb.__version__, 'Native:', pyvdb.is_native_available())"

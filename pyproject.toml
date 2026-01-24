@@ -129,11 +129,13 @@ archs = ["x86_64", "arm64"]
 # Per-architecture environment for macOS - disable AVX on ARM64 builds
 [[tool.cibuildwheel.overrides]]
 select = "*-macosx_arm64"
-environment = { VDB_TARGET_ARCH="arm64", MACOSX_DEPLOYMENT_TARGET="11.0", CMAKE_BUILD_PARALLEL_LEVEL="4", CIBUILDWHEEL="1" }
+inherit.environment = "append"
+environment = { VDB_TARGET_ARCH="arm64" }
 
 [[tool.cibuildwheel.overrides]]
 select = "*-macosx_x86_64"
-environment = { VDB_TARGET_ARCH="x86_64", MACOSX_DEPLOYMENT_TARGET="11.0", CMAKE_BUILD_PARALLEL_LEVEL="4", CIBUILDWHEEL="1" }
+inherit.environment = "append"
+environment = { VDB_TARGET_ARCH="x86_64" }
 
 [tool.cibuildwheel.windows]
 archs = ["AMD64"]
