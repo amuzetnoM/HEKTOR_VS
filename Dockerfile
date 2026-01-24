@@ -66,9 +66,8 @@ RUN export CFLAGS="-mavx2 -mfma -mf16c" && \
     -DVDB_USE_LLAMA_CPP=ON \
     && cmake --build build --target install -j$(nproc)
 
-# Install Python bindings
-RUN cd build && \
-    pip3 install --no-cache-dir --break-system-packages .
+# Install Python bindings from source root
+RUN pip3 install --no-cache-dir --break-system-packages /build
 
 # ============================================================================
 # Stage 2: Runtime - Minimal production image
