@@ -116,9 +116,9 @@ WORKDIR /app
 # Copy API server
 COPY --from=builder /build/api /app/api
 
-# Install API dependencies as appuser
+# Install API dependencies as appuser (use --break-system-packages for Ubuntu 24.04 PEP 668)
 USER appuser
-RUN pip3 install --user --no-cache-dir -r api/requirements.txt
+RUN pip3 install --user --no-cache-dir --break-system-packages -r api/requirements.txt
 
 # Add user pip bin to PATH
 ENV PATH="/home/appuser/.local/bin:$PATH"
