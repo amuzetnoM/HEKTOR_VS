@@ -91,7 +91,7 @@ pip install hektor-vdb[all]
 **Note:** This requires:
 - Python 3.10 or higher
 - CMake 3.20 or higher
-- A C++23 compatible compiler (GCC 11+, Clang 14+, MSVC 2022+)
+- A C++23 compatible compiler (GCC 13+, Clang 16+, MSVC 2022 17.3+)
 
 If you encounter build issues, see [Building from Source](#building-from-source) below.
 
