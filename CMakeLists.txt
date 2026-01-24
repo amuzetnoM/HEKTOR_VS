@@ -42,6 +42,28 @@ option(VDB_USE_OPENTELEMETRY "Enable OpenTelemetry distributed tracing" OFF)
 # ============================================================================
 # Compiler Flags
 # ============================================================================
+
+# Detect if we're targeting ARM (Apple Silicon) - check both CMAKE_OSX_ARCHITECTURES and compile flags
+set(VDB_TARGET_ARM64 FALSE)
+if(APPLE)
+    # Check CMAKE_OSX_ARCHITECTURES (set by cibuildwheel/scikit-build for cross-compilation)
+    if(CMAKE_OSX_ARCHITECTURES MATCHES "arm64")
+        set(VDB_TARGET_ARM64 TRUE)
+    endif()
+    # Also check if -arch arm64 is in the compile flags
+    if(CMAKE_CXX_FLAGS MATCHES "-arch arm64" OR CMAKE_C_FLAGS MATCHES "-arch arm64")
+        set(VDB_TARGET_ARM64 TRUE)
+    endif()
+endif()
+
+# Determine if we're on an x86 target (and NOT cross-compiling to ARM)
+set(VDB_TARGET_X86 FALSE)
+if(NOT VDB_TARGET_ARM64)
+    if(CMAKE_SYSTEM_PROCESSOR MATCHES "(x86_64)|(AMD64)|(i[3-6]86)")
+        set(VDB_TARGET_X86 TRUE)
+    endif()
+endif()
+
 if(MSVC)
     add_compile_options(/W4 /permissive-)
     if(VDB_USE_AVX2)
@@ -55,8 +77,8 @@ if(MSVC)
     set(CMAKE_EXE_LINKER_FLAGS_RELEASE "${CMAKE_EXE_LINKER_FLAGS_RELEASE} /LTCG")
 else()
     add_compile_options(-Wall -Wextra -Wpedantic)
-    # Only add x86-specific flags on x86 architectures
-    if(CMAKE_SYSTEM_PROCESSOR MATCHES "(x86_64)|(AMD64)|(i[3-6]86)")
+    # Only add x86-specific flags when actually targeting x86 (NOT when cross-compiling to ARM64)
+    if(VDB_TARGET_X86)
         if(VDB_USE_AVX2)
             add_compile_options(-mavx2 -mfma)
         endif()
@@ -67,7 +89,7 @@ else()
     # Release optimizations
     # Note: -march=native doesn't work for cross-compilation (e.g., cibuildwheel on macOS)
     # Use -O3 only and let specific SIMD flags be added above when appropriate
-    if(DEFINED ENV{CIBUILDWHEEL} OR CMAKE_CROSSCOMPILING)
+    if(DEFINED ENV{CIBUILDWHEEL} OR CMAKE_CROSSCOMPILING OR VDB_TARGET_ARM64)
         set(CMAKE_CXX_FLAGS_RELEASE "${CMAKE_CXX_FLAGS_RELEASE} -O3")
     else()
         set(CMAKE_CXX_FLAGS_RELEASE "${CMAKE_CXX_FLAGS_RELEASE} -O3 -march=native")
