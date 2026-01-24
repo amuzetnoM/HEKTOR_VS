@@ -631,7 +631,9 @@ endif()
 # Python Bindings
 # ============================================================================
 if(VDB_BUILD_PYTHON)
-    find_package(Python3 COMPONENTS Interpreter Development REQUIRED)
+    # Use Development.Module for compatibility with manylinux containers
+    # which may not have full Python development headers (Development.Embed)
+    find_package(Python3 COMPONENTS Interpreter Development.Module REQUIRED)
     
     FetchContent_Declare(
         pybind11
