@@ -62,7 +62,7 @@ jobs:
         
         ### Installation
         ```bash
-        pip install hektor-vectordb
+        pip install hektor-vdb
         ```
         
         See [CHANGELOG.md](CHANGELOG.md) for full details.
@@ -253,7 +253,7 @@ jobs:
     
     environment:
       name: pypi
-      url: https://pypi.org/project/hektor-vectordb/
+      url: https://pypi.org/project/hektor-vdb/
       
     steps:
     - name: Download all artifacts
@@ -283,5 +283,5 @@ jobs:
         echo "::notice::Wheels: Built for Linux, Windows, macOS (x86_64 & arm64)"
         echo "::notice::Docker: ghcr.io/.../hektor:${{ needs.create-release.outputs.version }}"
         if [[ "${{ needs.publish-pypi.result }}" == "success" ]]; then
-          echo "::notice::PyPI: Published to https://pypi.org/project/hektor-vectordb/"
+          echo "::notice::PyPI: Published to https://pypi.org/project/hektor-vdb/"
         fi

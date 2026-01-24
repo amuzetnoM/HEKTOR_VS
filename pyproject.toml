@@ -8,12 +8,16 @@ build-backend = "scikit_build_core.build"
 
 [project]
 name = "hektor-vdb"
-version = "4.0.0"
+version = "4.1.0"
 description = "High-performance vector database with SIMD-optimized similarity search and local ONNX-based embeddings"
 readme = "README.md"
 license = {text = "MIT"}
 authors = [
-    {name = "Hektor VDB Contributors"}
+    {name = "Ali A. Shakil", email = "ali.shakil@artifactvirtual.com"},
+    {name = "ARTIFACT VIRTUAL"}
+]
+maintainers = [
+    {name = "Ali A. Shakil", email = "ali.shakil@artifactvirtual.com"}
 ]
 requires-python = ">=3.10"
 keywords = ["vector-database", "similarity-search", "embeddings", "simd", "onnx", "machine-learning"]
