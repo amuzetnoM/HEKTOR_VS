@@ -1,7 +1,19 @@
-import { app, BrowserWindow, ipcMain } from 'electron';
+// Electron main process entry point
+// The 'electron' module should resolve to Electron's internal bindings when running in Electron
+const electron = require('electron');
+
+// Handle the case where electron module returns just the binary path (shouldn't happen in Electron process)
+if (typeof electron === 'string') {
+  console.error('ERROR: Electron module returned a path string instead of the API.');
+  console.error('This usually means the app is not running in the Electron process.');
+  console.error('Make sure to run this with: npm start');
+  process.exit(1);
+}
+
+const { app, BrowserWindow, ipcMain } = electron;
 import * as path from 'path';
 
-let mainWindow: BrowserWindow | null = null;
+let mainWindow: typeof BrowserWindow.prototype | null = null;
 
 function createWindow() {
   mainWindow = new BrowserWindow({
@@ -54,7 +66,7 @@ ipcMain.handle('get-app-version', () => {
   return app.getVersion();
 });
 
-ipcMain.handle('get-theme', async (_, themeName: string) => {
+ipcMain.handle('get-theme', async (_event: any, themeName: string) => {
   // Theme loading logic will be implemented
   return { name: themeName, loaded: true };
 });

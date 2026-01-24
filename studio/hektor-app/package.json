@@ -7,7 +7,6 @@
   "license": "MIT",
   "private": true,
   "scripts": {
-    "postinstall": "echo 'Run npm run build:native to build native addon (requires C++23 compiler)'",
     "dev": "concurrently \"npm run dev:main\" \"npm run dev:renderer\"",
     "dev:main": "tsc -p electron-app/main/tsconfig.json --watch",
     "dev:renderer": "vite",
@@ -15,28 +14,28 @@
     "build:native": "node-gyp rebuild",
     "build:main": "tsc -p electron-app/main/tsconfig.json",
     "build:renderer": "vite build",
-    "start": "electron .",
+    "start": "node start-electron.js",
     "package": "electron-builder",
     "package:all": "electron-builder -mwl",
     "lint": "eslint electron-app --ext .ts,.tsx",
     "format": "prettier --write \"electron-app/**/*.{ts,tsx,json}\""
   },
   "dependencies": {
+    "@react-three/drei": "^9.96.0",
+    "@react-three/fiber": "^8.15.0",
+    "d3": "^7.8.5",
+    "framer-motion": "^10.18.0",
     "react": "^18.2.0",
     "react-dom": "^18.2.0",
     "three": "^0.160.0",
-    "@react-three/fiber": "^8.15.0",
-    "@react-three/drei": "^9.96.0",
-    "d3": "^7.8.5",
-    "framer-motion": "^10.18.0",
     "zustand": "^4.5.0"
   },
   "devDependencies": {
+    "@types/d3": "^7.4.3",
     "@types/node": "^20.11.0",
     "@types/react": "^18.2.48",
     "@types/react-dom": "^18.2.18",
     "@types/three": "^0.160.0",
-    "@types/d3": "^7.4.3",
     "@typescript-eslint/eslint-plugin": "^6.19.0",
     "@typescript-eslint/parser": "^6.19.0",
     "@vitejs/plugin-react": "^4.2.1",
@@ -66,14 +65,23 @@
       "package.json"
     ],
     "mac": {
-      "target": ["dmg", "zip"],
+      "target": [
+        "dmg",
+        "zip"
+      ],
       "category": "public.app-category.developer-tools"
     },
     "win": {
-      "target": ["nsis", "portable"]
+      "target": [
+        "nsis",
+        "portable"
+      ]
     },
     "linux": {
-      "target": ["AppImage", "deb"]
+      "target": [
+        "AppImage",
+        "deb"
+      ]
     }
   }
 }
