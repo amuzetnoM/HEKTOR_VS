@@ -6,6 +6,7 @@
 #include <sstream>
 #include <algorithm>
 #include <fstream>
+#include <iterator>
 
 namespace vdb
 {

@@ -63,13 +63,16 @@ enum class SimdLevel : uint8_t {
 #elif defined(__SSE4_1__)
     inline constexpr SimdLevel SIMD_LEVEL = SimdLevel::SSE4;
     inline constexpr size_t SIMD_WIDTH = 4;   // 4 floats
+#elif defined(__ARM_NEON) || defined(__aarch64__)
+    inline constexpr SimdLevel SIMD_LEVEL = SimdLevel::SSE4;  // NEON has similar width to SSE
+    inline constexpr size_t SIMD_WIDTH = 4;   // 4 floats (128-bit NEON)
 #else
     inline constexpr SimdLevel SIMD_LEVEL = SimdLevel::None;
     inline constexpr size_t SIMD_WIDTH = 1;
 #endif
 
-// Alignment requirement for SIMD operations
-inline constexpr size_t VECTOR_ALIGNMENT = SIMD_WIDTH * sizeof(Scalar);
+// Alignment requirement for SIMD operations (minimum 8 for 64-bit platforms)
+inline constexpr size_t VECTOR_ALIGNMENT = (SIMD_WIDTH * sizeof(Scalar) < 8) ? 8 : (SIMD_WIDTH * sizeof(Scalar));
 
 // ============================================================================
 // Constants
