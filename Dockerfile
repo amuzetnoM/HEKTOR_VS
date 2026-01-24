@@ -38,8 +38,8 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
     python3-venv \
     && rm -rf /var/lib/apt/lists/*
 
-# Upgrade pip
-RUN python3 -m pip install --upgrade pip setuptools wheel --break-system-packages
+# Upgrade pip - use --ignore-installed to avoid conflicts with Debian-managed packages
+RUN python3 -m pip install --ignore-installed --break-system-packages pip setuptools wheel
 
 # Copy source code
 WORKDIR /build

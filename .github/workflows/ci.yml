@@ -111,9 +111,13 @@ jobs:
           echo "CC=gcc-14" >> $GITHUB_ENV
           echo "CXX=g++-14" >> $GITHUB_ENV
         elif [[ "${{ matrix.compiler }}" == "clang-18" ]]; then
-          sudo apt-get install -y clang-18
+          # Install clang-18 with libc++ for full C++23 support (std::expected)
+          sudo apt-get install -y clang-18 libc++-18-dev libc++abi-18-dev
           echo "CC=clang-18" >> $GITHUB_ENV
           echo "CXX=clang++-18" >> $GITHUB_ENV
+          # Use libc++ instead of libstdc++ for full C++23 std::expected support
+          echo "CXXFLAGS=-stdlib=libc++" >> $GITHUB_ENV
+          echo "LDFLAGS=-stdlib=libc++ -lc++abi" >> $GITHUB_ENV
         fi
         
     # Windows setup
