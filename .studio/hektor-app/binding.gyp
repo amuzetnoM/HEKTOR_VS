@@ -26,6 +26,8 @@
         "<!@(node -p \"require('node-addon-api').include\")",
         "native-addon/include",
         "../../include",
+        "../../build/_deps/json-src/include",
+        "../../build/_deps/fmt-src/include",
         "../../build/_deps/ggml-src/include",
         "../../build/_deps/llama-src/include",
         "../../build/_deps/onnxruntime-src/include",
@@ -33,33 +35,37 @@
         "/usr/local/include"
       ],
       "libraries": [
-        "<(module_root_dir)/../../build/src/libvdb_core.a",
+        "<(module_root_dir)/../../build/libvdb_core.a",
+        "<(module_root_dir)/../../build/_deps/fmt-build/libfmt.a",
         "-lpthread",
-        "-ldl",
-        "-lsqlite3",
-        "-lpq",
-        "-lssl",
-        "-lcrypto",
-        "-lz"
+        "-ldl"
       ],
       "dependencies": [
         "<!(node -p \"require('node-addon-api').gyp\")"
       ],
       "cflags!": ["-fno-exceptions"],
-      "cflags_cc!": ["-fno-exceptions"],
+      "cflags_cc!": ["-fno-exceptions", "-std=gnu++17", "-std=gnu++14", "-std=c++17", "-std=c++14"],
       "defines": ["NAPI_DISABLE_CPP_EXCEPTIONS", "NAPI_VERSION=8"],
       "conditions": [
         ["OS=='win'", {
+          "defines": ["_HAS_EXCEPTIONS=1", "WIN32_LEAN_AND_MEAN", "NOMINMAX"],
           "msvs_settings": {
             "VCCLCompilerTool": {
               "ExceptionHandling": 1,
-              "AdditionalOptions": ["/std:c++23", "/bigobj"]
+              "RuntimeLibrary": 2,
+              "LanguageStandard": "stdcpp23",
+              "AdditionalOptions": ["/bigobj", "/EHsc", "/Zc:__cplusplus"]
+            },
+            "VCLinkerTool": {
+              "AdditionalLibraryDirectories": [
+                "../../build/Release",
+                "../../build/_deps/fmt-build/Release"
+              ]
             }
           },
           "libraries": [
-            "../../build/src/Release/vdb_core.lib",
-            "sqlite3.lib",
-            "libpq.lib",
+            "../../build/Release/vdb_core.lib",
+            "../../build/_deps/fmt-build/Release/fmt.lib",
             "ws2_32.lib",
             "advapi32.lib"
           ]
@@ -69,6 +75,7 @@
             "GCC_ENABLE_CPP_EXCEPTIONS": "YES",
             "CLANG_CXX_LANGUAGE_STANDARD": "c++23",
             "MACOSX_DEPLOYMENT_TARGET": "10.15",
+            "OTHER_CPLUSPLUSFLAGS": ["-std=c++23"],
             "OTHER_LDFLAGS": [
               "-stdlib=libc++",
               "-L/usr/local/lib",
@@ -81,11 +88,11 @@
           ]
         }],
         ["OS=='linux'", {
-          "cflags_cc": ["-std=c++23", "-fexceptions", "-mavx2", "-fPIC"],
+          "cflags_cc": ["-std=c++23", "-fexceptions", "-fPIC"],
           "ldflags": [
             "-Wl,--no-as-needed",
             "-Wl,--whole-archive",
-            "<(module_root_dir)/../../build/src/libvdb_core.a",
+            "<(module_root_dir)/../../build/libvdb_core.a",
             "-Wl,--no-whole-archive"
           ]
         }]

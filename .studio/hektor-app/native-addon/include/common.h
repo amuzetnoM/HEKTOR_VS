@@ -7,35 +7,16 @@
 #include <memory>
 #include <functional>
 
-// Forward declarations for C++ HEKTOR types
-namespace vdb {
-    template<typename T> class Result;
-    class Error;
-    enum class ErrorCode;
-    enum class DistanceMetric;
-    enum class DocumentType;
-    enum class Device;
-    enum class LogLevel;
-    enum class AnomalyType;
-    enum class ChunkStrategy;
-    enum class FusionMethod;
-    enum class ReplicationMode;
-    enum class ShardingStrategy;
-    enum class DataFormat;
-    enum class PerceptualCurve;
-    enum class DisplayType;
-    enum class ColorGamut;
-    enum class HttpMethod;
-    enum class Role;
-    enum class SimdLevel;
-}
+// Include HEKTOR core types directly instead of forward declarations
+// This ensures enum underlying types match
+#include "vdb/core.hpp"
 
 namespace hektor_native {
 
 // Helper to convert C++ Result<T> to N-API value or throw
 template<typename T>
 inline T UnwrapResult(const vdb::Result<T>& result, Napi::Env env) {
-    if (!result) {
+    if (!result.has_value()) {
         Napi::Error::New(env, result.error().message).ThrowAsJavaScriptException();
         return T{}; // Never reached due to exception
     }
@@ -45,7 +26,7 @@ inline T UnwrapResult(const vdb::Result<T>& result, Napi::Env env) {
 // Specialization for Result<void>
 template<>
 inline void UnwrapResult<void>(const vdb::Result<void>& result, Napi::Env env) {
-    if (!result) {
+    if (!result.has_value()) {
         Napi::Error::New(env, result.error().message).ThrowAsJavaScriptException();
     }
 }
@@ -108,32 +89,6 @@ inline bool GetBool(const Napi::Value& val, bool defaultValue = false) {
 inline bool IsNullOrUndefined(const Napi::Value& val) {
     return val.IsNull() || val.IsUndefined();
 }
-
-// Macro for defining enum conversion functions
-#define DEFINE_ENUM_CONVERTER(EnumType) \
-    Napi::Value EnumType##ToNapi(vdb::EnumType value, Napi::Env env); \
-    vdb::EnumType NapiTo##EnumType(const Napi::Value& val);
-
-// Enum converters
-DEFINE_ENUM_CONVERTER(DistanceMetric)
-DEFINE_ENUM_CONVERTER(DocumentType)
-DEFINE_ENUM_CONVERTER(Device)
-DEFINE_ENUM_CONVERTER(LogLevel)
-DEFINE_ENUM_CONVERTER(AnomalyType)
-DEFINE_ENUM_CONVERTER(ChunkStrategy)
-DEFINE_ENUM_CONVERTER(FusionMethod)
-DEFINE_ENUM_CONVERTER(ReplicationMode)
-DEFINE_ENUM_CONVERTER(ShardingStrategy)
-DEFINE_ENUM_CONVERTER(DataFormat)
-DEFINE_ENUM_CONVERTER(PerceptualCurve)
-DEFINE_ENUM_CONVERTER(DisplayType)
-DEFINE_ENUM_CONVERTER(ColorGamut)
-DEFINE_ENUM_CONVERTER(HttpMethod)
-DEFINE_ENUM_CONVERTER(Role)
-DEFINE_ENUM_CONVERTER(SimdLevel)
-DEFINE_ENUM_CONVERTER(ErrorCode)
-
-#undef DEFINE_ENUM_CONVERTER
 
 // Async worker base class for long-running operations
 class AsyncWorker : public Napi::AsyncWorker {

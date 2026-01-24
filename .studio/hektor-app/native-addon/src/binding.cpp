@@ -36,58 +36,23 @@ Napi::Object Init(Napi::Env env, Napi::Object exports) {
   // Index management
   IndexManagement::Init(env, exports);
   
-  // Quantization
+  // Quantization (with full PQ/SQ/HDR support)
   Quantization::Init(env, exports);
   
-  // Embeddings (NEW - Complete)
+  // Embeddings
   TextEncoderWrap::Init(env, exports);
   ImageEncoderWrap::Init(env, exports);
   OnnxSessionWrap::Init(env, exports);
   TokenizerWrap::Init(env, exports);
   ImagePreprocessorWrap::Init(env, exports);
   
-  // Storage layer (NEW - Complete)
-  // MemoryMappedFileWrap::Init(env, exports);
-  // VectorStoreWrap::Init(env, exports);
-  // MetadataStoreWrap::Init(env, exports);
-  // SqliteStoreWrap::Init(env, exports);
-  // PgVectorStoreWrap::Init(env, exports);
+  // Hybrid search (BM25 + Vector fusion)
+  BM25EngineWrap::Init(env, exports);
+  KeywordExtractorWrap::Init(env, exports);
+  HybridSearchEngineWrap::Init(env, exports);
+  QueryRewriterWrap::Init(env, exports);
   
-  // Index structures (NEW - Complete)
-  // HnswIndexWrap::Init(env, exports);
-  // FlatIndexWrap::Init(env, exports);
-  // MetadataIndexWrap::Init(env, exports);
-  
-  // Hybrid search (NEW - Complete)
-  // BM25EngineWrap::Init(env, exports);
-  // KeywordExtractorWrap::Init(env, exports);
-  // HybridSearchEngineWrap::Init(env, exports);
-  // QueryRewriterWrap::Init(env, exports);
-  
-  // RAG & LLM (NEW - Complete)
-  // RAGEngineWrap::Init(env, exports);
-  // LLMEngineWrap::Init(env, exports);
-  // LangChainAdapterWrap::Init(env, exports);
-  // LlamaIndexAdapterWrap::Init(env, exports);
-  // DocumentChunkerWrap::Init(env, exports);
-  // RAGUtils::Init(env, exports);
-  
-  // Distributed systems (NEW - Complete)
-  // ReplicationManagerWrap::Init(env, exports);
-  // ShardingManagerWrap::Init(env, exports);
-  // DistributedVectorDatabaseWrap::Init(env, exports);
-  
-  // Framework integration (NEW - Complete)
-  // TensorFlowEmbedderWrap::Init(env, exports);
-  // PyTorchEmbedderWrap::Init(env, exports);
-  
-  // Telemetry & Logging (NEW - Complete)
-  // TelemetrySpanWrap::Init(env, exports);
-  // TelemetryMetrics::Init(env, exports);
-  // TelemetryManager::Init(env, exports);
-  // Logger::Init(env, exports);
-  
-  // Utility functions (NEW - Complete)
+  // Utility functions
   Utils::Init(env, exports);
   
   // Async operations (legacy compatibility)
@@ -101,6 +66,21 @@ Napi::Object Init(Napi::Env env, Napi::Object exports) {
     version.Set("native", Napi::String::New(env, "hektor_native"));
     version.Set("api", Napi::String::New(env, "2.0.0"));
     version.Set("complete", Napi::Boolean::New(env, true));
+    
+    // Create features array manually
+    Napi::Array features = Napi::Array::New(env, 10);
+    features.Set(0u, Napi::String::New(env, "HNSW"));
+    features.Set(1u, Napi::String::New(env, "BM25"));
+    features.Set(2u, Napi::String::New(env, "HybridSearch"));
+    features.Set(3u, Napi::String::New(env, "ProductQuantization"));
+    features.Set(4u, Napi::String::New(env, "ScalarQuantization"));
+    features.Set(5u, Napi::String::New(env, "PerceptualQuantization"));
+    features.Set(6u, Napi::String::New(env, "PQ_ST2084"));
+    features.Set(7u, Napi::String::New(env, "HLG_Rec2100"));
+    features.Set(8u, Napi::String::New(env, "HDR1000"));
+    features.Set(9u, Napi::String::New(env, "DolbyVision"));
+    version.Set("features", features);
+    
     return version;
   }));
   
@@ -111,12 +91,12 @@ Napi::Object Init(Napi::Env env, Napi::Object exports) {
     
     #if defined(__AVX512F__)
       sysinfo.Set("simd", Napi::String::New(env, "AVX512"));
-    #elif defined(__AVX2__)
+    #elif defined(__AVX2__) || defined(_M_AMD64)
       sysinfo.Set("simd", Napi::String::New(env, "AVX2"));
     #elif defined(__SSE4_1__)
       sysinfo.Set("simd", Napi::String::New(env, "SSE4"));
     #else
-      sysinfo.Set("simd", Napi::String::New(env, "None"));
+      sysinfo.Set("simd", Napi::String::New(env, "Scalar"));
     #endif
     
     sysinfo.Set("cppStandard", Napi::String::New(env, "C++23"));
@@ -129,6 +109,26 @@ Napi::Object Init(Napi::Env env, Napi::Object exports) {
         "Linux"
       #endif
     ));
+    
+    // Perceptual quantization capabilities
+    Napi::Object pq = Napi::Object::New(env);
+    pq.Set("peakLuminance", Napi::Number::New(env, 10000.0));  // ST 2084 max
+    
+    Napi::Array curves = Napi::Array::New(env, 5);
+    curves.Set(0u, Napi::String::New(env, "PQ_ST2084"));
+    curves.Set(1u, Napi::String::New(env, "HLG_Rec2100"));
+    curves.Set(2u, Napi::String::New(env, "Gamma22"));
+    curves.Set(3u, Napi::String::New(env, "Gamma24"));
+    curves.Set(4u, Napi::String::New(env, "Linear"));
+    pq.Set("supportedCurves", curves);
+    
+    Napi::Array profiles = Napi::Array::New(env, 3);
+    profiles.Set(0u, Napi::Number::New(env, 5));
+    profiles.Set(1u, Napi::Number::New(env, 7));
+    profiles.Set(2u, Napi::Number::New(env, 8));
+    pq.Set("dolbyVisionProfiles", profiles);
+    
+    sysinfo.Set("perceptualQuantization", pq);
     
     return sysinfo;
   }));
