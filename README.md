@@ -225,7 +225,7 @@ pip install hektor-vdb[ml]
 **Requirements:**
 - Python 3.10+
 - CMake 3.20+
-- C++23 compatible compiler (GCC 11+, Clang 14+, MSVC 2022+)
+- C++23 compatible compiler (GCC 13+, Clang 16+, MSVC 2022 17.3+)
 
 ### Automated Setup from Source
 
@@ -309,7 +309,7 @@ for r in results:
 
 | Component | Technology | Purpose |
 |-----------|------------|---------|
-| **Core Engine** | C++20 | Vector operations, HNSW index, storage |
+| **Core Engine** | C++23 | Vector operations, HNSW index, storage |
 | **Distance Functions** | AVX2/AVX-512 SIMD | Optimized similarity computation |
 | **Text Embeddings** | ONNX (MiniLM-L6-v2) | Sentence embeddings (384-dim) |
 | **Image Embeddings** | ONNX (CLIP ViT-B/32) | Visual embeddings (512-dim) |
@@ -326,13 +326,13 @@ for r in results:
 
 | Component | Minimum | Recommended |
 |-----------|---------|-------------|
-| OS | Windows 10 (1903+) / Linux | Windows 11 / Ubuntu 22.04 |
+| OS | Windows 10 (1903+) / Linux | Windows 11 / Ubuntu 24.04 |
 | CPU | x64 with SSE4.1 | Intel 11th gen+ / AMD Zen3+ (AVX-512) |
 | RAM | 8 GB | 16+ GB |
 | Storage | 5 GB | SSD with 20+ GB |
-| Python | 3.10 | 3.12 |
+| Python | 3.10 | 3.12+ |
 | CMake | 3.20 | 3.28+ |
-| Compiler | MSVC 19.30 / GCC 11 | Latest |
+| Compiler | GCC 13+ / Clang 16+ / MSVC 19.33+ | GCC 14+ / Clang 18+ / MSVC Latest |
 
 ### Dependencies
 

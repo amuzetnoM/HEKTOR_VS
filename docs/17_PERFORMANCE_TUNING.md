@@ -54,8 +54,8 @@ Hektor is designed for **warp-speed performance** with the ability to scale to b
 **Configuration**:
 - Dataset: 1M vectors, 512 dimensions, float32
 - Index: HNSW (M=16, ef_construction=200)
-- OS: Ubuntu 22.04 LTS, Kernel 6.2
-- Compiler: GCC 12.3, -O3 -march=native
+- OS: Ubuntu 24.04 LTS, Kernel 6.5+
+- Compiler: GCC 14+, Clang 18+, or MSVC 19.33+ with -O3 -march=native
 
 ---
 

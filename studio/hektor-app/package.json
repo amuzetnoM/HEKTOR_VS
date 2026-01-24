@@ -3,7 +3,7 @@
   "version": "1.0.0",
   "description": "HEKTOR Perceptual Quantization Studio - Industry-first 3D vector database visualization",
   "main": "dist/main/index.js",
-  "author": "HEKTOR Team",
+  "author": "Ali A. Shakil / ARTIFACT VIRTUAL",
   "license": "MIT",
   "private": true,
   "scripts": {

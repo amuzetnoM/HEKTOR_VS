@@ -43,7 +43,7 @@ This project adheres to a code of conduct. By participating, you are expected to
 
 ### Prerequisites
 
-- C++20 compatible compiler (MSVC 19.30+, GCC 11+, Clang 14+)
+- C++23 compatible compiler (MSVC 19.33+, GCC 13+, Clang 16+)
 - CMake 3.20+
 - Python 3.10+ (for bindings and scripts)
 - Git

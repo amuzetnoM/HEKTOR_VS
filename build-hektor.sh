@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 # ============================================================================
-# Hektor VDB - Comprehensive Automated Build & Repair Script
+# Hektor VDB - Automated Build & Repair Script
 # ============================================================================
 # Description: One-command setup for Hektor Vector Database on any system
 # Usage: ./build-hektor.sh [options]
@@ -12,6 +12,10 @@
 #   --benchmark   Run benchmarks after build
 #   --skip-deps   Skip dependency installation
 #   --help        Show this help message
+# ============================================================================
+# Author: Ali A. Shakil / ARTIFACT VIRTUAL
+# License: MIT
+# Repository: https://github.com/amuzetnoM/hektor
 # ============================================================================
 
 set -e  # Exit on error
@@ -26,6 +30,8 @@ PROJECT_ROOT="$SCRIPT_DIR"
 BUILD_DIR="$PROJECT_ROOT/build"
 VENV_DIR="$PROJECT_ROOT/venv"
 LOG_FILE="$PROJECT_ROOT/build-hektor.log"
+VERSION="4.0.0"
+BUILD_START_TIME=$(date +%s)
 
 # Colors for output
 RED='\033[0;31m'
@@ -33,8 +39,28 @@ GREEN='\033[0;32m'
 YELLOW='\033[1;33m'
 BLUE='\033[0;34m'
 CYAN='\033[0;36m'
+MAGENTA='\033[0;35m'
+WHITE='\033[1;37m'
 BOLD='\033[1m'
+DIM='\033[2m'
 NC='\033[0m' # No Color
+
+# Unicode characters for visuals
+STAR="★"
+ROCKET="🚀"
+CHECK="✓"
+CROSS="✗"
+WARNING="⚠"
+GEAR="⚙"
+PACKAGE="📦"
+PYTHON="🐍"
+HAMMER="🔨"
+TEST="🧪"
+CHART="📊"
+WRENCH="🔧"
+SPARKLE="✨"
+LIGHTNING="⚡"
+FIRE="🔥"
 
 # Default options
 CLEAN_BUILD=false
@@ -43,6 +69,7 @@ INSTALL_DEV=false
 RUN_TESTS=false
 RUN_BENCHMARKS=false
 SKIP_DEPS=false
+QUIET_MODE=false
 
 # System detection
 OS_TYPE=""
@@ -53,44 +80,266 @@ CMAKE_CMD="cmake"
 NINJA_CMD="ninja"
 
 # ============================================================================
+# Visual Effects & Animation Functions
+# ============================================================================
+
+# Starfield animation - displays during long operations
+starfield_animation() {
+    local duration=${1:-3}
+    local width=$(tput cols 2>/dev/null || echo 60)
+    local height=8
+    local stars=()
+    local end_time=$((SECONDS + duration))
+    
+    # Initialize stars
+    for ((i=0; i<30; i++)); do
+        stars+=("$((RANDOM % width)):$((RANDOM % height)):$((RANDOM % 3))")
+    done
+    
+    # Hide cursor
+    tput civis 2>/dev/null || true
+    
+    while [ $SECONDS -lt $end_time ]; do
+        # Clear animation area
+        for ((y=0; y<height; y++)); do
+            printf "\r%${width}s\n" ""
+        done
+        printf "\033[${height}A"
+        
+        # Draw stars
+        for i in "${!stars[@]}"; do
+            IFS=':' read -r x y brightness <<< "${stars[$i]}"
+            
+            # Move star
+            x=$((x - 1 - brightness))
+            if [ $x -lt 0 ]; then
+                x=$((width - 1))
+                y=$((RANDOM % height))
+                brightness=$((RANDOM % 3))
+            fi
+            stars[$i]="$x:$y:$brightness"
+            
+            # Draw star based on brightness
+            printf "\033[${y};${x}H"
+            case $brightness in
+                0) printf "${DIM}.${NC}" ;;
+                1) printf "${WHITE}*${NC}" ;;
+                2) printf "${BOLD}${WHITE}★${NC}" ;;
+            esac
+        done
+        
+        sleep 0.05
+    done
+    
+    # Clear and show cursor
+    for ((y=0; y<height; y++)); do
+        printf "\r%${width}s\n" ""
+    done
+    printf "\033[${height}A"
+    tput cnorm 2>/dev/null || true
+}
+
+# Progress bar with percentage
+progress_bar() {
+    local current=$1
+    local total=$2
+    local width=${3:-40}
+    local label=${4:-"Progress"}
+    
+    local percent=$((current * 100 / total))
+    local filled=$((current * width / total))
+    local empty=$((width - filled))
+    
+    # Create the bar
+    local bar=""
+    for ((i=0; i<filled; i++)); do bar+="█"; done
+    for ((i=0; i<empty; i++)); do bar+="░"; done
+    
+    # Color based on progress
+    local color=$CYAN
+    if [ $percent -ge 75 ]; then color=$GREEN
+    elif [ $percent -ge 50 ]; then color=$YELLOW
+    fi
+    
+    printf "\r${DIM}${label}:${NC} ${color}[${bar}]${NC} ${BOLD}${percent}%%${NC}"
+}
+
+# Spinner animation for ongoing tasks
+spinner() {
+    local pid=$1
+    local message=${2:-"Working"}
+    local spinners=("⠋" "⠙" "⠹" "⠸" "⠼" "⠴" "⠦" "⠧" "⠇" "⠏")
+    local i=0
+    
+    tput civis 2>/dev/null || true
+    
+    while kill -0 $pid 2>/dev/null; do
+        printf "\r${CYAN}${spinners[$i]}${NC} ${message}..."
+        i=$(( (i + 1) % ${#spinners[@]} ))
+        sleep 0.1
+    done
+    
+    printf "\r%50s\r"
+    tput cnorm 2>/dev/null || true
+}
+
+# Typing effect for important messages
+type_effect() {
+    local text="$1"
+    local delay=${2:-0.03}
+    
+    for ((i=0; i<${#text}; i++)); do
+        printf "%s" "${text:$i:1}"
+        sleep $delay
+    done
+    echo ""
+}
+
+# Pulsing dot animation
+pulse_dots() {
+    local message=$1
+    local duration=${2:-2}
+    local end_time=$((SECONDS + duration))
+    
+    while [ $SECONDS -lt $end_time ]; do
+        printf "\r${CYAN}${message}   ${NC}"
+        sleep 0.3
+        printf "\r${CYAN}${message}.  ${NC}"
+        sleep 0.3
+        printf "\r${CYAN}${message}.. ${NC}"
+        sleep 0.3
+        printf "\r${CYAN}${message}...${NC}"
+        sleep 0.3
+    done
+    printf "\r%$((${#message} + 5))s\r"
+}
+
+# Matrix-style rain effect (brief)
+matrix_effect() {
+    local width=$(tput cols 2>/dev/null || echo 60)
+    local chars="ヘクトルVDBアーティファクト01"
+    local columns=()
+    
+    # Initialize columns
+    for ((i=0; i<width; i+=3)); do
+        columns+=($((RANDOM % 5)))
+    done
+    
+    tput civis 2>/dev/null || true
+    
+    for ((frame=0; frame<15; frame++)); do
+        printf "\r"
+        local col=0
+        for pos in "${columns[@]}"; do
+            if [ $((RANDOM % 3)) -eq 0 ]; then
+                printf "${GREEN}${chars:$((RANDOM % ${#chars})):1}${NC}"
+            else
+                printf " "
+            fi
+            printf "  "
+            col=$((col + 1))
+        done
+        echo ""
+        sleep 0.05
+    done
+    
+    printf "\033[15A"
+    for ((i=0; i<15; i++)); do
+        printf "\r%${width}s\n" ""
+    done
+    printf "\033[15A"
+    
+    tput cnorm 2>/dev/null || true
+}
+
+# DNA helix animation
+dna_helix() {
+    local frames=20
+    local width=40
+    
+    tput civis 2>/dev/null || true
+    
+    for ((f=0; f<frames; f++)); do
+        printf "\r"
+        for ((i=0; i<width; i++)); do
+            local phase=$(( (i + f) % 8 ))
+            case $phase in
+                0|1) printf "${CYAN}╭${NC}" ;;
+                2|3) printf "${BLUE}─${NC}" ;;
+                4|5) printf "${CYAN}╮${NC}" ;;
+                6|7) printf "${BLUE}─${NC}" ;;
+            esac
+        done
+        sleep 0.08
+    done
+    printf "\r%${width}s\r"
+    
+    tput cnorm 2>/dev/null || true
+}
+
+# ============================================================================
 # Helper Functions
 # ============================================================================
 
 log() {
-    echo -e "${CYAN}[$(date +'%H:%M:%S')]${NC} $*" | tee -a "$LOG_FILE"
+    echo -e "${DIM}[$(date +'%H:%M:%S')]${NC} $*" | tee -a "$LOG_FILE"
 }
 
 log_success() {
-    echo -e "${GREEN}✓${NC} $*" | tee -a "$LOG_FILE"
+    echo -e "${GREEN}${CHECK}${NC} $*" | tee -a "$LOG_FILE"
 }
 
 log_warning() {
-    echo -e "${YELLOW}⚠${NC} $*" | tee -a "$LOG_FILE"
+    echo -e "${YELLOW}${WARNING}${NC} $*" | tee -a "$LOG_FILE"
 }
 
 log_error() {
-    echo -e "${RED}✗${NC} $*" | tee -a "$LOG_FILE"
+    echo -e "${RED}${CROSS}${NC} $*" | tee -a "$LOG_FILE"
 }
 
 log_step() {
     echo ""
-    echo -e "${BOLD}${BLUE}═══════════════════════════════════════════════════════${NC}"
-    echo -e "${BOLD}${BLUE}$*${NC}"
-    echo -e "${BOLD}${BLUE}═══════════════════════════════════════════════════════${NC}"
+    echo -e "${BOLD}${MAGENTA}┏━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┓${NC}"
+    echo -e "${BOLD}${MAGENTA}┃${NC} ${BOLD}$*${NC}"
+    echo -e "${BOLD}${MAGENTA}┗━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┛${NC}"
     echo "" | tee -a "$LOG_FILE"
+}
+
+log_substep() {
+    echo -e "  ${CYAN}▸${NC} $*" | tee -a "$LOG_FILE"
+}
+
+# Calculate elapsed time
+elapsed_time() {
+    local start=$1
+    local end=$(date +%s)
+    local diff=$((end - start))
+    local mins=$((diff / 60))
+    local secs=$((diff % 60))
+    if [ $mins -gt 0 ]; then
+        echo "${mins}m ${secs}s"
+    else
+        echo "${secs}s"
+    fi
 }
 
 handle_error() {
     local exit_code=$1
     local line_number=$2
+    echo ""
+    echo -e "${RED}┏━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┓${NC}"
+    echo -e "${RED}┃${NC} ${BOLD}${RED}BUILD FAILED${NC}"
+    echo -e "${RED}┗━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┛${NC}"
+    echo ""
     log_error "Build failed at line $line_number with exit code $exit_code"
     log_error "Check $LOG_FILE for details"
-    log ""
-    log "Troubleshooting tips:"
-    log "  1. Run with --repair to fix common issues"
-    log "  2. Run with --clean to start fresh"
-    log "  3. Check system dependencies are installed"
-    log "  4. Review $LOG_FILE for detailed error messages"
+    echo ""
+    echo -e "${YELLOW}${BOLD}Troubleshooting Tips:${NC}"
+    echo -e "  ${CYAN}1.${NC} Run with ${BOLD}--repair${NC} to fix common issues"
+    echo -e "  ${CYAN}2.${NC} Run with ${BOLD}--clean${NC} to start fresh"
+    echo -e "  ${CYAN}3.${NC} Ensure C++23 compiler is installed (GCC 13+, Clang 16+)"
+    echo -e "  ${CYAN}4.${NC} Review ${BOLD}$LOG_FILE${NC} for detailed error messages"
+    echo ""
     exit $exit_code
 }
 
@@ -126,7 +375,7 @@ ${BOLD}EXAMPLES:${NC}
 ${BOLD}REQUIREMENTS:${NC}
     - Python 3.10+ (auto-installs if missing)
     - CMake 3.20+ (auto-installs if missing)
-    - C++ compiler: GCC 11+, Clang 14+, or MSVC 2022+
+    - C++ compiler: GCC 13+, Clang 16+, or MSVC 2022 17.3+ (C++23 required)
     - Internet connection for downloading dependencies
 
 ${BOLD}PLATFORMS SUPPORTED:${NC}
@@ -197,57 +446,75 @@ detect_system() {
 
 install_system_dependencies() {
     if [ "$SKIP_DEPS" = true ]; then
-        log "Skipping system dependency installation (--skip-deps)"
+        log_substep "Skipping system dependency installation (--skip-deps)"
         return 0
     fi
     
-    log_step "📦 Installing System Dependencies"
+    log_step "${PACKAGE} Installing System Dependencies"
+    
+    echo -e "  ${DIM}This may take a few minutes...${NC}"
+    echo ""
     
     case $PACKAGE_MANAGER in
         apt)
-            log "Using apt (Debian/Ubuntu)..."
-            sudo apt-get update -qq
+            log_substep "Using apt (Debian/Ubuntu)..."
+            log_substep "Updating package lists..."
+            sudo apt-get update -qq 2>&1 | tee -a "$LOG_FILE" &
+            spinner $! "Updating package lists"
+            
+            log_substep "Installing build tools and libraries..."
             sudo apt-get install -y -qq \
                 build-essential cmake ninja-build \
                 python3 python3-pip python3-venv python3-dev \
                 libsqlite3-dev zlib1g-dev libicu-dev \
-                git curl wget || log_warning "Some packages may have failed to install"
+                git curl wget 2>&1 | tee -a "$LOG_FILE" &
+            spinner $! "Installing packages"
+            log_success "apt packages installed"
             ;;
         
         dnf|yum)
-            log "Using $PACKAGE_MANAGER (RedHat/Fedora/CentOS)..."
-            sudo $PACKAGE_MANAGER groupinstall -y "Development Tools" || true
+            log_substep "Using $PACKAGE_MANAGER (RedHat/Fedora/CentOS)..."
+            sudo $PACKAGE_MANAGER groupinstall -y "Development Tools" 2>&1 | tee -a "$LOG_FILE" &
+            spinner $! "Installing development tools"
+            
             sudo $PACKAGE_MANAGER install -y \
                 cmake ninja-build \
                 python3 python3-pip python3-devel \
                 sqlite-devel zlib-devel libicu-devel \
-                git curl wget || log_warning "Some packages may have failed to install"
+                git curl wget 2>&1 | tee -a "$LOG_FILE" &
+            spinner $! "Installing packages"
+            log_success "$PACKAGE_MANAGER packages installed"
             ;;
         
         pacman)
-            log "Using pacman (Arch Linux)..."
+            log_substep "Using pacman (Arch Linux)..."
             sudo pacman -Sy --noconfirm --needed \
                 base-devel cmake ninja \
                 python python-pip \
                 sqlite zlib icu \
-                git curl wget || log_warning "Some packages may have failed to install"
+                git curl wget 2>&1 | tee -a "$LOG_FILE" &
+            spinner $! "Installing packages"
+            log_success "pacman packages installed"
             ;;
         
         apk)
-            log "Using apk (Alpine Linux)..."
+            log_substep "Using apk (Alpine Linux)..."
             sudo apk add --no-cache \
                 build-base cmake ninja \
                 python3 python3-dev py3-pip \
                 sqlite-dev zlib-dev icu-dev \
-                git curl wget || log_warning "Some packages may have failed to install"
+                git curl wget 2>&1 | tee -a "$LOG_FILE" &
+            spinner $! "Installing packages"
+            log_success "apk packages installed"
             ;;
         
         brew)
-            log "Using Homebrew (macOS)..."
+            log_substep "Using Homebrew (macOS)..."
             # Check if Homebrew is installed
             if ! command -v brew &> /dev/null; then
-                log "Installing Homebrew..."
-                /bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"
+                log_substep "Installing Homebrew..."
+                /bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)" &
+                spinner $! "Installing Homebrew"
                 
                 # Add Homebrew to PATH
                 if [[ -f "/opt/homebrew/bin/brew" ]]; then
@@ -257,17 +524,19 @@ install_system_dependencies() {
                 fi
             fi
             
-            brew update
-            brew install cmake ninja python@3.12 || brew upgrade cmake ninja python@3.12 || true
+            brew update 2>&1 | tee -a "$LOG_FILE" &
+            spinner $! "Updating Homebrew"
+            brew install cmake ninja python@3.12 2>&1 | tee -a "$LOG_FILE" || brew upgrade cmake ninja python@3.12 2>&1 | tee -a "$LOG_FILE" || true
+            log_success "Homebrew packages installed"
             ;;
         
         *)
             log_warning "No package manager detected. Please install dependencies manually:"
-            log "  - CMake 3.20+"
-            log "  - Ninja build"
-            log "  - Python 3.10+"
-            log "  - C++ compiler (GCC 11+, Clang 14+, or MSVC 2022+)"
-            log "  - SQLite3 development libraries"
+            echo -e "    ${DIM}- CMake 3.20+${NC}"
+            echo -e "    ${DIM}- Ninja build${NC}"
+            echo -e "    ${DIM}- Python 3.10+${NC}"
+            echo -e "    ${DIM}- C++ compiler (GCC 13+, Clang 16+, or MSVC 2022 17.3+)${NC}"
+            echo -e "    ${DIM}- SQLite3 development libraries${NC}"
             ;;
     esac
     
@@ -295,7 +564,7 @@ find_python() {
 }
 
 setup_python_environment() {
-    log_step "🐍 Setting up Python Environment"
+    log_step "${PYTHON} Setting up Python Environment"
     
     # Find Python
     if ! find_python; then
@@ -305,16 +574,17 @@ setup_python_environment() {
     
     # Create virtual environment
     if [ "$REPAIR_MODE" = true ] && [ -d "$VENV_DIR" ]; then
-        log "Removing old virtual environment for repair..."
+        log_substep "Removing old virtual environment for repair..."
         rm -rf "$VENV_DIR"
     fi
     
     if [ ! -d "$VENV_DIR" ]; then
-        log "Creating virtual environment..."
-        $PYTHON_CMD -m venv "$VENV_DIR"
+        log_substep "Creating virtual environment..."
+        $PYTHON_CMD -m venv "$VENV_DIR" &
+        spinner $! "Creating venv"
         log_success "Virtual environment created"
     else
-        log "Virtual environment already exists"
+        log_substep "Virtual environment already exists"
     fi
     
     # Activate virtual environment
@@ -322,50 +592,60 @@ setup_python_environment() {
     log_success "Virtual environment activated"
     
     # Upgrade pip
-    log "Upgrading pip and build tools..."
-    python -m pip install --upgrade pip setuptools wheel --quiet
-    log_success "pip upgraded"
+    log_substep "Upgrading pip and build tools..."
+    python -m pip install --upgrade pip setuptools wheel --quiet 2>&1 | tee -a "$LOG_FILE" &
+    spinner $! "Upgrading pip"
+    log_success "pip upgraded to latest version"
 }
 
 install_python_dependencies() {
-    log_step "📚 Installing Python Dependencies"
+    log_step "${PACKAGE} Installing Python Dependencies"
+    
+    echo -e "  ${DIM}Installing required packages...${NC}"
+    echo ""
     
     # Install build dependencies
-    log "Installing build dependencies..."
-    pip install --upgrade scikit-build-core pybind11 numpy --quiet
+    log_substep "Installing build dependencies..."
+    pip install --upgrade scikit-build-core pybind11 numpy --quiet 2>&1 | tee -a "$LOG_FILE" &
+    spinner $! "scikit-build-core, pybind11, numpy"
     
     # Install core dependencies
     if [ -f "$PROJECT_ROOT/pyproject.toml" ]; then
-        log "Installing from pyproject.toml..."
-        pip install -e . --quiet
+        log_substep "Installing from pyproject.toml..."
+        pip install -e . --quiet 2>&1 | tee -a "$LOG_FILE" &
+        spinner $! "Installing hektor-vdb"
         log_success "Core dependencies installed"
     elif [ -f "$PROJECT_ROOT/requirements.txt" ]; then
-        log "Installing from requirements.txt..."
-        pip install -r "$PROJECT_ROOT/requirements.txt" --quiet
+        log_substep "Installing from requirements.txt..."
+        pip install -r "$PROJECT_ROOT/requirements.txt" --quiet 2>&1 | tee -a "$LOG_FILE" &
+        spinner $! "Installing requirements"
         log_success "Requirements installed"
     fi
     
     # Install optional dependencies
-    log "Installing optional dependencies (ml, data)..."
+    log_substep "Installing optional ML dependencies..."
     pip install --quiet \
         "onnxruntime>=1.19.0" \
         "huggingface-hub>=0.26.0" \
         "transformers>=4.46.0" \
         "tokenizers>=0.20.0" \
         "pandas>=2.1.0" \
-        "Pillow>=10.4.0" || log_warning "Some optional dependencies may have failed"
+        "Pillow>=10.4.0" 2>&1 | tee -a "$LOG_FILE" &
+    spinner $! "ML dependencies (onnxruntime, transformers...)"
+    log_success "Optional dependencies installed"
     
     # Install dev dependencies if requested
     if [ "$INSTALL_DEV" = true ]; then
-        log "Installing development dependencies..."
+        log_substep "Installing development dependencies..."
         pip install --quiet \
             pytest pytest-cov pytest-benchmark pytest-asyncio \
             black ruff mypy \
-            mkdocs mkdocs-material || log_warning "Some dev dependencies may have failed"
+            mkdocs mkdocs-material 2>&1 | tee -a "$LOG_FILE" &
+        spinner $! "Dev tools (pytest, black, ruff, mypy...)"
         log_success "Development dependencies installed"
     fi
     
-    log_success "Python dependencies installation completed"
+    log_success "Python dependencies installation completed ${CHECK}"
 }
 
 # ============================================================================
@@ -373,11 +653,11 @@ install_python_dependencies() {
 # ============================================================================
 
 configure_cmake() {
-    log_step "⚙️  Configuring CMake"
+    log_step "${GEAR} Configuring CMake"
     
     # Clean build if requested
     if [ "$CLEAN_BUILD" = true ] && [ -d "$BUILD_DIR" ]; then
-        log "Removing old build directory..."
+        log_substep "Removing old build directory..."
         rm -rf "$BUILD_DIR"
     fi
     
@@ -389,13 +669,14 @@ configure_cmake() {
     local generator="Unix Makefiles"
     if command -v ninja &> /dev/null; then
         generator="Ninja"
-        log "Using Ninja build system"
+        log_substep "Using Ninja build system ${LIGHTNING}"
     else
-        log_warning "Ninja not found, using Make"
+        log_warning "Ninja not found, using Make (slower)"
     fi
     
     # Configure CMake with optimizations
-    log "Configuring build..."
+    log_substep "Configuring CMake..."
+    echo ""
     cmake "$PROJECT_ROOT" \
         -G "$generator" \
         -DCMAKE_BUILD_TYPE=Release \
@@ -403,6 +684,7 @@ configure_cmake() {
         -DVDB_BUILD_TESTS=ON \
         -DVDB_BUILD_BENCHMARKS=$([ "$RUN_BENCHMARKS" = true ] && echo "ON" || echo "OFF") \
         -DVDB_USE_AVX2=ON \
+        -DVDB_USE_LLAMA_CPP=OFF \
         -DCMAKE_EXPORT_COMPILE_COMMANDS=ON \
         2>&1 | tee -a "$LOG_FILE"
     
@@ -410,7 +692,7 @@ configure_cmake() {
 }
 
 build_project() {
-    log_step "🔨 Building Project"
+    log_step "${HAMMER} Building Project"
     
     cd "$BUILD_DIR"
     
@@ -422,16 +704,33 @@ build_project() {
         num_cores=$(sysctl -n hw.ncpu)
     fi
     
-    log "Building with $num_cores parallel jobs..."
+    log_substep "Building with ${BOLD}$num_cores${NC} parallel jobs..."
+    echo -e "  ${DIM}This is the main compilation step - please wait...${NC}"
+    echo ""
     
-    # Build
+    # Show a building animation header
+    echo -e "  ${CYAN}╭────────────────────────────────────────────────────────╮${NC}"
+    echo -e "  ${CYAN}│${NC}  ${BOLD}Compiling C++23 source files...${NC}                      ${CYAN}│${NC}"
+    echo -e "  ${CYAN}╰────────────────────────────────────────────────────────╯${NC}"
+    echo ""
+    
+    # Build with progress output
     if command -v ninja &> /dev/null && [ -f "build.ninja" ]; then
-        ninja -j$num_cores 2>&1 | tee -a "$LOG_FILE"
+        ninja -j$num_cores 2>&1 | while IFS= read -r line; do
+            # Show only progress lines and errors
+            if [[ "$line" =~ ^\[.*\] ]]; then
+                printf "\r  ${GREEN}%s${NC}" "$line"
+            elif [[ "$line" =~ error:|Error:|ERROR ]]; then
+                echo -e "\n  ${RED}$line${NC}"
+            fi
+            echo "$line" >> "$LOG_FILE"
+        done
+        echo ""
     else
         make -j$num_cores 2>&1 | tee -a "$LOG_FILE"
     fi
     
-    log_success "Build completed successfully"
+    log_success "Build completed successfully ${SPARKLE}"
 }
 
 run_tests() {
@@ -439,13 +738,14 @@ run_tests() {
         return 0
     fi
     
-    log_step "🧪 Running Tests"
+    log_step "${TEST} Running Tests"
     
     cd "$BUILD_DIR"
     
     if [ -f "CTestTestfile.cmake" ]; then
+        log_substep "Executing test suite..."
         ctest --output-on-failure --parallel 2 2>&1 | tee -a "$LOG_FILE"
-        log_success "Tests passed"
+        log_success "All tests passed ${CHECK}"
     else
         log_warning "No tests configured"
     fi
@@ -571,64 +871,149 @@ main() {
     # Clear log file
     > "$LOG_FILE"
     
+    # Clear screen for fresh start
+    clear 2>/dev/null || true
+    
+    # Epic banner
     echo ""
-    echo -e "${BOLD}${CYAN}╔═══════════════════════════════════════════════════════════╗${NC}"
-    echo -e "${BOLD}${CYAN}║                                                           ║${NC}"
-    echo -e "${BOLD}${CYAN}║        🚀 Hektor VDB - Automated Build System 🚀         ║${NC}"
-    echo -e "${BOLD}${CYAN}║                                                           ║${NC}"
-    echo -e "${BOLD}${CYAN}║     High-Performance Vector Database with SIMD            ║${NC}"
-    echo -e "${BOLD}${CYAN}║                                                           ║${NC}"
-    echo -e "${BOLD}${CYAN}╚═══════════════════════════════════════════════════════════╝${NC}"
+    echo -e "${BOLD}${CYAN}"
+    cat << 'BANNER'
+    ██╗  ██╗███████╗██╗  ██╗████████╗ ██████╗ ██████╗     ██╗   ██╗██████╗ ██████╗ 
+    ██║  ██║██╔════╝██║ ██╔╝╚══██╔══╝██╔═══██╗██╔══██╗    ██║   ██║██╔══██╗██╔══██╗
+    ███████║█████╗  █████╔╝    ██║   ██║   ██║██████╔╝    ██║   ██║██║  ██║██████╔╝
+    ██╔══██║██╔══╝  ██╔═██╗    ██║   ██║   ██║██╔══██╗    ╚██╗ ██╔╝██║  ██║██╔══██╗
+    ██║  ██║███████╗██║  ██╗   ██║   ╚██████╔╝██║  ██║     ╚████╔╝ ██████╔╝██████╔╝
+    ╚═╝  ╚═╝╚══════╝╚═╝  ╚═╝   ╚═╝    ╚═════╝ ╚═╝  ╚═╝      ╚═══╝  ╚═════╝ ╚═════╝ 
+BANNER
+    echo -e "${NC}"
+    echo ""
+    echo -e "    ${BOLD}${WHITE}High-Performance Vector Database with SIMD Optimization${NC}"
+    echo -e "    ${DIM}Version ${VERSION} • C++23 • AVX2/AVX-512 • ONNX Embeddings${NC}"
+    echo ""
+    echo -e "    ${MAGENTA}━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━${NC}"
+    echo -e "    ${DIM}Author: Ali A. Shakil • ARTIFACT VIRTUAL${NC}"
+    echo -e "    ${DIM}Repository: https://github.com/amuzetnoM/hektor${NC}"
+    echo -e "    ${MAGENTA}━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━${NC}"
+    echo ""
+    
+    # Short starfield animation
+    echo -e "    ${DIM}Initializing build system...${NC}"
+    sleep 0.5
+    dna_helix
     echo ""
     
     log "Build started at $(date)"
     log "Log file: $LOG_FILE"
+    echo ""
     
     # Parse command line arguments
     parse_arguments "$@"
     
-    # Execute build pipeline
+    # Show build configuration
+    echo -e "${BOLD}${WHITE}Build Configuration:${NC}"
+    echo -e "  ${CYAN}▸${NC} Clean Build:    $([ "$CLEAN_BUILD" = true ] && echo "${GREEN}Yes${NC}" || echo "${DIM}No${NC}")"
+    echo -e "  ${CYAN}▸${NC} Repair Mode:    $([ "$REPAIR_MODE" = true ] && echo "${GREEN}Yes${NC}" || echo "${DIM}No${NC}")"
+    echo -e "  ${CYAN}▸${NC} Dev Tools:      $([ "$INSTALL_DEV" = true ] && echo "${GREEN}Yes${NC}" || echo "${DIM}No${NC}")"
+    echo -e "  ${CYAN}▸${NC} Run Tests:      $([ "$RUN_TESTS" = true ] && echo "${GREEN}Yes${NC}" || echo "${DIM}No${NC}")"
+    echo -e "  ${CYAN}▸${NC} Benchmarks:     $([ "$RUN_BENCHMARKS" = true ] && echo "${GREEN}Yes${NC}" || echo "${DIM}No${NC}")"
+    echo ""
+    
+    # Execute build pipeline with progress tracking
+    local total_steps=8
+    local current_step=0
+    
+    ((current_step++)); progress_bar $current_step $total_steps 50 "Overall Progress"; echo ""
     detect_system
     
     if [ "$REPAIR_MODE" = true ]; then
+        ((current_step++)); progress_bar $current_step $total_steps 50 "Overall Progress"; echo ""
         repair_installation
     fi
     
+    ((current_step++)); progress_bar $current_step $total_steps 50 "Overall Progress"; echo ""
     install_system_dependencies
+    
+    ((current_step++)); progress_bar $current_step $total_steps 50 "Overall Progress"; echo ""
     setup_python_environment
+    
+    ((current_step++)); progress_bar $current_step $total_steps 50 "Overall Progress"; echo ""
     install_python_dependencies
+    
+    ((current_step++)); progress_bar $current_step $total_steps 50 "Overall Progress"; echo ""
     configure_cmake
+    
+    ((current_step++)); progress_bar $current_step $total_steps 50 "Overall Progress"; echo ""
     build_project
+    
+    ((current_step++)); progress_bar $current_step $total_steps 50 "Overall Progress"; echo ""
     run_tests
     run_benchmarks
     verify_installation
     
-    # Success summary
+    # Final progress
+    progress_bar $total_steps $total_steps 50 "Overall Progress"; echo ""
+    
+    # Calculate build time
+    local build_time=$(elapsed_time $BUILD_START_TIME)
+    
+    # Success summary with celebration
     echo ""
-    log_step "🎉 Build Completed Successfully!"
+    echo -e "${GREEN}"
+    cat << 'SUCCESS'
+    ╔═══════════════════════════════════════════════════════════════════════╗
+    ║                                                                       ║
+    ║   ██████╗ ██╗   ██╗██╗██╗     ██████╗      ██████╗ ██╗  ██╗██╗        ║
+    ║   ██╔══██╗██║   ██║██║██║     ██╔══██╗    ██╔═══██╗██║ ██╔╝██║        ║
+    ║   ██████╔╝██║   ██║██║██║     ██║  ██║    ██║   ██║█████╔╝ ██║        ║
+    ║   ██╔══██╗██║   ██║██║██║     ██║  ██║    ██║   ██║██╔═██╗ ╚═╝        ║
+    ║   ██████╔╝╚██████╔╝██║███████╗██████╔╝    ╚██████╔╝██║  ██╗██╗        ║
+    ║   ╚═════╝  ╚═════╝ ╚═╝╚══════╝╚═════╝      ╚═════╝ ╚═╝  ╚═╝╚═╝        ║
+    ║                                                                       ║
+    ╚═══════════════════════════════════════════════════════════════════════╝
+SUCCESS
+    echo -e "${NC}"
+    
+    echo -e "    ${SPARKLE} ${BOLD}Hektor VDB has been successfully built!${NC} ${SPARKLE}"
+    echo -e "    ${DIM}Build completed in ${BOLD}${build_time}${NC}"
     echo ""
-    log_success "Hektor VDB has been built and installed"
-    log ""
-    log "${BOLD}Next Steps:${NC}"
-    log "  1. Activate the virtual environment:"
-    log "       source venv/bin/activate"
-    log ""
-    log "  2. Test the installation:"
-    log "       python -c 'import pyvdb; print(pyvdb.__doc__)'"
-    log ""
-    log "  3. Run the examples:"
-    log "       python examples/basic_usage.py"
-    log ""
-    log "  4. Read the documentation:"
-    log "       docs/02_INSTALLATION.md"
-    log "       docs/22_PYTHON_BINDINGS.md"
-    log ""
-    log "${BOLD}Troubleshooting:${NC}"
-    log "  - Run with --repair to fix issues"
-    log "  - Run with --clean for fresh build"
-    log "  - Check $LOG_FILE for details"
-    log ""
+    
+    # Next steps in a nice box
+    echo -e "${CYAN}┌─────────────────────────────────────────────────────────────────────┐${NC}"
+    echo -e "${CYAN}│${NC} ${BOLD}${WHITE}Next Steps:${NC}                                                        ${CYAN}│${NC}"
+    echo -e "${CYAN}├─────────────────────────────────────────────────────────────────────┤${NC}"
+    echo -e "${CYAN}│${NC}                                                                     ${CYAN}│${NC}"
+    echo -e "${CYAN}│${NC}  ${GREEN}1.${NC} Activate the virtual environment:                               ${CYAN}│${NC}"
+    echo -e "${CYAN}│${NC}     ${DIM}source venv/bin/activate${NC}                                        ${CYAN}│${NC}"
+    echo -e "${CYAN}│${NC}                                                                     ${CYAN}│${NC}"
+    echo -e "${CYAN}│${NC}  ${GREEN}2.${NC} Test the installation:                                          ${CYAN}│${NC}"
+    echo -e "${CYAN}│${NC}     ${DIM}python -c 'import pyvdb; print(\"Success!\")'${NC}                     ${CYAN}│${NC}"
+    echo -e "${CYAN}│${NC}                                                                     ${CYAN}│${NC}"
+    echo -e "${CYAN}│${NC}  ${GREEN}3.${NC} Run an example:                                                  ${CYAN}│${NC}"
+    echo -e "${CYAN}│${NC}     ${DIM}python examples/basic_usage.py${NC}                                   ${CYAN}│${NC}"
+    echo -e "${CYAN}│${NC}                                                                     ${CYAN}│${NC}"
+    echo -e "${CYAN}│${NC}  ${GREEN}4.${NC} Read the documentation:                                          ${CYAN}│${NC}"
+    echo -e "${CYAN}│${NC}     ${DIM}docs/02_INSTALLATION.md${NC}                                          ${CYAN}│${NC}"
+    echo -e "${CYAN}│${NC}     ${DIM}docs/22_PYTHON_BINDINGS.md${NC}                                       ${CYAN}│${NC}"
+    echo -e "${CYAN}│${NC}                                                                     ${CYAN}│${NC}"
+    echo -e "${CYAN}└─────────────────────────────────────────────────────────────────────┘${NC}"
+    echo ""
+    
+    # Quick commands
+    echo -e "${YELLOW}┌─────────────────────────────────────────────────────────────────────┐${NC}"
+    echo -e "${YELLOW}│${NC} ${BOLD}${WHITE}Quick Commands:${NC}                                                    ${YELLOW}│${NC}"
+    echo -e "${YELLOW}├─────────────────────────────────────────────────────────────────────┤${NC}"
+    echo -e "${YELLOW}│${NC}  ${DIM}Repair installation:${NC}  ./build-hektor.sh --repair                  ${YELLOW}│${NC}"
+    echo -e "${YELLOW}│${NC}  ${DIM}Clean rebuild:${NC}        ./build-hektor.sh --clean                   ${YELLOW}│${NC}"
+    echo -e "${YELLOW}│${NC}  ${DIM}Run tests:${NC}            ./build-hektor.sh --test                    ${YELLOW}│${NC}"
+    echo -e "${YELLOW}│${NC}  ${DIM}Install via pip:${NC}      pip install hektor-vdb                      ${YELLOW}│${NC}"
+    echo -e "${YELLOW}└─────────────────────────────────────────────────────────────────────┘${NC}"
+    echo ""
+    
     log "Build log saved to: $LOG_FILE"
+    echo ""
+    
+    # Final celebration animation
+    echo -e "    ${FIRE} ${LIGHTNING} ${ROCKET} ${BOLD}Happy coding!${NC} ${ROCKET} ${LIGHTNING} ${FIRE}"
     echo ""
 }
 

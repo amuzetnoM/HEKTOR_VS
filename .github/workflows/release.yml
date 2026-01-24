@@ -90,7 +90,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        os: [ubuntu-22.04, windows-latest, macos-13, macos-14]  # macos-14 is arm64
+        os: [ubuntu-24.04, windows-latest, macos-13, macos-14]  # macos-14 is arm64
         
     steps:
     - name: Checkout

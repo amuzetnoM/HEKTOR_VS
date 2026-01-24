@@ -188,7 +188,7 @@ include/vdb/
 
 ### CI/CD (GitHub Actions)
 - **Linting**: ruff, black, clang-format, mypy
-- **Build Matrix**: Ubuntu 22.04, Windows Server 2022, macOS 13
+- **Build Matrix**: Ubuntu 24.04, Windows Server 2022, macOS 14
 - **Compilers**: GCC-12, Clang-15, MSVC 2022, AppleClang
 - **Docker**: Multi-stage, multi-platform (amd64, arm64)
 - **Release**: Automated versioning, wheels, images

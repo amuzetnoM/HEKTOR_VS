@@ -179,7 +179,7 @@ This section provides a quick overview for local development. For detailed steps
 ### Prerequisites
 - Python 3.11+
 - CMake 3.20+
-- C++20 compiler
+- C++23 compiler (GCC 13+, Clang 16+, MSVC 19.33+)
 - 4GB+ RAM
 
 ### Quick Steps

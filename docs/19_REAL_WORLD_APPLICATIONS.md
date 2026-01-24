@@ -742,7 +742,8 @@ cmake --build build
 ### Docker Deployment
 
 ```dockerfile
-FROM ubuntu:22.04
+# Requires C++23 compiler (GCC 13+) - Ubuntu 24.04 provides GCC 14
+FROM ubuntu:24.04
 RUN apt-get update && apt-get install -y \
     cmake ninja-build g++ \
     libsqlite3-dev libpq-dev libarrow-dev

@@ -1,12 +1,13 @@
 # ============================================================================
 # Vector Studio Production Dockerfile
 # Multi-stage build for optimized production deployment
+# Requires C++23 compiler (GCC 13+) - Ubuntu 24.04 provides GCC 14
 # ============================================================================
 
 # ============================================================================
 # Stage 1: Builder - Build C++ backend and Python bindings
 # ============================================================================
-FROM ubuntu:22.04 AS builder
+FROM ubuntu:24.04 AS builder
 
 ENV DEBIAN_FRONTEND=noninteractive
 ENV PYTHONUNBUFFERED=1
@@ -75,7 +76,7 @@ RUN cd build && \
 # ============================================================================
 # Stage 2: Runtime - Minimal production image
 # ============================================================================
-FROM ubuntu:22.04
+FROM ubuntu:24.04
 
 ENV DEBIAN_FRONTEND=noninteractive
 ENV PYTHONUNBUFFERED=1
@@ -91,19 +92,19 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
     libcurl4 \
     zlib1g \
     libssl3 \
-    python3.11 \
+    python3.12 \
     python3-pip \
     && rm -rf /var/lib/apt/lists/*
 
-# Set Python 3.11 as default
-RUN update-alternatives --install /usr/bin/python3 python3 /usr/bin/python3.11 1 && \
-    update-alternatives --install /usr/bin/python python /usr/bin/python3.11 1
+# Set Python 3.12 as default
+RUN update-alternatives --install /usr/bin/python3 python3 /usr/bin/python3.12 1 && \
+    update-alternatives --install /usr/bin/python python /usr/bin/python3.12 1
 
 # Copy built artifacts from builder
 COPY --from=builder /usr/local /usr/local
 COPY --from=builder /build/models /app/models
 COPY --from=builder /build/api /app/api
-COPY --from=builder /usr/local/lib/python3.11/dist-packages /usr/local/lib/python3.11/dist-packages
+COPY --from=builder /usr/local/lib/python3.12/dist-packages /usr/local/lib/python3.12/dist-packages
 
 # Create app user (non-root)
 RUN useradd -m -u 1000 -s /bin/bash appuser && \

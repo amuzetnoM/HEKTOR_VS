@@ -35,13 +35,13 @@ This guide covers deploying Vector Studio to production using Docker, Kubernetes
 - **CPU**: 4+ cores (8+ recommended)
 - **RAM**: 8GB minimum (16GB+ recommended)
 - **Storage**: 50GB+ SSD
-- **OS**: Linux (Ubuntu 22.04 LTS recommended), macOS, or Windows
+- **OS**: Linux (Ubuntu 24.04 LTS recommended), macOS 14+, or Windows 11
 
 ### Software Requirements
 
 - Docker 24.0+ and Docker Compose 2.0+
 - OR Kubernetes 1.25+
-- OR Python 3.11+ and C++20 compiler
+- OR Python 3.11+ and C++23 compiler (GCC 13+, Clang 16+, MSVC 19.33+)
 
 ---
 

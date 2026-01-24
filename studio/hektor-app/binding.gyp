@@ -26,74 +26,85 @@
         "<!@(node -p \"require('node-addon-api').include\")",
         "native-addon/include",
         "../../include",
-        "../../build/_deps/json-src/include",
+        "../../external/fmt/include",
+        "../../external/json/include",
         "../../build/_deps/fmt-src/include",
-        "../../build/_deps/ggml-src/include",
-        "../../build/_deps/llama-src/include",
-        "../../build/_deps/onnxruntime-src/include",
-        "/usr/include/postgresql",
-        "/usr/local/include"
-      ],
-      "libraries": [
-        "<(module_root_dir)/../../build/libvdb_core.a",
-        "<(module_root_dir)/../../build/_deps/fmt-build/libfmt.a",
-        "-lpthread",
-        "-ldl"
+        "../../build/_deps/json-src/include"
       ],
       "dependencies": [
         "<!(node -p \"require('node-addon-api').gyp\")"
       ],
       "cflags!": ["-fno-exceptions"],
-      "cflags_cc!": ["-fno-exceptions", "-std=gnu++17", "-std=gnu++14", "-std=c++17", "-std=c++14"],
+      "cflags_cc!": ["-fno-exceptions"],
       "defines": ["NAPI_DISABLE_CPP_EXCEPTIONS", "NAPI_VERSION=8"],
       "conditions": [
         ["OS=='win'", {
-          "defines": ["_HAS_EXCEPTIONS=1", "WIN32_LEAN_AND_MEAN", "NOMINMAX"],
           "msvs_settings": {
             "VCCLCompilerTool": {
               "ExceptionHandling": 1,
               "RuntimeLibrary": 2,
-              "LanguageStandard": "stdcpp23",
-              "AdditionalOptions": ["/bigobj", "/EHsc", "/Zc:__cplusplus"]
+              "AdditionalOptions": ["/bigobj", "/EHsc", "/Zc:__cplusplus", "/std:c++latest", "/utf-8"]
             },
             "VCLinkerTool": {
               "AdditionalLibraryDirectories": [
-                "../../build/Release",
-                "../../build/_deps/fmt-build/Release"
+                "../../build/Release"
               ]
             }
           },
+          "include_dirs": [
+            "../../external/sqlite3"
+          ],
           "libraries": [
-            "../../build/Release/vdb_core.lib",
-            "../../build/_deps/fmt-build/Release/fmt.lib",
+            "vdb_core.lib",
             "ws2_32.lib",
             "advapi32.lib"
+          ],
+          "defines": [
+            "WIN32",
+            "_WINDOWS",
+            "NOMINMAX",
+            "_CRT_SECURE_NO_WARNINGS"
           ]
         }],
         ["OS=='mac'", {
           "xcode_settings": {
             "GCC_ENABLE_CPP_EXCEPTIONS": "YES",
             "CLANG_CXX_LANGUAGE_STANDARD": "c++23",
-            "MACOSX_DEPLOYMENT_TARGET": "10.15",
-            "OTHER_CPLUSPLUSFLAGS": ["-std=c++23"],
+            "MACOSX_DEPLOYMENT_TARGET": "13.0",
+            "OTHER_CPLUSPLUSFLAGS": [
+              "-std=c++23",
+              "-fexceptions"
+            ],
             "OTHER_LDFLAGS": [
               "-stdlib=libc++",
-              "-L/usr/local/lib",
-              "-L/opt/homebrew/lib"
+              "-L../../build"
             ]
           },
           "include_dirs": [
             "/usr/local/include",
             "/opt/homebrew/include"
+          ],
+          "libraries": [
+            "-L../../build",
+            "-lvdb_core",
+            "-lpthread",
+            "-lsqlite3"
           ]
         }],
         ["OS=='linux'", {
-          "cflags_cc": ["-std=c++23", "-fexceptions", "-fPIC"],
-          "ldflags": [
-            "-Wl,--no-as-needed",
-            "-Wl,--whole-archive",
+          "cflags_cc": [
+            "-std=c++23",
+            "-fexceptions",
+            "-fPIC"
+          ],
+          "libraries": [
             "<(module_root_dir)/../../build/libvdb_core.a",
-            "-Wl,--no-whole-archive"
+            "-lpthread",
+            "-ldl",
+            "-lsqlite3"
+          ],
+          "ldflags": [
+            "-Wl,--no-as-needed"
           ]
         }]
       ]
