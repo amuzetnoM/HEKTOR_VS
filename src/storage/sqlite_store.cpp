@@ -62,7 +62,7 @@ auto SqliteStore::init() -> Result<void> {
         std::string error = sqlite3_errmsg(db_);
         sqlite3_close(db_);
         db_ = nullptr;
-        return std::unexpected(Error{ErrorCode::IoError, "Failed to open SQLite database: " + error});
+        return tl::unexpected(Error{ErrorCode::IoError, "Failed to open SQLite database: " + error});
     }
 
     sqlite3_busy_timeout(db_, config_.busy_timeout_ms);
@@ -149,7 +149,7 @@ auto SqliteStore::exec_sql(const std::string& sql) -> Result<void> {
     if (rc != SQLITE_OK) {
         std::string error = err_msg ? err_msg : "Unknown error";
         sqlite3_free(err_msg);
-        return std::unexpected(Error{ErrorCode::IoError, "SQL execution failed: " + error});
+        return tl::unexpected(Error{ErrorCode::IoError, "SQL execution failed: " + error});
     }
     
     return {};
@@ -171,7 +171,7 @@ auto SqliteStore::store_metadata(const DocumentMetadata& metadata) -> Result<voi
     std::lock_guard<std::mutex> lock(mutex_);
     
     if (!initialized_) {
-        return std::unexpected(Error{ErrorCode::InvalidInput, "Store not initialized"});
+        return tl::unexpected(Error{ErrorCode::InvalidInput, "Store not initialized"});
     }
 
     nlohmann::json custom_json(metadata.custom_fields);
@@ -186,7 +186,7 @@ auto SqliteStore::store_metadata(const DocumentMetadata& metadata) -> Result<voi
     sqlite3_stmt* stmt;
     int rc = sqlite3_prepare_v2(db_, sql, -1, &stmt, nullptr);
     if (rc != SQLITE_OK) {
-        return std::unexpected(Error{ErrorCode::IoError, "Failed to prepare statement"});
+        return tl::unexpected(Error{ErrorCode::IoError, "Failed to prepare statement"});
     }
 
     auto now_str = time_to_string(std::chrono::system_clock::now());
@@ -205,7 +205,7 @@ auto SqliteStore::store_metadata(const DocumentMetadata& metadata) -> Result<voi
     sqlite3_finalize(stmt);
 
     if (rc != SQLITE_DONE) {
-        return std::unexpected(Error{ErrorCode::IoError, "Failed to insert metadata"});
+        return tl::unexpected(Error{ErrorCode::IoError, "Failed to insert metadata"});
     }
 
     return {};
@@ -215,14 +215,14 @@ auto SqliteStore::get_metadata(const std::string& id) -> Result<DocumentMetadata
     std::lock_guard<std::mutex> lock(mutex_);
     
     if (!initialized_) {
-        return std::unexpected(Error{ErrorCode::InvalidInput, "Store not initialized"});
+        return tl::unexpected(Error{ErrorCode::InvalidInput, "Store not initialized"});
     }
 
     const char* sql = "SELECT * FROM document_metadata WHERE id = ?";
     sqlite3_stmt* stmt;
     int rc = sqlite3_prepare_v2(db_, sql, -1, &stmt, nullptr);
     if (rc != SQLITE_OK) {
-        return std::unexpected(Error{ErrorCode::IoError, "Failed to prepare statement"});
+        return tl::unexpected(Error{ErrorCode::IoError, "Failed to prepare statement"});
     }
 
     sqlite3_bind_text(stmt, 1, id.c_str(), -1, SQLITE_TRANSIENT);
@@ -230,7 +230,7 @@ auto SqliteStore::get_metadata(const std::string& id) -> Result<DocumentMetadata
     rc = sqlite3_step(stmt);
     if (rc != SQLITE_ROW) {
         sqlite3_finalize(stmt);
-        return std::unexpected(Error{ErrorCode::VectorNotFound, "Metadata not found"});
+        return tl::unexpected(Error{ErrorCode::VectorNotFound, "Metadata not found"});
     }
 
     DocumentMetadata metadata;
@@ -268,14 +268,14 @@ auto SqliteStore::delete_metadata(const std::string& id) -> Result<void> {
     std::lock_guard<std::mutex> lock(mutex_);
     
     if (!initialized_) {
-        return std::unexpected(Error{ErrorCode::InvalidInput, "Store not initialized"});
+        return tl::unexpected(Error{ErrorCode::InvalidInput, "Store not initialized"});
     }
 
     const char* sql = "DELETE FROM document_metadata WHERE id = ?";
     sqlite3_stmt* stmt;
     int rc = sqlite3_prepare_v2(db_, sql, -1, &stmt, nullptr);
     if (rc != SQLITE_OK) {
-        return std::unexpected(Error{ErrorCode::IoError, "Failed to prepare statement"});
+        return tl::unexpected(Error{ErrorCode::IoError, "Failed to prepare statement"});
     }
 
     sqlite3_bind_text(stmt, 1, id.c_str(), -1, SQLITE_TRANSIENT);
@@ -283,7 +283,7 @@ auto SqliteStore::delete_metadata(const std::string& id) -> Result<void> {
     sqlite3_finalize(stmt);
 
     if (rc != SQLITE_DONE) {
-        return std::unexpected(Error{ErrorCode::IoError, "Failed to delete metadata"});
+        return tl::unexpected(Error{ErrorCode::IoError, "Failed to delete metadata"});
     }
 
     return {};
@@ -293,14 +293,14 @@ auto SqliteStore::list_metadata(size_t limit, size_t offset) -> Result<std::vect
     std::lock_guard<std::mutex> lock(mutex_);
     
     if (!initialized_) {
-        return std::unexpected(Error{ErrorCode::InvalidInput, "Store not initialized"});
+        return tl::unexpected(Error{ErrorCode::InvalidInput, "Store not initialized"});
     }
 
     const char* sql = "SELECT * FROM document_metadata LIMIT ? OFFSET ?";
     sqlite3_stmt* stmt;
     int rc = sqlite3_prepare_v2(db_, sql, -1, &stmt, nullptr);
     if (rc != SQLITE_OK) {
-        return std::unexpected(Error{ErrorCode::IoError, "Failed to prepare statement"});
+        return tl::unexpected(Error{ErrorCode::IoError, "Failed to prepare statement"});
     }
 
     sqlite3_bind_int64(stmt, 1, limit);
@@ -342,7 +342,7 @@ auto SqliteStore::cache_put(const std::string& key, const std::string& value) ->
     std::lock_guard<std::mutex> lock(mutex_);
     
     if (!initialized_ || !config_.enable_cache) {
-        return std::unexpected(Error{ErrorCode::InvalidInput, "Cache not available"});
+        return tl::unexpected(Error{ErrorCode::InvalidInput, "Cache not available"});
     }
 
     const char* sql = R"(
@@ -353,7 +353,7 @@ auto SqliteStore::cache_put(const std::string& key, const std::string& value) ->
     sqlite3_stmt* stmt;
     int rc = sqlite3_prepare_v2(db_, sql, -1, &stmt, nullptr);
     if (rc != SQLITE_OK) {
-        return std::unexpected(Error{ErrorCode::IoError, "Failed to prepare statement"});
+        return tl::unexpected(Error{ErrorCode::IoError, "Failed to prepare statement"});
     }
 
     auto now_str = time_to_string(std::chrono::system_clock::now());
@@ -366,7 +366,7 @@ auto SqliteStore::cache_put(const std::string& key, const std::string& value) ->
     sqlite3_finalize(stmt);
 
     if (rc != SQLITE_DONE) {
-        return std::unexpected(Error{ErrorCode::IoError, "Failed to insert cache entry"});
+        return tl::unexpected(Error{ErrorCode::IoError, "Failed to insert cache entry"});
     }
 
     return {};
@@ -376,14 +376,14 @@ auto SqliteStore::cache_get(const std::string& key) -> Result<std::string> {
     std::lock_guard<std::mutex> lock(mutex_);
     
     if (!initialized_ || !config_.enable_cache) {
-        return std::unexpected(Error{ErrorCode::InvalidInput, "Cache not available"});
+        return tl::unexpected(Error{ErrorCode::InvalidInput, "Cache not available"});
     }
 
     const char* sql = "SELECT value, timestamp FROM query_cache WHERE key = ?";
     sqlite3_stmt* stmt;
     int rc = sqlite3_prepare_v2(db_, sql, -1, &stmt, nullptr);
     if (rc != SQLITE_OK) {
-        return std::unexpected(Error{ErrorCode::IoError, "Failed to prepare statement"});
+        return tl::unexpected(Error{ErrorCode::IoError, "Failed to prepare statement"});
     }
 
     sqlite3_bind_text(stmt, 1, key.c_str(), -1, SQLITE_TRANSIENT);
@@ -391,7 +391,7 @@ auto SqliteStore::cache_get(const std::string& key) -> Result<std::string> {
     rc = sqlite3_step(stmt);
     if (rc != SQLITE_ROW) {
         sqlite3_finalize(stmt);
-        return std::unexpected(Error{ErrorCode::VectorNotFound, "Cache entry not found"});
+        return tl::unexpected(Error{ErrorCode::VectorNotFound, "Cache entry not found"});
     }
 
     std::string value = reinterpret_cast<const char*>(sqlite3_column_text(stmt, 0));
@@ -404,7 +404,7 @@ auto SqliteStore::cache_get(const std::string& key) -> Result<std::string> {
     if ((now - timestamp) > config_.cache_ttl) {
         // Ignore result of cache_delete - entry will be cleaned up by eviction later if delete fails
         (void)cache_delete(key);
-        return std::unexpected(Error{ErrorCode::VectorNotFound, "Cache entry expired"});
+        return tl::unexpected(Error{ErrorCode::VectorNotFound, "Cache entry expired"});
     }
 
     // Update access count using prepared statement to prevent SQL injection
@@ -424,14 +424,14 @@ auto SqliteStore::cache_delete(const std::string& key) -> Result<void> {
     std::lock_guard<std::mutex> lock(mutex_);
     
     if (!initialized_) {
-        return std::unexpected(Error{ErrorCode::InvalidInput, "Store not initialized"});
+        return tl::unexpected(Error{ErrorCode::InvalidInput, "Store not initialized"});
     }
 
     const char* sql = "DELETE FROM query_cache WHERE key = ?";
     sqlite3_stmt* stmt;
     int rc = sqlite3_prepare_v2(db_, sql, -1, &stmt, nullptr);
     if (rc != SQLITE_OK) {
-        return std::unexpected(Error{ErrorCode::IoError, "Failed to prepare statement"});
+        return tl::unexpected(Error{ErrorCode::IoError, "Failed to prepare statement"});
     }
 
     sqlite3_bind_text(stmt, 1, key.c_str(), -1, SQLITE_TRANSIENT);
@@ -439,7 +439,7 @@ auto SqliteStore::cache_delete(const std::string& key) -> Result<void> {
     sqlite3_finalize(stmt);
 
     if (rc != SQLITE_DONE) {
-        return std::unexpected(Error{ErrorCode::IoError, "Failed to delete cache entry"});
+        return tl::unexpected(Error{ErrorCode::IoError, "Failed to delete cache entry"});
     }
 
     return {};
@@ -453,14 +453,14 @@ auto SqliteStore::cache_size() -> Result<size_t> {
     std::lock_guard<std::mutex> lock(mutex_);
     
     if (!initialized_) {
-        return std::unexpected(Error{ErrorCode::InvalidInput, "Store not initialized"});
+        return tl::unexpected(Error{ErrorCode::InvalidInput, "Store not initialized"});
     }
 
     const char* sql = "SELECT COUNT(*) FROM query_cache";
     sqlite3_stmt* stmt;
     int rc = sqlite3_prepare_v2(db_, sql, -1, &stmt, nullptr);
     if (rc != SQLITE_OK) {
-        return std::unexpected(Error{ErrorCode::IoError, "Failed to prepare statement"});
+        return tl::unexpected(Error{ErrorCode::IoError, "Failed to prepare statement"});
     }
 
     rc = sqlite3_step(stmt);
@@ -477,14 +477,14 @@ auto SqliteStore::config_set(const std::string& key, const std::string& value) -
     std::lock_guard<std::mutex> lock(mutex_);
     
     if (!initialized_) {
-        return std::unexpected(Error{ErrorCode::InvalidInput, "Store not initialized"});
+        return tl::unexpected(Error{ErrorCode::InvalidInput, "Store not initialized"});
     }
 
     const char* sql = "INSERT OR REPLACE INTO configuration (key, value) VALUES (?, ?)";
     sqlite3_stmt* stmt;
     int rc = sqlite3_prepare_v2(db_, sql, -1, &stmt, nullptr);
     if (rc != SQLITE_OK) {
-        return std::unexpected(Error{ErrorCode::IoError, "Failed to prepare statement"});
+        return tl::unexpected(Error{ErrorCode::IoError, "Failed to prepare statement"});
     }
 
     sqlite3_bind_text(stmt, 1, key.c_str(), -1, SQLITE_TRANSIENT);
@@ -494,7 +494,7 @@ auto SqliteStore::config_set(const std::string& key, const std::string& value) -
     sqlite3_finalize(stmt);
 
     if (rc != SQLITE_DONE) {
-        return std::unexpected(Error{ErrorCode::IoError, "Failed to set configuration"});
+        return tl::unexpected(Error{ErrorCode::IoError, "Failed to set configuration"});
     }
 
     return {};
@@ -504,14 +504,14 @@ auto SqliteStore::config_get(const std::string& key) -> Result<std::string> {
     std::lock_guard<std::mutex> lock(mutex_);
     
     if (!initialized_) {
-        return std::unexpected(Error{ErrorCode::InvalidInput, "Store not initialized"});
+        return tl::unexpected(Error{ErrorCode::InvalidInput, "Store not initialized"});
     }
 
     const char* sql = "SELECT value FROM configuration WHERE key = ?";
     sqlite3_stmt* stmt;
     int rc = sqlite3_prepare_v2(db_, sql, -1, &stmt, nullptr);
     if (rc != SQLITE_OK) {
-        return std::unexpected(Error{ErrorCode::IoError, "Failed to prepare statement"});
+        return tl::unexpected(Error{ErrorCode::IoError, "Failed to prepare statement"});
     }
 
     sqlite3_bind_text(stmt, 1, key.c_str(), -1, SQLITE_TRANSIENT);
@@ -519,7 +519,7 @@ auto SqliteStore::config_get(const std::string& key) -> Result<std::string> {
     rc = sqlite3_step(stmt);
     if (rc != SQLITE_ROW) {
         sqlite3_finalize(stmt);
-        return std::unexpected(Error{ErrorCode::VectorNotFound, "Configuration key not found"});
+        return tl::unexpected(Error{ErrorCode::VectorNotFound, "Configuration key not found"});
     }
 
     std::string value = reinterpret_cast<const char*>(sqlite3_column_text(stmt, 0));
@@ -532,14 +532,14 @@ auto SqliteStore::config_delete(const std::string& key) -> Result<void> {
     std::lock_guard<std::mutex> lock(mutex_);
     
     if (!initialized_) {
-        return std::unexpected(Error{ErrorCode::InvalidInput, "Store not initialized"});
+        return tl::unexpected(Error{ErrorCode::InvalidInput, "Store not initialized"});
     }
 
     const char* sql = "DELETE FROM configuration WHERE key = ?";
     sqlite3_stmt* stmt;
     int rc = sqlite3_prepare_v2(db_, sql, -1, &stmt, nullptr);
     if (rc != SQLITE_OK) {
-        return std::unexpected(Error{ErrorCode::IoError, "Failed to prepare statement"});
+        return tl::unexpected(Error{ErrorCode::IoError, "Failed to prepare statement"});
     }
 
     sqlite3_bind_text(stmt, 1, key.c_str(), -1, SQLITE_TRANSIENT);
@@ -547,7 +547,7 @@ auto SqliteStore::config_delete(const std::string& key) -> Result<void> {
     sqlite3_finalize(stmt);
 
     if (rc != SQLITE_DONE) {
-        return std::unexpected(Error{ErrorCode::IoError, "Failed to delete configuration"});
+        return tl::unexpected(Error{ErrorCode::IoError, "Failed to delete configuration"});
     }
 
     return {};
@@ -557,14 +557,14 @@ auto SqliteStore::config_list() -> Result<std::unordered_map<std::string, std::s
     std::lock_guard<std::mutex> lock(mutex_);
     
     if (!initialized_) {
-        return std::unexpected(Error{ErrorCode::InvalidInput, "Store not initialized"});
+        return tl::unexpected(Error{ErrorCode::InvalidInput, "Store not initialized"});
     }
 
     const char* sql = "SELECT key, value FROM configuration";
     sqlite3_stmt* stmt;
     int rc = sqlite3_prepare_v2(db_, sql, -1, &stmt, nullptr);
     if (rc != SQLITE_OK) {
-        return std::unexpected(Error{ErrorCode::IoError, "Failed to prepare statement"});
+        return tl::unexpected(Error{ErrorCode::IoError, "Failed to prepare statement"});
     }
 
     std::unordered_map<std::string, std::string> config;
@@ -582,7 +582,7 @@ auto SqliteStore::get_stats() -> Result<std::unordered_map<std::string, size_t>>
     std::lock_guard<std::mutex> lock(mutex_);
     
     if (!initialized_) {
-        return std::unexpected(Error{ErrorCode::InvalidInput, "Store not initialized"});
+        return tl::unexpected(Error{ErrorCode::InvalidInput, "Store not initialized"});
     }
 
     std::unordered_map<std::string, size_t> stats;
@@ -629,7 +629,7 @@ auto SqliteStore::evict_expired_cache() -> Result<size_t> {
     std::lock_guard<std::mutex> lock(mutex_);
     
     if (!initialized_ || !config_.enable_cache) {
-        return std::unexpected(Error{ErrorCode::InvalidInput, "Cache not available"});
+        return tl::unexpected(Error{ErrorCode::InvalidInput, "Cache not available"});
     }
 
     auto cutoff_time = std::chrono::system_clock::now() - config_.cache_ttl;
@@ -639,7 +639,7 @@ auto SqliteStore::evict_expired_cache() -> Result<size_t> {
     sqlite3_stmt* stmt;
     int rc = sqlite3_prepare_v2(db_, count_sql, -1, &stmt, nullptr);
     if (rc != SQLITE_OK) {
-        return std::unexpected(Error{ErrorCode::IoError, "Failed to prepare statement"});
+        return tl::unexpected(Error{ErrorCode::IoError, "Failed to prepare statement"});
     }
 
     sqlite3_bind_text(stmt, 1, cutoff_str.c_str(), -1, SQLITE_TRANSIENT);
@@ -653,7 +653,7 @@ auto SqliteStore::evict_expired_cache() -> Result<size_t> {
     const char* delete_sql = "DELETE FROM query_cache WHERE timestamp < ?";
     rc = sqlite3_prepare_v2(db_, delete_sql, -1, &stmt, nullptr);
     if (rc != SQLITE_OK) {
-        return std::unexpected(Error{ErrorCode::IoError, "Failed to prepare statement"});
+        return tl::unexpected(Error{ErrorCode::IoError, "Failed to prepare statement"});
     }
 
     sqlite3_bind_text(stmt, 1, cutoff_str.c_str(), -1, SQLITE_TRANSIENT);

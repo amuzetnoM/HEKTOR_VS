@@ -65,7 +65,7 @@ public:
             if (xml_content[pos] == '<') {
                 size_t tag_end = xml_content.find('>', pos);
                 if (tag_end == std::string_view::npos) {
-                    return std::unexpected(Error{ErrorCode::ParseError, "Unclosed XML tag"});
+                    return tl::unexpected(Error{ErrorCode::ParseError, "Unclosed XML tag"});
                 }
                 
                 std::string_view tag = xml_content.substr(pos + 1, tag_end - pos - 1);
@@ -185,7 +185,7 @@ Result<NormalizedData> XMLAdapter::parse(
     if (!file) {
         LOG_ERROR(std::string("Failed to open XML file: ") + path.string());
         LOG_ANOMALY(AnomalyType::PARSE_ERROR, "XML file could not be opened: " + path.string());
-        return std::unexpected(Error{ErrorCode::IoError, "Failed to open XML file: " + path.string()});
+        return tl::unexpected(Error{ErrorCode::IoError, "Failed to open XML file: " + path.string()});
     }
     
     std::stringstream buffer;
@@ -242,7 +242,7 @@ Result<NormalizedData> XMLAdapter::parse_xml_string(
     // Parse XML
     auto parse_result = SimpleXMLParser::parse(xml_content);
     if (!parse_result) {
-        return std::unexpected(parse_result.error());
+        return tl::unexpected(parse_result.error());
     }
     
     XMLNode root = std::move(*parse_result);
@@ -291,7 +291,7 @@ Result<NormalizedData> XMLAdapter::parse_xml_string(
     // Sanitize
     auto sanitize_result = sanitize(data);
     if (!sanitize_result) {
-        return std::unexpected(sanitize_result.error());
+        return tl::unexpected(sanitize_result.error());
     }
     
     data.sanitized = true;
@@ -315,7 +315,7 @@ Result<void> XMLAdapter::write(
 ) {
     std::ofstream file(path);
     if (!file) {
-        return std::unexpected(Error{ErrorCode::IoError, "Failed to create XML file: " + path.string()});
+        return tl::unexpected(Error{ErrorCode::IoError, "Failed to create XML file: " + path.string()});
     }
     
     // Write XML declaration
@@ -379,7 +379,7 @@ Result<void> XMLAdapter::write(
     file << "</" << root_name << ">\n";
     
     if (!file) {
-        return std::unexpected(Error{ErrorCode::IoError, "Failed to write XML file: " + path.string()});
+        return tl::unexpected(Error{ErrorCode::IoError, "Failed to write XML file: " + path.string()});
     }
     
     return {};

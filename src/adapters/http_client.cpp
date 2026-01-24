@@ -198,7 +198,7 @@ namespace vdb::adapters
         // Check rate limit
         if (auto result = check_rate_limit(req.url); !result)
         {
-            return std::unexpected(result.error());
+            return tl::unexpected(result.error());
         }
 
         // Execute with retry
@@ -218,7 +218,7 @@ namespace vdb::adapters
             auto *curl = curl_easy_init();
             if (!curl)
             {
-                return std::unexpected(Error{ErrorCode::SystemError, "Failed to initialize CURL"});
+                return tl::unexpected(Error{ErrorCode::SystemError, "Failed to initialize CURL"});
             }
 
             // Set URL
@@ -353,7 +353,7 @@ namespace vdb::adapters
 
                 std::lock_guard lock(impl_->stats_mutex);
                 impl_->stats.failed_requests++;
-                return std::unexpected(Error{ErrorCode::NetworkError, response.error_message});
+                return tl::unexpected(Error{ErrorCode::NetworkError, response.error_message});
             }
 
             // Check if we should retry based on status code
@@ -420,20 +420,20 @@ namespace vdb::adapters
         // Check rate limit
         if (auto result = check_rate_limit(url); !result)
         {
-            return std::unexpected(result.error());
+            return tl::unexpected(result.error());
         }
 
         auto *curl = curl_easy_init();
         if (!curl)
         {
-            return std::unexpected(Error{ErrorCode::SystemError, "Failed to initialize CURL"});
+            return tl::unexpected(Error{ErrorCode::SystemError, "Failed to initialize CURL"});
         }
 
         std::ofstream output_file(output_path, std::ios::binary);
         if (!output_file)
         {
             curl_easy_cleanup(curl);
-            return std::unexpected(Error{ErrorCode::IoError, "Failed to open output file"});
+            return tl::unexpected(Error{ErrorCode::IoError, "Failed to open output file"});
         }
 
         curl_easy_setopt(curl, CURLOPT_URL, url.c_str());
@@ -454,7 +454,7 @@ namespace vdb::adapters
         if (curl_res != CURLE_OK)
         {
             curl_easy_cleanup(curl);
-            return std::unexpected(Error{ErrorCode::NetworkError, curl_easy_strerror(curl_res)});
+            return tl::unexpected(Error{ErrorCode::NetworkError, curl_easy_strerror(curl_res)});
         }
 
         long status_code = 0;
@@ -463,7 +463,7 @@ namespace vdb::adapters
 
         if (status_code < 200 || status_code >= 300)
         {
-            return std::unexpected(Error{ErrorCode::NetworkError,
+            return tl::unexpected(Error{ErrorCode::NetworkError,
                                          fmt::format("HTTP error: {}", status_code)});
         }
 
@@ -646,7 +646,7 @@ namespace vdb::adapters
         }
         catch (const nlohmann::json::exception &e)
         {
-            return std::unexpected(Error{ErrorCode::ParseError,
+            return tl::unexpected(Error{ErrorCode::ParseError,
                                          fmt::format("JSON parse error: {}", e.what())});
         }
     }

@@ -41,7 +41,7 @@ ProductQuantizer& ProductQuantizer::operator=(ProductQuantizer&&) noexcept = def
 
 Result<void> ProductQuantizer::train(std::span<const Vector> training_data) {
     if (training_data.empty()) {
-        return std::unexpected(Error{ErrorCode::InvalidInput, "Empty training data"});
+        return tl::unexpected(Error{ErrorCode::InvalidInput, "Empty training data"});
     }
     
     auto validation = validate_config();
@@ -52,7 +52,7 @@ Result<void> ProductQuantizer::train(std::span<const Vector> training_data) {
     
     for (const auto& vec : training_data) {
         if (vec.size() != config_.dimension) {
-            return std::unexpected(Error{ErrorCode::InvalidDimension, "Vector dimension mismatch"});
+            return tl::unexpected(Error{ErrorCode::InvalidDimension, "Vector dimension mismatch"});
         }
         
         for (uint32_t sq = 0; sq < config_.num_subquantizers; ++sq) {
@@ -155,11 +155,11 @@ void ProductQuantizer::train_subquantizer(uint32_t subq_idx,
 
 Result<std::vector<uint8_t>> ProductQuantizer::encode(VectorView vector) const {
     if (!trained_) {
-        return std::unexpected(Error{ErrorCode::InvalidState, "Quantizer not trained"});
+        return tl::unexpected(Error{ErrorCode::InvalidState, "Quantizer not trained"});
     }
     
     auto validation = validate_vector(vector);
-    if (!validation) return std::unexpected(validation.error());
+    if (!validation) return tl::unexpected(validation.error());
     
     std::vector<uint8_t> codes(config_.num_subquantizers);
     
@@ -175,7 +175,7 @@ Result<std::vector<std::vector<uint8_t>>> ProductQuantizer::encode_batch(
     std::span<const Vector> vectors) const 
 {
     if (!trained_) {
-        return std::unexpected(Error{ErrorCode::InvalidState, "Quantizer not trained"});
+        return tl::unexpected(Error{ErrorCode::InvalidState, "Quantizer not trained"});
     }
     
     std::vector<std::vector<uint8_t>> codes_batch;
@@ -183,7 +183,7 @@ Result<std::vector<std::vector<uint8_t>>> ProductQuantizer::encode_batch(
     
     for (const auto& vec : vectors) {
         auto codes = encode(vec);
-        if (!codes) return std::unexpected(codes.error());
+        if (!codes) return tl::unexpected(codes.error());
         codes_batch.push_back(std::move(*codes));
     }
     
@@ -196,11 +196,11 @@ Result<std::vector<std::vector<uint8_t>>> ProductQuantizer::encode_batch(
 
 Result<Vector> ProductQuantizer::decode(std::span<const uint8_t> codes) const {
     if (!trained_) {
-        return std::unexpected(Error{ErrorCode::InvalidState, "Quantizer not trained"});
+        return tl::unexpected(Error{ErrorCode::InvalidState, "Quantizer not trained"});
     }
     
     if (codes.size() != config_.num_subquantizers) {
-        return std::unexpected(Error{ErrorCode::InvalidInput, "Invalid code size"});
+        return tl::unexpected(Error{ErrorCode::InvalidInput, "Invalid code size"});
     }
     
     Vector reconstructed(config_.dimension);
@@ -208,7 +208,7 @@ Result<Vector> ProductQuantizer::decode(std::span<const uint8_t> codes) const {
     for (uint32_t sq = 0; sq < config_.num_subquantizers; ++sq) {
         uint8_t code = codes[sq];
         if (code >= config_.num_centroids) {
-            return std::unexpected(Error{ErrorCode::InvalidData, "Invalid code value"});
+            return tl::unexpected(Error{ErrorCode::InvalidData, "Invalid code value"});
         }
         
         const auto& centroid = codebooks_[sq][code];
@@ -323,17 +323,17 @@ uint8_t ProductQuantizer::find_nearest_centroid(const Vector& subvector,
 
 Result<void> ProductQuantizer::validate_config() const {
     if (config_.dimension == 0) {
-        return std::unexpected(Error{ErrorCode::InvalidDimension, "Zero dimension"});
+        return tl::unexpected(Error{ErrorCode::InvalidDimension, "Zero dimension"});
     }
     if (config_.num_subquantizers == 0) {
-        return std::unexpected(Error{ErrorCode::InvalidInput, "Zero subquantizers"});
+        return tl::unexpected(Error{ErrorCode::InvalidInput, "Zero subquantizers"});
     }
     if (config_.dimension % config_.num_subquantizers != 0) {
-        return std::unexpected(Error{ErrorCode::InvalidDimension, 
+        return tl::unexpected(Error{ErrorCode::InvalidDimension, 
             "Dimension must be divisible by num_subquantizers"});
     }
     if (config_.num_centroids == 0 || config_.num_centroids > 256) {
-        return std::unexpected(Error{ErrorCode::InvalidInput, 
+        return tl::unexpected(Error{ErrorCode::InvalidInput, 
             "num_centroids must be 1-256"});
     }
     return {};
@@ -341,7 +341,7 @@ Result<void> ProductQuantizer::validate_config() const {
 
 Result<void> ProductQuantizer::validate_vector(VectorView vector) const {
     if (vector.dim() != config_.dimension) {
-        return std::unexpected(Error{ErrorCode::InvalidDimension, 
+        return tl::unexpected(Error{ErrorCode::InvalidDimension, 
             "Vector dimension mismatch"});
     }
     return {};
@@ -354,7 +354,7 @@ Result<void> ProductQuantizer::validate_vector(VectorView vector) const {
 Result<void> ProductQuantizer::save(std::string_view path) const {
     std::ofstream file(std::string(path), std::ios::binary);
     if (!file) {
-        return std::unexpected(Error{ErrorCode::IoError, "Failed to open file"});
+        return tl::unexpected(Error{ErrorCode::IoError, "Failed to open file"});
     }
     
     // Write header
@@ -377,7 +377,7 @@ Result<void> ProductQuantizer::save(std::string_view path) const {
 Result<ProductQuantizer> ProductQuantizer::load(std::string_view path) {
     std::ifstream file(std::string(path), std::ios::binary);
     if (!file) {
-        return std::unexpected(Error{ErrorCode::IoError, "Failed to open file"});
+        return tl::unexpected(Error{ErrorCode::IoError, "Failed to open file"});
     }
     
     ProductQuantizerConfig config;

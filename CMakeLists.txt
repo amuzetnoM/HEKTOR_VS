@@ -91,6 +91,14 @@ FetchContent_Declare(
 )
 FetchContent_MakeAvailable(fmt)
 
+# tl::expected - std::expected polyfill for C++17/20
+FetchContent_Declare(
+    expected
+    GIT_REPOSITORY https://github.com/TartanLlama/expected.git
+    GIT_TAG v1.1.0
+)
+FetchContent_MakeAvailable(expected)
+
 # ONNX Runtime - Download pre-built binaries (MSVC only)
 # libcurl - HTTP client
 find_package(CURL)
@@ -491,6 +499,7 @@ target_include_directories(vdb_core PUBLIC
 target_link_libraries(vdb_core PUBLIC
     nlohmann_json::nlohmann_json
     fmt::fmt
+    tl::expected
 )
 
 # ONNX Runtime linking

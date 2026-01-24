@@ -41,12 +41,12 @@ Result<void> TextEncoder::init(const TextEncoderConfig& config) {
     
     // Validate paths
     if (!fs::exists(config_.model_path)) {
-        return std::unexpected(Error{ErrorCode::IoError, 
+        return tl::unexpected(Error{ErrorCode::IoError, 
                     "Text encoder model not found: " + config_.model_path.string()});
     }
     
     if (!fs::exists(config_.vocab_path)) {
-        return std::unexpected(Error{ErrorCode::IoError,
+        return tl::unexpected(Error{ErrorCode::IoError,
                     "Vocabulary file not found: " + config_.vocab_path.string()});
     }
     
@@ -54,7 +54,7 @@ Result<void> TextEncoder::init(const TextEncoderConfig& config) {
     try {
         tokenizer_ = std::make_unique<Tokenizer>(config_.vocab_path);
     } catch (const std::exception& e) {
-        return std::unexpected(Error{ErrorCode::InvalidData, 
+        return tl::unexpected(Error{ErrorCode::InvalidData, 
                     std::string("Failed to load tokenizer: ") + e.what()});
     }
     
@@ -62,7 +62,7 @@ Result<void> TextEncoder::init(const TextEncoderConfig& config) {
     try {
         session_ = std::make_unique<OnnxSession>(config_.model_path, config_.device);
     } catch (const std::exception& e) {
-        return std::unexpected(Error{ErrorCode::InvalidData,
+        return tl::unexpected(Error{ErrorCode::InvalidData,
                     std::string("Failed to load ONNX model: ") + e.what()});
     }
     
@@ -72,7 +72,7 @@ Result<void> TextEncoder::init(const TextEncoderConfig& config) {
 
 Result<std::vector<float>> TextEncoder::encode(std::string_view text) {
     if (!ready_) {
-        return std::unexpected(Error{ErrorCode::InvalidState, "TextEncoder not initialized"});
+        return tl::unexpected(Error{ErrorCode::InvalidState, "TextEncoder not initialized"});
     }
     
     // Tokenize
@@ -123,7 +123,7 @@ Result<std::vector<float>> TextEncoder::encode(std::string_view text) {
         auto outputs = session_->run(inputs);
         
         if (outputs.empty()) {
-            return std::unexpected(Error{ErrorCode::InvalidData, "Model returned no outputs"});
+            return tl::unexpected(Error{ErrorCode::InvalidData, "Model returned no outputs"});
         }
         
         // Get output tensor info
@@ -133,7 +133,7 @@ Result<std::vector<float>> TextEncoder::encode(std::string_view text) {
         
         // Output shape should be [1, seq_len, hidden_dim]
         if (output_shape.size() != 3) {
-            return std::unexpected(Error{ErrorCode::InvalidData, "Unexpected output shape"});
+            return tl::unexpected(Error{ErrorCode::InvalidData, "Unexpected output shape"});
         }
         
         size_t seq_len = static_cast<size_t>(output_shape[1]);
@@ -152,7 +152,7 @@ Result<std::vector<float>> TextEncoder::encode(std::string_view text) {
         return embedding;
         
     } catch (const Ort::Exception& e) {
-        return std::unexpected(Error{ErrorCode::InvalidData, 
+        return tl::unexpected(Error{ErrorCode::InvalidData, 
                     std::string("ONNX inference failed: ") + e.what()});
     }
 }
@@ -161,7 +161,7 @@ Result<std::vector<std::vector<float>>> TextEncoder::encode_batch(
     const std::vector<std::string>& texts) {
     
     if (!ready_) {
-        return std::unexpected(Error{ErrorCode::InvalidState, "TextEncoder not initialized"});
+        return tl::unexpected(Error{ErrorCode::InvalidState, "TextEncoder not initialized"});
     }
     
     if (texts.empty()) {
@@ -259,7 +259,7 @@ Result<std::vector<std::vector<float>>> TextEncoder::encode_batch(
         auto outputs = session_->run(inputs);
         
         if (outputs.empty()) {
-            return std::unexpected(Error{ErrorCode::InvalidData, "Model returned no outputs"});
+            return tl::unexpected(Error{ErrorCode::InvalidData, "Model returned no outputs"});
         }
         
         // Get output tensor info
@@ -269,7 +269,7 @@ Result<std::vector<std::vector<float>>> TextEncoder::encode_batch(
         
         // Output shape should be [batch_size, seq_len, hidden_dim]
         if (output_shape.size() != 3) {
-            return std::unexpected(Error{ErrorCode::InvalidData, "Unexpected output shape"});
+            return tl::unexpected(Error{ErrorCode::InvalidData, "Unexpected output shape"});
         }
         
         size_t batch_size = static_cast<size_t>(output_shape[0]);
@@ -296,7 +296,7 @@ Result<std::vector<std::vector<float>>> TextEncoder::encode_batch(
         return results;
         
     } catch (const Ort::Exception& e) {
-        return std::unexpected(Error{ErrorCode::InvalidData, 
+        return tl::unexpected(Error{ErrorCode::InvalidData, 
                     std::string("ONNX batch inference failed: ") + e.what()});
     }
 }

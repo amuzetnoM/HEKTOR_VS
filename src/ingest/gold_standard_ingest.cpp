@@ -146,7 +146,7 @@ namespace vdb
         std::ifstream file(path, std::ios::binary);
         if (!file)
         {
-            return std::unexpected(Error{ErrorCode::IoError, "Failed to open file"});
+            return tl::unexpected(Error{ErrorCode::IoError, "Failed to open file"});
         }
 
         std::ostringstream buffer;
@@ -625,7 +625,7 @@ namespace vdb
         std::ifstream file(path);
         if (!file)
         {
-            return std::unexpected(Error{ErrorCode::IoError, "Failed to open journal file"});
+            return tl::unexpected(Error{ErrorCode::IoError, "Failed to open journal file"});
         }
 
         std::stringstream buffer;
@@ -635,7 +635,7 @@ namespace vdb
         auto doc_result = parse_markdown(content, path.filename().string());
         if (!doc_result)
         {
-            return std::unexpected(doc_result.error());
+            return tl::unexpected(doc_result.error());
         }
 
         auto meta = create_metadata(*doc_result, path);
@@ -692,7 +692,7 @@ namespace vdb
         std::ifstream file(path);
         if (!file)
         {
-            return std::unexpected(Error{ErrorCode::IoError, "Failed to open report file"});
+            return tl::unexpected(Error{ErrorCode::IoError, "Failed to open report file"});
         }
 
         std::stringstream buffer;
@@ -702,7 +702,7 @@ namespace vdb
         auto doc_result = parse_markdown(content, path.filename().string());
         if (!doc_result)
         {
-            return std::unexpected(doc_result.error());
+            return tl::unexpected(doc_result.error());
         }
 
         auto meta = create_metadata(*doc_result, path);
@@ -783,7 +783,7 @@ namespace vdb
             auto result = ingest(config);
             if (!result)
             {
-                return std::unexpected(result.error());
+                return tl::unexpected(result.error());
             }
 
             // Sleep for a bit before checking again

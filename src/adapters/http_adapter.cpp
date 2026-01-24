@@ -49,7 +49,7 @@ Result<NormalizedData> HTTPAdapter::parse(
     // Make HTTP GET request
     auto response_result = client_.get(url, config_.default_headers);
     if (!response_result) {
-        return std::unexpected(Error{
+        return tl::unexpected(Error{
             ErrorCode::IoError,
             "HTTP request failed: " + response_result.error().message
         });
@@ -59,7 +59,7 @@ Result<NormalizedData> HTTPAdapter::parse(
     
     // Check for HTTP errors
     if (!response.is_success()) {
-        return std::unexpected(Error{
+        return tl::unexpected(Error{
             ErrorCode::IoError,
             "HTTP error " + std::to_string(response.status_code) + ": " + response.error_message
         });
@@ -245,7 +245,7 @@ Result<NormalizedData> HTTPAdapter::parse_response(
                 result.confidence = parsed->confidence;
                 result.warnings = std::move(parsed->warnings);
             } else {
-                return std::unexpected(parsed.error());
+                return tl::unexpected(parsed.error());
             }
             break;
         }
@@ -257,7 +257,7 @@ Result<NormalizedData> HTTPAdapter::parse_response(
                 result.confidence = parsed->confidence;
                 result.warnings = std::move(parsed->warnings);
             } else {
-                return std::unexpected(parsed.error());
+                return tl::unexpected(parsed.error());
             }
             break;
         }
@@ -269,7 +269,7 @@ Result<NormalizedData> HTTPAdapter::parse_response(
                 result.confidence = parsed->confidence;
                 result.warnings = std::move(parsed->warnings);
             } else {
-                return std::unexpected(parsed.error());
+                return tl::unexpected(parsed.error());
             }
             break;
         }

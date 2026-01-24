@@ -15,7 +15,7 @@ ScalarQuantizer::ScalarQuantizer(const ScalarQuantizerConfig& config)
 
 Result<void> ScalarQuantizer::train(std::span<const Vector> training_data) {
     if (training_data.empty()) {
-        return std::unexpected(Error{ErrorCode::InvalidInput, "Empty training data"});
+        return tl::unexpected(Error{ErrorCode::InvalidInput, "Empty training data"});
     }
     
     min_values_.resize(config_.dimension, std::numeric_limits<Scalar>::max());
@@ -45,7 +45,7 @@ Result<void> ScalarQuantizer::train(std::span<const Vector> training_data) {
 
 Result<std::vector<uint8_t>> ScalarQuantizer::encode(VectorView vector) const {
     if (!trained_) {
-        return std::unexpected(Error{ErrorCode::InvalidState, "Not trained"});
+        return tl::unexpected(Error{ErrorCode::InvalidState, "Not trained"});
     }
     
     std::vector<uint8_t> codes(config_.dimension);
@@ -60,7 +60,7 @@ Result<std::vector<uint8_t>> ScalarQuantizer::encode(VectorView vector) const {
 
 Result<Vector> ScalarQuantizer::decode(std::span<const uint8_t> codes) const {
     if (!trained_) {
-        return std::unexpected(Error{ErrorCode::InvalidState, "Not trained"});
+        return tl::unexpected(Error{ErrorCode::InvalidState, "Not trained"});
     }
     
     Vector result(config_.dimension);
@@ -90,7 +90,7 @@ Distance ScalarQuantizer::compute_distance(VectorView query,
 
 Result<void> ScalarQuantizer::save(std::string_view path) const {
     std::ofstream file(std::string(path), std::ios::binary);
-    if (!file) return std::unexpected(Error{ErrorCode::IoError, "Failed to open"});
+    if (!file) return tl::unexpected(Error{ErrorCode::IoError, "Failed to open"});
     
     file.write(reinterpret_cast<const char*>(&config_.dimension), sizeof(Dim));
     file.write(reinterpret_cast<const char*>(&trained_), sizeof(bool));
@@ -111,7 +111,7 @@ Result<void> ScalarQuantizer::save(std::string_view path) const {
 
 Result<ScalarQuantizer> ScalarQuantizer::load(std::string_view path) {
     std::ifstream file(std::string(path), std::ios::binary);
-    if (!file) return std::unexpected(Error{ErrorCode::IoError, "Failed to open"});
+    if (!file) return tl::unexpected(Error{ErrorCode::IoError, "Failed to open"});
     
     ScalarQuantizerConfig config;
     bool trained;

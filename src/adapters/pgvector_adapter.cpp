@@ -81,7 +81,7 @@ Result<NormalizedData> PgvectorAdapter::parse_content(
     const ChunkConfig& config,
     std::string_view source_hint
 ) {
-    return std::unexpected(Error{
+    return tl::unexpected(Error{
         ErrorCode::InvalidInput,
         "pgvector adapter requires database connection, not content parsing"
     });
@@ -110,7 +110,7 @@ Result<void> PgvectorAdapter::connect() {
     if (PQstatus(conn) != CONNECTION_OK) {
         std::string error = PQerrorMessage(conn);
         PQfinish(conn);
-        return std::unexpected(Error{ErrorCode::IoError, "PostgreSQL connection failed: " + error});
+        return tl::unexpected(Error{ErrorCode::IoError, "PostgreSQL connection failed: " + error});
     }
     
     connection_ = conn;
@@ -128,7 +128,7 @@ Result<bool> PgvectorAdapter::is_pgvector_available() {
     if (!connection_) {
         auto conn_result = connect();
         if (!conn_result) {
-            return std::unexpected(conn_result.error());
+            return tl::unexpected(conn_result.error());
         }
     }
     
@@ -141,7 +141,7 @@ Result<bool> PgvectorAdapter::is_pgvector_available() {
     if (PQresultStatus(res) != PGRES_TUPLES_OK) {
         std::string error = PQerrorMessage(conn);
         PQclear(res);
-        return std::unexpected(Error{ErrorCode::ParseError, "Failed to check pgvector availability: " + error});
+        return tl::unexpected(Error{ErrorCode::ParseError, "Failed to check pgvector availability: " + error});
     }
     
     bool available = false;
@@ -182,7 +182,7 @@ Result<void> PgvectorAdapter::create_table(size_t vector_dimension) {
     if (PQresultStatus(res) != PGRES_COMMAND_OK) {
         std::string error = PQerrorMessage(conn);
         PQclear(res);
-        return std::unexpected(Error{ErrorCode::ParseError, "Failed to create table: " + error});
+        return tl::unexpected(Error{ErrorCode::ParseError, "Failed to create table: " + error});
     }
     
     PQclear(res);
@@ -214,12 +214,12 @@ Result<size_t> PgvectorAdapter::insert_vectors(
     if (!connection_) {
         auto conn_result = connect();
         if (!conn_result) {
-            return std::unexpected(conn_result.error());
+            return tl::unexpected(conn_result.error());
         }
     }
     
     if (vectors.size() != contents.size()) {
-        return std::unexpected(Error{ErrorCode::InvalidInput, "Vectors and contents must have same size"});
+        return tl::unexpected(Error{ErrorCode::InvalidInput, "Vectors and contents must have same size"});
     }
     
     PGconn* conn = static_cast<PGconn*>(connection_);
@@ -275,7 +275,7 @@ Result<std::vector<DataChunk>> PgvectorAdapter::query_similar(
     if (!connection_) {
         auto conn_result = connect();
         if (!conn_result) {
-            return std::unexpected(conn_result.error());
+            return tl::unexpected(conn_result.error());
         }
     }
     
@@ -312,7 +312,7 @@ Result<std::vector<DataChunk>> PgvectorAdapter::query_similar(
     if (PQresultStatus(res) != PGRES_TUPLES_OK) {
         std::string error = PQerrorMessage(conn);
         PQclear(res);
-        return std::unexpected(Error{ErrorCode::ParseError, "Failed to query similar vectors: " + error});
+        return tl::unexpected(Error{ErrorCode::ParseError, "Failed to query similar vectors: " + error});
     }
     
     std::vector<DataChunk> chunks;
@@ -353,13 +353,13 @@ Result<NormalizedData> PgvectorAdapter::parse_pgvector_db(const ChunkConfig& chu
     // Connect to database
     auto conn_result = connect();
     if (!conn_result) {
-        return std::unexpected(conn_result.error());
+        return tl::unexpected(conn_result.error());
     }
     
     // Check pgvector availability
     auto pgvector_result = is_pgvector_available();
     if (!pgvector_result || !*pgvector_result) {
-        return std::unexpected(Error{
+        return tl::unexpected(Error{
             ErrorCode::InvalidData,
             "pgvector extension not installed in PostgreSQL database"
         });
@@ -382,7 +382,7 @@ Result<NormalizedData> PgvectorAdapter::parse_pgvector_db(const ChunkConfig& chu
     if (PQresultStatus(res) != PGRES_TUPLES_OK) {
         std::string error = PQerrorMessage(conn);
         PQclear(res);
-        return std::unexpected(Error{ErrorCode::ParseError, "Failed to query pgvector table: " + error});
+        return tl::unexpected(Error{ErrorCode::ParseError, "Failed to query pgvector table: " + error});
     }
     
     int num_rows = PQntuples(res);
@@ -413,7 +413,7 @@ Result<NormalizedData> PgvectorAdapter::parse_pgvector_db(const ChunkConfig& chu
     
     auto sanitize_result = sanitize(data);
     if (!sanitize_result) {
-        return std::unexpected(sanitize_result.error());
+        return tl::unexpected(sanitize_result.error());
     }
     
     data.sanitized = true;
@@ -423,7 +423,7 @@ Result<NormalizedData> PgvectorAdapter::parse_pgvector_db(const ChunkConfig& chu
 #else // !HAVE_LIBPQ
 
 Result<void> PgvectorAdapter::connect() {
-    return std::unexpected(Error{
+    return tl::unexpected(Error{
         ErrorCode::NotImplemented,
         "PostgreSQL libpq library not available. Install libpq-dev and rebuild."
     });
@@ -432,11 +432,11 @@ Result<void> PgvectorAdapter::connect() {
 void PgvectorAdapter::disconnect() {}
 
 Result<bool> PgvectorAdapter::is_pgvector_available() {
-    return std::unexpected(Error{ErrorCode::NotImplemented, "libpq not available"});
+    return tl::unexpected(Error{ErrorCode::NotImplemented, "libpq not available"});
 }
 
 Result<void> PgvectorAdapter::create_table(size_t vector_dimension) {
-    return std::unexpected(Error{ErrorCode::NotImplemented, "libpq not available"});
+    return tl::unexpected(Error{ErrorCode::NotImplemented, "libpq not available"});
 }
 
 Result<size_t> PgvectorAdapter::insert_vectors(
@@ -444,7 +444,7 @@ Result<size_t> PgvectorAdapter::insert_vectors(
     const std::vector<std::string>& contents,
     const std::vector<std::unordered_map<std::string, std::string>>& metadata
 ) {
-    return std::unexpected(Error{ErrorCode::NotImplemented, "libpq not available"});
+    return tl::unexpected(Error{ErrorCode::NotImplemented, "libpq not available"});
 }
 
 Result<std::vector<DataChunk>> PgvectorAdapter::query_similar(
@@ -452,7 +452,7 @@ Result<std::vector<DataChunk>> PgvectorAdapter::query_similar(
     size_t k,
     float distance_threshold
 ) {
-    return std::unexpected(Error{ErrorCode::NotImplemented, "libpq not available"});
+    return tl::unexpected(Error{ErrorCode::NotImplemented, "libpq not available"});
 }
 
 Result<NormalizedData> PgvectorAdapter::parse_pgvector_db(const ChunkConfig& chunk_config) {

@@ -66,7 +66,7 @@ Result<NormalizedData> SQLiteAdapter::parse_content(
 ) {
     // SQLite requires file-based access, cannot parse from memory directly
     // without creating a temporary file
-    return std::unexpected(Error{
+    return tl::unexpected(Error{
         ErrorCode::NotImplemented,
         "SQLite content parsing requires file-based access. Please provide a file path."
     });
@@ -83,7 +83,7 @@ Result<std::vector<std::string>> SQLiteAdapter::get_table_names(void* db_ptr) {
     
     int rc = sqlite3_prepare_v2(db, query, -1, &stmt, nullptr);
     if (rc != SQLITE_OK) {
-        return std::unexpected(Error{ErrorCode::ParseError, "Failed to query table names"});
+        return tl::unexpected(Error{ErrorCode::ParseError, "Failed to query table names"});
     }
     
     while (sqlite3_step(stmt) == SQLITE_ROW) {
@@ -114,7 +114,7 @@ Result<std::vector<DataChunk>> SQLiteAdapter::extract_table_data(
     sqlite3_stmt* stmt;
     int rc = sqlite3_prepare_v2(db, query.c_str(), -1, &stmt, nullptr);
     if (rc != SQLITE_OK) {
-        return std::unexpected(Error{ErrorCode::ParseError, "Failed to prepare SQL query for table: " + table_name});
+        return tl::unexpected(Error{ErrorCode::ParseError, "Failed to prepare SQL query for table: " + table_name});
     }
     
     // Get column names
@@ -203,14 +203,14 @@ Result<NormalizedData> SQLiteAdapter::parse_sqlite_db(
     sqlite3* db;
     int rc = sqlite3_open(path.string().c_str(), &db);
     if (rc != SQLITE_OK) {
-        return std::unexpected(Error{ErrorCode::IoError, "Failed to open SQLite database: " + std::string(sqlite3_errmsg(db))});
+        return tl::unexpected(Error{ErrorCode::IoError, "Failed to open SQLite database: " + std::string(sqlite3_errmsg(db))});
     }
     
     // Get table names
     auto tables_result = get_table_names(db);
     if (!tables_result) {
         sqlite3_close(db);
-        return std::unexpected(tables_result.error());
+        return tl::unexpected(tables_result.error());
     }
     
     std::vector<std::string> tables = *tables_result;
@@ -267,7 +267,7 @@ Result<NormalizedData> SQLiteAdapter::parse_sqlite_db(
     // Sanitize
     auto sanitize_result = sanitize(data);
     if (!sanitize_result) {
-        return std::unexpected(sanitize_result.error());
+        return tl::unexpected(sanitize_result.error());
     }
     
     data.sanitized = true;
@@ -306,7 +306,7 @@ Result<NormalizedData> SQLiteAdapter::parse_sqlite_db(
 }
 
 Result<std::vector<std::string>> SQLiteAdapter::get_table_names(void* db_ptr) {
-    return std::unexpected(Error{ErrorCode::NotImplemented, "SQLite3 library not available"});
+    return tl::unexpected(Error{ErrorCode::NotImplemented, "SQLite3 library not available"});
 }
 
 Result<std::vector<DataChunk>> SQLiteAdapter::extract_table_data(
@@ -314,7 +314,7 @@ Result<std::vector<DataChunk>> SQLiteAdapter::extract_table_data(
     const std::string& table_name,
     size_t& chunk_offset
 ) {
-    return std::unexpected(Error{ErrorCode::NotImplemented, "SQLite3 library not available"});
+    return tl::unexpected(Error{ErrorCode::NotImplemented, "SQLite3 library not available"});
 }
 
 #endif // HAVE_SQLITE3
@@ -340,7 +340,7 @@ Result<void> SQLiteAdapter::write(
     sqlite3* db;
     int rc = sqlite3_open(path.string().c_str(), &db);
     if (rc != SQLITE_OK) {
-        return std::unexpected(Error{ErrorCode::IoError, "Failed to create SQLite database: " + std::string(sqlite3_errmsg(db))});
+        return tl::unexpected(Error{ErrorCode::IoError, "Failed to create SQLite database: " + std::string(sqlite3_errmsg(db))});
     }
     
     // Create table based on data structure
@@ -377,7 +377,7 @@ Result<void> SQLiteAdapter::write(
         std::string error = err_msg ? err_msg : "Unknown error";
         sqlite3_free(err_msg);
         sqlite3_close(db);
-        return std::unexpected(Error{ErrorCode::ParseError, "Failed to create table: " + error});
+        return tl::unexpected(Error{ErrorCode::ParseError, "Failed to create table: " + error});
     }
     
     // Insert data
@@ -404,7 +404,7 @@ Result<void> SQLiteAdapter::write(
         rc = sqlite3_prepare_v2(db, insert_query.str().c_str(), -1, &stmt, nullptr);
         if (rc != SQLITE_OK) {
             sqlite3_close(db);
-            return std::unexpected(Error{ErrorCode::ParseError, "Failed to prepare insert statement"});
+            return tl::unexpected(Error{ErrorCode::ParseError, "Failed to prepare insert statement"});
         }
         
         // Bind values
@@ -426,7 +426,7 @@ Result<void> SQLiteAdapter::write(
         
         if (rc != SQLITE_DONE) {
             sqlite3_close(db);
-            return std::unexpected(Error{ErrorCode::ParseError, "Failed to insert data"});
+            return tl::unexpected(Error{ErrorCode::ParseError, "Failed to insert data"});
         }
     }
     
@@ -440,7 +440,7 @@ Result<void> SQLiteAdapter::write(
     const NormalizedData& data,
     const fs::path& path
 ) {
-    return std::unexpected(Error{
+    return tl::unexpected(Error{
         ErrorCode::NotImplemented,
         "SQLite write support requires SQLite3 library. Install libsqlite3-dev and rebuild."
     });

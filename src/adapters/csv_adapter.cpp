@@ -37,7 +37,7 @@ Result<NormalizedData> CSVAdapter::parse(
 ) {
     std::ifstream file(path);
     if (!file) {
-        return std::unexpected(Error{ErrorCode::IoError, "Cannot open file: " + path.string()});
+        return tl::unexpected(Error{ErrorCode::IoError, "Cannot open file: " + path.string()});
     }
     
     std::stringstream buffer;
@@ -52,7 +52,7 @@ Result<NormalizedData> CSVAdapter::parse_content(
 ) {
     auto rows = parse_csv_content(content);
     if (rows.empty()) {
-        return std::unexpected(Error{ErrorCode::InvalidData, "Empty CSV data"});
+        return tl::unexpected(Error{ErrorCode::InvalidData, "Empty CSV data"});
     }
     
     NormalizedData result;
@@ -182,7 +182,7 @@ Result<void> CSVAdapter::write(
 ) {
     std::ofstream file(path);
     if (!file) {
-        return std::unexpected(Error{
+        return tl::unexpected(Error{
             ErrorCode::IoError,
             "Failed to open file for writing: " + path.string()
         });
@@ -234,7 +234,7 @@ Result<void> CSVAdapter::write(
     }
     
     if (!file.good()) {
-        return std::unexpected(Error{
+        return tl::unexpected(Error{
             ErrorCode::IoError,
             "Failed to write CSV file: " + path.string()
         });

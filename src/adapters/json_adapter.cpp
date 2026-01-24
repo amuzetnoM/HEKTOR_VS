@@ -34,7 +34,7 @@ Result<NormalizedData> JSONAdapter::parse(
 ) {
     std::ifstream file(path);
     if (!file) {
-        return std::unexpected(Error{ErrorCode::IoError, "Cannot open file: " + path.string()});
+        return tl::unexpected(Error{ErrorCode::IoError, "Cannot open file: " + path.string()});
     }
     
     std::stringstream buffer;
@@ -76,7 +76,7 @@ Result<NormalizedData> JSONAdapter::parse_content(
         return result;
         
     } catch (const json::exception& e) {
-        return std::unexpected(Error{ErrorCode::InvalidData, 
+        return tl::unexpected(Error{ErrorCode::InvalidData, 
             std::string("JSON parse error: ") + e.what()});
     }
 }
@@ -258,7 +258,7 @@ Result<void> JSONAdapter::write(
         // Write to file
         std::ofstream file(path);
         if (!file) {
-            return std::unexpected(Error{
+            return tl::unexpected(Error{
                 ErrorCode::IoError,
                 "Failed to open file for writing: " + path.string()
             });
@@ -271,7 +271,7 @@ Result<void> JSONAdapter::write(
         }
         
         if (!file.good()) {
-            return std::unexpected(Error{
+            return tl::unexpected(Error{
                 ErrorCode::IoError,
                 "Failed to write JSON file: " + path.string()
             });
@@ -280,7 +280,7 @@ Result<void> JSONAdapter::write(
         return {};
         
     } catch (const nlohmann::json::exception& e) {
-        return std::unexpected(Error{
+        return tl::unexpected(Error{
             ErrorCode::ParseError,
             "JSON serialization error: " + std::string(e.what())
         });

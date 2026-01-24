@@ -38,7 +38,7 @@ Result<void> DatabasePaths::ensure_dirs() const {
         fs::create_directories(models);
         return {};
     } catch (const std::exception& e) {
-        return std::unexpected(Error{ErrorCode::IoError, e.what()});
+        return tl::unexpected(Error{ErrorCode::IoError, e.what()});
     }
 }
 
@@ -118,7 +118,7 @@ Result<void> VectorDatabase::init() {
     if (fs::exists(paths_.index)) {
         auto index_result = HnswIndex::load(paths_.index.string());
         if (!index_result) {
-            return std::unexpected(index_result.error());
+            return tl::unexpected(index_result.error());
         }
         index_ = std::make_unique<HnswIndex>(std::move(*index_result));
     } else {
@@ -226,7 +226,7 @@ Result<VectorId> VectorDatabase::add_text(
     [[maybe_unused]] const IngestOptions& options
 ) {
     if (!text_encoder_ || !text_encoder_->is_ready()) {
-        return std::unexpected(Error{ErrorCode::ModelLoadError, "Text encoder not initialized"});
+        return tl::unexpected(Error{ErrorCode::ModelLoadError, "Text encoder not initialized"});
     }
     
     std::unique_lock<std::shared_mutex> lock(mutex_);
@@ -234,7 +234,7 @@ Result<VectorId> VectorDatabase::add_text(
     // Generate embedding
     auto embed_result = text_encoder_->encode(text);
     if (!embed_result) {
-        return std::unexpected(embed_result.error());
+        return tl::unexpected(embed_result.error());
     }
     
     // Project to unified dimension if needed
@@ -249,14 +249,14 @@ Result<VectorId> VectorDatabase::add_text(
     // Add to index
     auto index_result = index_->add(id, embedding.view());
     if (!index_result) {
-        return std::unexpected(index_result.error());
+        return tl::unexpected(index_result.error());
     }
     
     // Add to storage
     auto store_result = vectors_->add(id, embedding.view());
     if (!store_result) {
         index_->remove(id);
-        return std::unexpected(store_result.error());
+        return tl::unexpected(store_result.error());
     }
     
     // Add metadata
@@ -268,7 +268,7 @@ Result<VectorId> VectorDatabase::add_text(
     if (!meta_result) {
         index_->remove(id);
         vectors_->remove(id);
-        return std::unexpected(meta_result.error());
+        return tl::unexpected(meta_result.error());
     }
     
     if (config_.auto_sync) {
@@ -283,7 +283,7 @@ Result<VectorId> VectorDatabase::add_text(
     [[maybe_unused]] const Metadata& metadata,
     [[maybe_unused]] const IngestOptions& options
 ) {
-    return std::unexpected(Error{ErrorCode::NotImplemented, 
+    return tl::unexpected(Error{ErrorCode::NotImplemented, 
         "Text encoding requires ONNX Runtime (VDB_USE_ONNX_RUNTIME)"});
 }
 #endif
@@ -309,13 +309,13 @@ Result<QueryResults> VectorDatabase::query_text(
     const QueryOptions& options
 ) {
     if (!text_encoder_ || !text_encoder_->is_ready()) {
-        return std::unexpected(Error{ErrorCode::ModelLoadError, "Text encoder not initialized"});
+        return tl::unexpected(Error{ErrorCode::ModelLoadError, "Text encoder not initialized"});
     }
     
     // Generate query embedding
     auto embed_result = text_encoder_->encode(query);
     if (!embed_result) {
-        return std::unexpected(embed_result.error());
+        return tl::unexpected(embed_result.error());
     }
     
     Vector embedding(std::move(*embed_result));
@@ -330,7 +330,7 @@ Result<QueryResults> VectorDatabase::query_text(
     [[maybe_unused]] std::string_view query,
     [[maybe_unused]] const QueryOptions& options
 ) {
-    return std::unexpected(Error{ErrorCode::NotImplemented,
+    return tl::unexpected(Error{ErrorCode::NotImplemented,
         "Text query requires ONNX Runtime (VDB_USE_ONNX_RUNTIME)"});
 }
 #endif
@@ -346,7 +346,7 @@ Result<VectorId> VectorDatabase::add_image(
     [[maybe_unused]] const IngestOptions& options
 ) {
     if (!image_encoder_ || !image_encoder_->is_ready()) {
-        return std::unexpected(Error{ErrorCode::ModelLoadError, "Image encoder not initialized"});
+        return tl::unexpected(Error{ErrorCode::ModelLoadError, "Image encoder not initialized"});
     }
     
     std::unique_lock<std::shared_mutex> lock(mutex_);
@@ -354,7 +354,7 @@ Result<VectorId> VectorDatabase::add_image(
     // Generate embedding
     auto embed_result = image_encoder_->encode(image_path);
     if (!embed_result) {
-        return std::unexpected(embed_result.error());
+        return tl::unexpected(embed_result.error());
     }
     
     Vector embedding(std::move(*embed_result));
@@ -363,14 +363,14 @@ Result<VectorId> VectorDatabase::add_image(
     // Add to index
     auto index_result = index_->add(id, embedding.view());
     if (!index_result) {
-        return std::unexpected(index_result.error());
+        return tl::unexpected(index_result.error());
     }
     
     // Add to storage
     auto store_result = vectors_->add(id, embedding.view());
     if (!store_result) {
         index_->remove(id);
-        return std::unexpected(store_result.error());
+        return tl::unexpected(store_result.error());
     }
     
     // Add metadata
@@ -383,7 +383,7 @@ Result<VectorId> VectorDatabase::add_image(
     if (!meta_result) {
         index_->remove(id);
         vectors_->remove(id);
-        return std::unexpected(meta_result.error());
+        return tl::unexpected(meta_result.error());
     }
     
     if (config_.auto_sync) {
@@ -398,7 +398,7 @@ Result<VectorId> VectorDatabase::add_image(
     [[maybe_unused]] const Metadata& metadata,
     [[maybe_unused]] const IngestOptions& options
 ) {
-    return std::unexpected(Error{ErrorCode::NotImplemented,
+    return tl::unexpected(Error{ErrorCode::NotImplemented,
         "Image encoding requires ONNX Runtime (VDB_USE_ONNX_RUNTIME)"});
 }
 #endif
@@ -430,12 +430,12 @@ Result<QueryResults> VectorDatabase::query_image(
     const QueryOptions& options
 ) {
     if (!image_encoder_ || !image_encoder_->is_ready()) {
-        return std::unexpected(Error{ErrorCode::ModelLoadError, "Image encoder not initialized"});
+        return tl::unexpected(Error{ErrorCode::ModelLoadError, "Image encoder not initialized"});
     }
     
     auto embed_result = image_encoder_->encode(image_path);
     if (!embed_result) {
-        return std::unexpected(embed_result.error());
+        return tl::unexpected(embed_result.error());
     }
     
     Vector embedding(std::move(*embed_result));
@@ -446,7 +446,7 @@ Result<QueryResults> VectorDatabase::query_image(
     [[maybe_unused]] const fs::path& image_path,
     [[maybe_unused]] const QueryOptions& options
 ) {
-    return std::unexpected(Error{ErrorCode::NotImplemented,
+    return tl::unexpected(Error{ErrorCode::NotImplemented,
         "Image query requires ONNX Runtime (VDB_USE_ONNX_RUNTIME)"});
 }
 #endif
@@ -460,7 +460,7 @@ Result<VectorId> VectorDatabase::add_vector(
     const Metadata& metadata
 ) {
     if (vector.dim() != config_.dimension) {
-        return std::unexpected(Error{ErrorCode::InvalidDimension, "Dimension mismatch"});
+        return tl::unexpected(Error{ErrorCode::InvalidDimension, "Dimension mismatch"});
     }
     
     std::unique_lock<std::shared_mutex> lock(mutex_);
@@ -469,13 +469,13 @@ Result<VectorId> VectorDatabase::add_vector(
     
     auto index_result = index_->add(id, vector);
     if (!index_result) {
-        return std::unexpected(index_result.error());
+        return tl::unexpected(index_result.error());
     }
     
     auto store_result = vectors_->add(id, vector);
     if (!store_result) {
         index_->remove(id);
-        return std::unexpected(store_result.error());
+        return tl::unexpected(store_result.error());
     }
     
     Metadata meta = metadata;
@@ -485,7 +485,7 @@ Result<VectorId> VectorDatabase::add_vector(
     if (!meta_result) {
         index_->remove(id);
         vectors_->remove(id);
-        return std::unexpected(meta_result.error());
+        return tl::unexpected(meta_result.error());
     }
     
     return id;
@@ -496,7 +496,7 @@ Result<QueryResults> VectorDatabase::query_vector(
     const QueryOptions& options
 ) {
     if (query.dim() != config_.dimension) {
-        return std::unexpected(Error{ErrorCode::InvalidDimension, "Query dimension mismatch"});
+        return tl::unexpected(Error{ErrorCode::InvalidDimension, "Query dimension mismatch"});
     }
     
     std::shared_lock<std::shared_mutex> lock(mutex_);
@@ -719,7 +719,7 @@ Result<void> VectorDatabase::export_training_data(const fs::path& output_path) c
     
     std::ofstream file(output_path);
     if (!file) {
-        return std::unexpected(Error{ErrorCode::IoError, "Failed to create output file"});
+        return tl::unexpected(Error{ErrorCode::IoError, "Failed to create output file"});
     }
     
     for (const auto& meta : metadata_->all()) {
@@ -757,7 +757,7 @@ Result<VectorDatabase> create_gold_standard_db(const fs::path& path) {
     VectorDatabase db(config);
     auto result = db.init();
     if (!result) {
-        return std::unexpected(result.error());
+        return tl::unexpected(result.error());
     }
     
     return db;
@@ -766,13 +766,13 @@ Result<VectorDatabase> create_gold_standard_db(const fs::path& path) {
 Result<VectorDatabase> open_database(const fs::path& path) {
     DatabasePaths paths(path);
     if (!paths.exists()) {
-        return std::unexpected(Error{ErrorCode::IoError, "Database not found at path"});
+        return tl::unexpected(Error{ErrorCode::IoError, "Database not found at path"});
     }
     
     // Load config
     std::ifstream config_file(paths.config);
     if (!config_file) {
-        return std::unexpected(Error{ErrorCode::IoError, "Failed to read config file"});
+        return tl::unexpected(Error{ErrorCode::IoError, "Failed to read config file"});
     }
     
     json config_json = json::parse(config_file);
@@ -786,7 +786,7 @@ Result<VectorDatabase> open_database(const fs::path& path) {
     VectorDatabase db(config);
     auto result = db.init();
     if (!result) {
-        return std::unexpected(result.error());
+        return tl::unexpected(result.error());
     }
     
     return db;

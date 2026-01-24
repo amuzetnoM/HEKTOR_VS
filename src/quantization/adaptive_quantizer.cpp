@@ -149,7 +149,7 @@ Result<void> DisplayAwareQuantizer::train(std::span<const Vector> training_data)
 
 Result<std::vector<uint8_t>> DisplayAwareQuantizer::encode(VectorView vector) const {
     if (!trained_) {
-        return std::unexpected(Error{ErrorCode::NotTrained, "DisplayAwareQuantizer not trained"});
+        return tl::unexpected(Error{ErrorCode::NotTrained, "DisplayAwareQuantizer not trained"});
     }
     
     // Transform to perceptual space
@@ -161,7 +161,7 @@ Result<std::vector<uint8_t>> DisplayAwareQuantizer::encode(VectorView vector) co
 
 Result<Vector> DisplayAwareQuantizer::decode(std::span<const uint8_t> codes) const {
     if (!trained_) {
-        return std::unexpected(Error{ErrorCode::NotTrained, "DisplayAwareQuantizer not trained"});
+        return tl::unexpected(Error{ErrorCode::NotTrained, "DisplayAwareQuantizer not trained"});
     }
     
     // Decode from quantizer
@@ -181,12 +181,12 @@ Result<std::vector<uint8_t>> DisplayAwareQuantizer::requantize_for_display(
     // Decode with current display profile
     auto decoded_result = decode(codes);
     if (!decoded_result) {
-        return std::unexpected(decoded_result.error());
+        return tl::unexpected(decoded_result.error());
     }
     
     // For requantization, we need the quantizer to be trained
     if (!quantizer_ || !trained_) {
-        return std::unexpected(Error{ErrorCode::NotTrained, "Quantizer not trained for requantization"});
+        return tl::unexpected(Error{ErrorCode::NotTrained, "Quantizer not trained for requantization"});
     }
     
     // Determine target perceptual curve from display type
@@ -289,7 +289,7 @@ Result<void> EnvironmentAwareQuantizer::train(std::span<const Vector> training_d
 
 Result<std::vector<uint8_t>> EnvironmentAwareQuantizer::encode(VectorView vector) const {
     if (!trained_) {
-        return std::unexpected(Error{ErrorCode::NotTrained, "EnvironmentAwareQuantizer not trained"});
+        return tl::unexpected(Error{ErrorCode::NotTrained, "EnvironmentAwareQuantizer not trained"});
     }
     
     // For now, delegate to base quantizer
@@ -299,7 +299,7 @@ Result<std::vector<uint8_t>> EnvironmentAwareQuantizer::encode(VectorView vector
 
 Result<Vector> EnvironmentAwareQuantizer::decode(std::span<const uint8_t> codes) const {
     if (!trained_) {
-        return std::unexpected(Error{ErrorCode::NotTrained, "EnvironmentAwareQuantizer not trained"});
+        return tl::unexpected(Error{ErrorCode::NotTrained, "EnvironmentAwareQuantizer not trained"});
     }
     
     return base_quantizer_->decode(codes);
@@ -329,7 +329,7 @@ SaliencyQuantizer::SaliencyQuantizer(uint32_t total_bit_budget)
 
 Result<void> SaliencyQuantizer::train(std::span<const Vector> training_data) {
     if (training_data.empty()) {
-        return std::unexpected(Error{ErrorCode::InvalidInput, "Empty training data"});
+        return tl::unexpected(Error{ErrorCode::InvalidInput, "Empty training data"});
     }
     
     // Initialize base bit allocation (uniform)
@@ -346,7 +346,7 @@ Result<std::vector<uint8_t>> SaliencyQuantizer::encode(
     const SaliencyMap& saliency
 ) const {
     if (!trained_) {
-        return std::unexpected(Error{ErrorCode::NotTrained, "SaliencyQuantizer not trained"});
+        return tl::unexpected(Error{ErrorCode::NotTrained, "SaliencyQuantizer not trained"});
     }
     
     // Allocate bits based on saliency
@@ -375,7 +375,7 @@ Result<std::vector<uint8_t>> SaliencyQuantizer::encode(
 
 Result<Vector> SaliencyQuantizer::decode(std::span<const uint8_t> codes) const {
     if (!trained_) {
-        return std::unexpected(Error{ErrorCode::NotTrained, "SaliencyQuantizer not trained"});
+        return tl::unexpected(Error{ErrorCode::NotTrained, "SaliencyQuantizer not trained"});
     }
     
     // Simplified decoding (assumes uniform bit allocation for now)
@@ -478,7 +478,7 @@ Result<void> AdaptiveQuantizer::train(std::span<const Vector> training_data) {
         return env_quantizer_->train(training_data);
     }
     
-    return std::unexpected(Error{ErrorCode::InvalidState, "No quantizer available"});
+    return tl::unexpected(Error{ErrorCode::InvalidState, "No quantizer available"});
 }
 
 bool AdaptiveQuantizer::is_trained() const {
@@ -493,7 +493,7 @@ Result<std::vector<uint8_t>> AdaptiveQuantizer::encode(VectorView vector) const 
         return env_quantizer_->encode(vector);
     }
     
-    return std::unexpected(Error{ErrorCode::InvalidState, "No quantizer available"});
+    return tl::unexpected(Error{ErrorCode::InvalidState, "No quantizer available"});
 }
 
 Result<std::vector<uint8_t>> AdaptiveQuantizer::encode_with_saliency(
@@ -513,7 +513,7 @@ Result<Vector> AdaptiveQuantizer::decode(std::span<const uint8_t> codes) const {
         return env_quantizer_->decode(codes);
     }
     
-    return std::unexpected(Error{ErrorCode::InvalidState, "No quantizer available"});
+    return tl::unexpected(Error{ErrorCode::InvalidState, "No quantizer available"});
 }
 
 void AdaptiveQuantizer::adapt_to_display(const DisplayProfile& display) {

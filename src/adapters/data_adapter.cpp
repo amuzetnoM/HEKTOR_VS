@@ -40,12 +40,12 @@ Result<NormalizedData> DataAdapterManager::auto_parse(
     const ChunkConfig& config
 ) {
     if (!fs::exists(path)) {
-        return std::unexpected(Error{ErrorCode::IoError, "File does not exist: " + path.string()});
+        return tl::unexpected(Error{ErrorCode::IoError, "File does not exist: " + path.string()});
     }
     
     auto* adapter = find_adapter(path);
     if (!adapter) {
-        return std::unexpected(Error{ErrorCode::InvalidData, "No adapter found for: " + path.string()});
+        return tl::unexpected(Error{ErrorCode::InvalidData, "No adapter found for: " + path.string()});
     }
     
     return adapter->parse(path, config);
@@ -58,7 +58,7 @@ Result<NormalizedData> DataAdapterManager::auto_parse_content(
 ) {
     auto* adapter = find_adapter_for_content(content);
     if (!adapter) {
-        return std::unexpected(Error{ErrorCode::InvalidData, "No adapter found for content"});
+        return tl::unexpected(Error{ErrorCode::InvalidData, "No adapter found for content"});
     }
     
     return adapter->parse_content(content, config, hint);
@@ -118,7 +118,7 @@ Result<std::vector<NormalizedData>> DataAdapterManager::parse_batch(
     for (const auto& path : paths) {
         auto result = auto_parse(path, config);
         if (!result) {
-            return std::unexpected(result.error());
+            return tl::unexpected(result.error());
         }
         results.push_back(std::move(*result));
     }

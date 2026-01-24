@@ -47,7 +47,7 @@ Result<NormalizedData> ParquetAdapter::parse_content(
 ) {
     // For content-based parsing, we'd need to write to a temp file
     // or use Arrow's memory-based readers
-    return std::unexpected(Error{
+    return tl::unexpected(Error{
         ErrorCode::NotImplemented,
         "Parquet content parsing not yet implemented. Please use file-based parsing."
     });
@@ -210,12 +210,12 @@ Result<NormalizedData> ParquetAdapter::parse_parquet_file(
         return data;
         
     } catch (const parquet::ParquetException& e) {
-        return std::unexpected(Error{
+        return tl::unexpected(Error{
             ErrorCode::ParseError,
             "Parquet parsing error: " + std::string(e.what())
         });
     } catch (const std::exception& e) {
-        return std::unexpected(Error{
+        return tl::unexpected(Error{
             ErrorCode::ParseError,
             "Error parsing Parquet file: " + std::string(e.what())
         });
@@ -352,19 +352,19 @@ Result<void> ParquetAdapter::write(
         return {};
         
     } catch (const parquet::ParquetException& e) {
-        return std::unexpected(Error{
+        return tl::unexpected(Error{
             ErrorCode::IoError,
             "Parquet write error: " + std::string(e.what())
         });
     } catch (const std::exception& e) {
-        return std::unexpected(Error{
+        return tl::unexpected(Error{
             ErrorCode::IoError,
             "Error writing Parquet file: " + std::string(e.what())
         });
     }
 #else
     // Placeholder without Arrow
-    return std::unexpected(Error{
+    return tl::unexpected(Error{
         ErrorCode::NotImplemented,
         "Parquet write support requires Apache Arrow library. "
         "Build with -DHAVE_ARROW and install Apache Arrow C++ library. "

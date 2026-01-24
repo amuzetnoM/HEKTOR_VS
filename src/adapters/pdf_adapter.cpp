@@ -41,7 +41,7 @@ Result<NormalizedData> PDFAdapter::parse(
     // Load PDF document
     auto doc = poppler::document::load_from_file(path.string());
     if (!doc) {
-        return std::unexpected(Error{
+        return tl::unexpected(Error{
             ErrorCode::ParseError,
             "Failed to load PDF file: " + path.string()
         });
@@ -49,7 +49,7 @@ Result<NormalizedData> PDFAdapter::parse(
     
     return parse_pdf_document(doc.get(), config, path.string());
 #else
-    return std::unexpected(Error{
+    return tl::unexpected(Error{
         ErrorCode::NotImplemented,
         "PDF support requires poppler-cpp library (compile with -DHAVE_POPPLER)"
     });
@@ -73,7 +73,7 @@ Result<NormalizedData> PDFAdapter::parse_content(
     fs::remove(temp_path);
     return result;
 #else
-    return std::unexpected(Error{
+    return tl::unexpected(Error{
         ErrorCode::NotImplemented,
         "PDF support requires poppler-cpp library"
     });
@@ -217,7 +217,7 @@ Result<void> PDFAdapter::write(
     // This creates a valid but simple PDF
     std::ofstream file(path, std::ios::binary);
     if (!file) {
-        return std::unexpected(Error{ErrorCode::IoError, "Failed to create PDF file: " + path.string()});
+        return tl::unexpected(Error{ErrorCode::IoError, "Failed to create PDF file: " + path.string()});
     }
     
     // Write minimal PDF structure
@@ -280,7 +280,7 @@ Result<void> PDFAdapter::write(
     file << "startxref\n" << xref_pos << "\n%%EOF\n";
     
     if (!file) {
-        return std::unexpected(Error{ErrorCode::IoError, "Failed to write PDF file: " + path.string()});
+        return tl::unexpected(Error{ErrorCode::IoError, "Failed to write PDF file: " + path.string()});
     }
     
     return {};

@@ -49,7 +49,7 @@ Result<NormalizedData> TextAdapter::parse(
     // Read file content
     std::ifstream file(path, std::ios::binary);
     if (!file) {
-        return std::unexpected(Error{
+        return tl::unexpected(Error{
             ErrorCode::IoError,
             "Failed to open text file: " + path.string()
         });
@@ -74,7 +74,7 @@ Result<NormalizedData> TextAdapter::parse_content(
     // Detect and convert encoding if needed
     auto converted_result = detect_and_convert_encoding(content);
     if (!converted_result) {
-        return std::unexpected(converted_result.error());
+        return tl::unexpected(converted_result.error());
     }
     std::string text = std::move(*converted_result);
     
@@ -184,7 +184,7 @@ Result<std::string> TextAdapter::convert_encoding(
     // Open converters
     UConverter* from_conv = ucnv_open(from_encoding.c_str(), &status);
     if (U_FAILURE(status)) {
-        return std::unexpected(Error{
+        return tl::unexpected(Error{
             ErrorCode::ParseError,
             "Failed to open source encoding converter: " + from_encoding
         });
@@ -193,7 +193,7 @@ Result<std::string> TextAdapter::convert_encoding(
     UConverter* to_conv = ucnv_open(to_encoding.c_str(), &status);
     if (U_FAILURE(status)) {
         ucnv_close(from_conv);
-        return std::unexpected(Error{
+        return tl::unexpected(Error{
             ErrorCode::ParseError,
             "Failed to open target encoding converter: " + to_encoding
         });
@@ -213,7 +213,7 @@ Result<std::string> TextAdapter::convert_encoding(
     if (U_FAILURE(status)) {
         ucnv_close(from_conv);
         ucnv_close(to_conv);
-        return std::unexpected(Error{
+        return tl::unexpected(Error{
             ErrorCode::ParseError,
             "Failed to convert from " + from_encoding + " to Unicode"
         });
@@ -233,7 +233,7 @@ Result<std::string> TextAdapter::convert_encoding(
     ucnv_close(to_conv);
     
     if (U_FAILURE(status)) {
-        return std::unexpected(Error{
+        return tl::unexpected(Error{
             ErrorCode::ParseError,
             "Failed to convert from Unicode to " + to_encoding
         });

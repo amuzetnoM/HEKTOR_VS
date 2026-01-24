@@ -12,8 +12,11 @@
 #include <string_view>
 #include <memory>
 #include <optional>
-#include <expected>
 #include <chrono>
+
+// Use tl::expected as a polyfill for std::expected (C++23)
+// This provides compatibility with C++17/20 compilers
+#include <tl/expected.hpp>
 
 namespace vdb {
 
@@ -128,7 +131,7 @@ struct Error {
 };
 
 template<typename T>
-using Result = std::expected<T, Error>;
+using Result = tl::expected<T, Error>;
 
 // Helper functions for Result types
 template<typename T>
@@ -138,13 +141,13 @@ inline Result<T> Ok(T&& value) {
 
 template<typename T>
 inline Result<T> Err(Error error) {
-    return std::unexpected(error);
+    return tl::unexpected(error);
 }
 
 // Specialization for string error messages
 template<typename T>
 inline Result<T> Err(const std::string& message) {
-    return std::unexpected(Error(ErrorCode::Unknown, message));
+    return tl::unexpected(Error(ErrorCode::Unknown, message));
 }
 
 // ============================================================================

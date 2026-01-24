@@ -129,7 +129,7 @@ public:
         const fs::path& path
     ) {
         // Default implementation returns not implemented
-        return std::unexpected(Error{ErrorCode::NotImplemented, 
+        return tl::unexpected(Error{ErrorCode::NotImplemented, 
             "Write operation not implemented for " + name() + " adapter"});
     }
     

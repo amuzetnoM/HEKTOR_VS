@@ -19,7 +19,7 @@ namespace vdb
         {
             if (has_index(field))
             {
-                return std::unexpected(Error{ErrorCode::InvalidState, "Index already exists"});
+                return tl::unexpected(Error{ErrorCode::InvalidState, "Index already exists"});
             }
 
             InvertedIndex idx;
@@ -365,7 +365,7 @@ namespace vdb
             std::ofstream file(std::string(path), std::ios::binary);
             if (!file)
             {
-                return std::unexpected(Error{ErrorCode::IoError, "Failed to open file"});
+                return tl::unexpected(Error{ErrorCode::IoError, "Failed to open file"});
             }
 
             size_t num_indices = indices_.size();
@@ -404,7 +404,7 @@ namespace vdb
             std::ifstream file(std::string(path), std::ios::binary);
             if (!file)
             {
-                return std::unexpected(Error{ErrorCode::IoError, "Failed to open file"});
+                return tl::unexpected(Error{ErrorCode::IoError, "Failed to open file"});
             }
 
             MetadataIndex idx;

@@ -44,13 +44,13 @@ Result<NormalizedData> ExcelAdapter::parse(
 #ifdef HAVE_XLSXWRITER
     // Note: libxlsxwriter is write-only. For reading, we need another library.
     // This is a placeholder that notes the requirement.
-    return std::unexpected(Error{
+    return tl::unexpected(Error{
         ErrorCode::NotImplemented,
         "Excel reading requires additional library (xlnt or libxlsx). "
         "LibxlsxWriter supports writing only. Install xlnt for full Excel support."
     });
 #else
-    return std::unexpected(Error{
+    return tl::unexpected(Error{
         ErrorCode::NotImplemented,
         "Excel support requires libxlsxwriter (for writing) and xlnt (for reading). "
         "Compile with -DHAVE_XLSXWRITER and install xlnt library."
@@ -91,7 +91,7 @@ Result<void> ExcelAdapter::write(
     // Create workbook
     lxw_workbook* workbook = workbook_new(path.string().c_str());
     if (!workbook) {
-        return std::unexpected(Error{
+        return tl::unexpected(Error{
             ErrorCode::IoError,
             "Failed to create Excel workbook: " + path.string()
         });
@@ -101,7 +101,7 @@ Result<void> ExcelAdapter::write(
     lxw_worksheet* worksheet = workbook_add_worksheet(workbook, "Data");
     if (!worksheet) {
         workbook_close(workbook);
-        return std::unexpected(Error{
+        return tl::unexpected(Error{
             ErrorCode::IoError,
             "Failed to create worksheet"
         });
@@ -131,7 +131,7 @@ Result<void> ExcelAdapter::write(
     // Close workbook (writes file)
     lxw_error error = workbook_close(workbook);
     if (error != LXW_NO_ERROR) {
-        return std::unexpected(Error{
+        return tl::unexpected(Error{
             ErrorCode::IoError,
             "Failed to write Excel file: " + std::string(lxw_strerror(error))
         });
@@ -139,7 +139,7 @@ Result<void> ExcelAdapter::write(
     
     return {};
 #else
-    return std::unexpected(Error{
+    return tl::unexpected(Error{
         ErrorCode::NotImplemented,
         "Excel write support requires libxlsxwriter library"
     });

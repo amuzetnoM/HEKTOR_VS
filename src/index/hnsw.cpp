@@ -59,7 +59,7 @@ int HnswIndex::random_level() {
 
 Result<void> HnswIndex::add(VectorId id, VectorView vector) {
     if (vector.dim() != config_.dimension) {
-        return std::unexpected(Error{ErrorCode::InvalidDimension, 
+        return tl::unexpected(Error{ErrorCode::InvalidDimension, 
             "Expected dimension " + std::to_string(config_.dimension) + 
             ", got " + std::to_string(vector.dim())});
     }
@@ -67,13 +67,13 @@ Result<void> HnswIndex::add(VectorId id, VectorView vector) {
     std::unique_lock<std::shared_mutex> lock(mutex_);
     
     if (element_count_ >= config_.max_elements) {
-        return std::unexpected(Error{ErrorCode::IndexFull, "Index capacity reached"});
+        return tl::unexpected(Error{ErrorCode::IndexFull, "Index capacity reached"});
     }
     
     // Check for existing ID
     if (id_to_index_.contains(id)) {
         if (!config_.allow_replace) {
-            return std::unexpected(Error{ErrorCode::InvalidVectorId, "Vector ID already exists"});
+            return tl::unexpected(Error{ErrorCode::InvalidVectorId, "Vector ID already exists"});
         }
         // Remove old entry
         // TODO: Implement proper removal
@@ -146,7 +146,7 @@ Result<void> HnswIndex::add_batch(
     std::span<const Vector> vectors
 ) {
     if (ids.size() != vectors.size()) {
-        return std::unexpected(Error{ErrorCode::InvalidInput, "IDs and vectors count mismatch"});
+        return tl::unexpected(Error{ErrorCode::InvalidInput, "IDs and vectors count mismatch"});
     }
     
     for (size_t i = 0; i < ids.size(); ++i) {
@@ -357,7 +357,7 @@ Result<void> HnswIndex::remove(VectorId id) {
     
     auto it = id_to_index_.find(id);
     if (it == id_to_index_.end()) {
-        return std::unexpected(Error{ErrorCode::VectorNotFound, "Vector ID not found"});
+        return tl::unexpected(Error{ErrorCode::VectorNotFound, "Vector ID not found"});
     }
     
     // Mark as deleted (lazy deletion)
@@ -425,7 +425,7 @@ Result<void> HnswIndex::resize(size_t new_max_elements) {
     std::unique_lock<std::shared_mutex> lock(mutex_);
     
     if (new_max_elements < element_count_) {
-        return std::unexpected(Error{ErrorCode::InvalidInput, 
+        return tl::unexpected(Error{ErrorCode::InvalidInput, 
             "New capacity must be at least current element count"});
     }
     
@@ -446,7 +446,7 @@ Result<void> HnswIndex::save(std::string_view path) const {
     
     std::ofstream file(std::string(path), std::ios::binary);
     if (!file) {
-        return std::unexpected(Error{ErrorCode::IoError, "Failed to open file for writing"});
+        return tl::unexpected(Error{ErrorCode::IoError, "Failed to open file for writing"});
     }
     
     // Write header
@@ -496,7 +496,7 @@ Result<void> HnswIndex::save(std::string_view path) const {
 Result<HnswIndex> HnswIndex::load(std::string_view path) {
     std::ifstream file(std::string(path), std::ios::binary);
     if (!file) {
-        return std::unexpected(Error{ErrorCode::IoError, "Failed to open file for reading"});
+        return tl::unexpected(Error{ErrorCode::IoError, "Failed to open file for reading"});
     }
     
     // Read header
@@ -505,11 +505,11 @@ Result<HnswIndex> HnswIndex::load(std::string_view path) {
     file.read(reinterpret_cast<char*>(&version), sizeof(version));
     
     if (magic != 0x564442) {
-        return std::unexpected(Error{ErrorCode::IndexCorrupted, "Invalid file format"});
+        return tl::unexpected(Error{ErrorCode::IndexCorrupted, "Invalid file format"});
     }
     
     if (version != 1 && version != 2) {
-        return std::unexpected(Error{ErrorCode::IndexCorrupted, 
+        return tl::unexpected(Error{ErrorCode::IndexCorrupted, 
             "Unsupported file version: " + std::to_string(version)});
     }
     
@@ -582,11 +582,11 @@ FlatIndex::FlatIndex(Dim dimension, DistanceMetric metric)
 
 Result<void> FlatIndex::add(VectorId id, VectorView vector) {
     if (vector.dim() != dimension_) {
-        return std::unexpected(Error{ErrorCode::InvalidDimension, "Dimension mismatch"});
+        return tl::unexpected(Error{ErrorCode::InvalidDimension, "Dimension mismatch"});
     }
     
     if (id_to_index_.contains(id)) {
-        return std::unexpected(Error{ErrorCode::InvalidVectorId, "ID already exists"});
+        return tl::unexpected(Error{ErrorCode::InvalidVectorId, "ID already exists"});
     }
     
     id_to_index_[id] = vectors_.size();
@@ -626,7 +626,7 @@ std::optional<Vector> FlatIndex::get_vector(VectorId id) const {
 Result<void> FlatIndex::save(std::string_view path) const {
     std::ofstream file(std::string(path), std::ios::binary);
     if (!file) {
-        return std::unexpected(Error{ErrorCode::IoError, "Failed to open file for writing"});
+        return tl::unexpected(Error{ErrorCode::IoError, "Failed to open file for writing"});
     }
     
     // Write header
@@ -655,7 +655,7 @@ Result<void> FlatIndex::save(std::string_view path) const {
 Result<FlatIndex> FlatIndex::load(std::string_view path) {
     std::ifstream file(std::string(path), std::ios::binary);
     if (!file) {
-        return std::unexpected(Error{ErrorCode::IoError, "Failed to open file for reading"});
+        return tl::unexpected(Error{ErrorCode::IoError, "Failed to open file for reading"});
     }
     
     // Read header
@@ -664,11 +664,11 @@ Result<FlatIndex> FlatIndex::load(std::string_view path) {
     file.read(reinterpret_cast<char*>(&version), sizeof(version));
     
     if (magic != FLAT_INDEX_MAGIC) {
-        return std::unexpected(Error{ErrorCode::IndexCorrupted, "Invalid file format"});
+        return tl::unexpected(Error{ErrorCode::IndexCorrupted, "Invalid file format"});
     }
     
     if (version != FLAT_INDEX_VERSION) {
-        return std::unexpected(Error{ErrorCode::IndexCorrupted, 
+        return tl::unexpected(Error{ErrorCode::IndexCorrupted, 
             "Unsupported file version: " + std::to_string(version)});
     }
     

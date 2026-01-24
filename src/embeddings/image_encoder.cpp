@@ -18,13 +18,13 @@ namespace vdb::embeddings {
 
 Result<ImageData> load_image(const fs::path& path) {
     if (!fs::exists(path)) {
-        return std::unexpected(Error{ErrorCode::IoError, "Image file not found: " + path.string()});
+        return tl::unexpected(Error{ErrorCode::IoError, "Image file not found: " + path.string()});
     }
     
     // Read file into memory
     std::ifstream file(path, std::ios::binary | std::ios::ate);
     if (!file) {
-        return std::unexpected(Error{ErrorCode::IoError, "Failed to open image: " + path.string()});
+        return tl::unexpected(Error{ErrorCode::IoError, "Failed to open image: " + path.string()});
     }
     
     std::streamsize size = file.tellg();
@@ -32,7 +32,7 @@ Result<ImageData> load_image(const fs::path& path) {
     
     std::vector<char> buffer(size);
     if (!file.read(buffer.data(), size)) {
-        return std::unexpected(Error{ErrorCode::IoError, "Failed to read image: " + path.string()});
+        return tl::unexpected(Error{ErrorCode::IoError, "Failed to read image: " + path.string()});
     }
     
     return load_image_memory(std::span<const uint8_t>(
@@ -54,7 +54,7 @@ Result<ImageData> load_image_memory(std::span<const uint8_t> data) {
     );
     
     if (pixels == nullptr) {
-        return std::unexpected(Error{ErrorCode::InvalidData, 
+        return tl::unexpected(Error{ErrorCode::InvalidData, 
                     std::string("Failed to decode image: ") + stbi_failure_reason()});
     }
     
@@ -75,7 +75,7 @@ Result<void> save_image(const fs::path& path, const ImageData& img) {
     
     std::ofstream file(path, std::ios::binary);
     if (!file) {
-        return std::unexpected(Error{ErrorCode::IoError, "Failed to create image: " + path.string()});
+        return tl::unexpected(Error{ErrorCode::IoError, "Failed to create image: " + path.string()});
     }
     
     // PPM header
@@ -116,7 +116,7 @@ Result<void> ImageEncoder::init(const ImageEncoderConfig& config) {
     
     // Validate model path
     if (!fs::exists(config_.model_path)) {
-        return std::unexpected(Error{ErrorCode::IoError,
+        return tl::unexpected(Error{ErrorCode::IoError,
                     "Image encoder model not found: " + config_.model_path.string()});
     }
     
@@ -131,7 +131,7 @@ Result<void> ImageEncoder::init(const ImageEncoderConfig& config) {
     try {
         session_ = std::make_unique<OnnxSession>(config_.model_path, config_.device);
     } catch (const std::exception& e) {
-        return std::unexpected(Error{ErrorCode::InvalidData,
+        return tl::unexpected(Error{ErrorCode::InvalidData,
                     std::string("Failed to load ONNX model: ") + e.what()});
     }
     
@@ -142,7 +142,7 @@ Result<void> ImageEncoder::init(const ImageEncoderConfig& config) {
 Result<std::vector<float>> ImageEncoder::encode(const fs::path& image_path) {
     auto image_result = load_image(image_path);
     if (!image_result) {
-        return std::unexpected(image_result.error());
+        return tl::unexpected(image_result.error());
     }
     
     return encode(*image_result);
@@ -150,11 +150,11 @@ Result<std::vector<float>> ImageEncoder::encode(const fs::path& image_path) {
 
 Result<std::vector<float>> ImageEncoder::encode(const ImageData& image) {
     if (!ready_) {
-        return std::unexpected(Error{ErrorCode::InvalidState, "ImageEncoder not initialized"});
+        return tl::unexpected(Error{ErrorCode::InvalidState, "ImageEncoder not initialized"});
     }
     
     if (!image.valid()) {
-        return std::unexpected(Error{ErrorCode::InvalidData, "Invalid image data"});
+        return tl::unexpected(Error{ErrorCode::InvalidData, "Invalid image data"});
     }
     
     // Preprocess image
@@ -183,7 +183,7 @@ Result<std::vector<float>> ImageEncoder::encode(const ImageData& image) {
         auto outputs = session_->run(inputs);
         
         if (outputs.empty()) {
-            return std::unexpected(Error{ErrorCode::InvalidData, "Model returned no outputs"});
+            return tl::unexpected(Error{ErrorCode::InvalidData, "Model returned no outputs"});
         }
         
         // Get output tensor
@@ -208,7 +208,7 @@ Result<std::vector<float>> ImageEncoder::encode(const ImageData& image) {
         return embedding;
         
     } catch (const Ort::Exception& e) {
-        return std::unexpected(Error{ErrorCode::InvalidData,
+        return tl::unexpected(Error{ErrorCode::InvalidData,
                     std::string("ONNX inference failed: ") + e.what()});
     }
 }
@@ -217,7 +217,7 @@ Result<std::vector<std::vector<float>>> ImageEncoder::encode_batch(
     const std::vector<fs::path>& image_paths) {
     
     if (!ready_) {
-        return std::unexpected(Error{ErrorCode::InvalidState, "ImageEncoder not initialized"});
+        return tl::unexpected(Error{ErrorCode::InvalidState, "ImageEncoder not initialized"});
     }
     
     if (image_paths.empty()) {
@@ -231,11 +231,11 @@ Result<std::vector<std::vector<float>>> ImageEncoder::encode_batch(
     for (const auto& path : image_paths) {
         auto image_result = load_image(path);
         if (!image_result) {
-            return std::unexpected(image_result.error());
+            return tl::unexpected(image_result.error());
         }
         
         if (!image_result->valid()) {
-            return std::unexpected(Error{ErrorCode::InvalidData, 
+            return tl::unexpected(Error{ErrorCode::InvalidData, 
                 "Invalid image data: " + path.string()});
         }
         
@@ -276,7 +276,7 @@ Result<std::vector<std::vector<float>>> ImageEncoder::encode_batch(
         auto outputs = session_->run(inputs);
         
         if (outputs.empty()) {
-            return std::unexpected(Error{ErrorCode::InvalidData, "Model returned no outputs"});
+            return tl::unexpected(Error{ErrorCode::InvalidData, "Model returned no outputs"});
         }
         
         // Get output tensor
@@ -311,7 +311,7 @@ Result<std::vector<std::vector<float>>> ImageEncoder::encode_batch(
         return results;
         
     } catch (const Ort::Exception& e) {
-        return std::unexpected(Error{ErrorCode::InvalidData,
+        return tl::unexpected(Error{ErrorCode::InvalidData,
                     std::string("ONNX batch inference failed: ") + e.what()});
     }
 }
