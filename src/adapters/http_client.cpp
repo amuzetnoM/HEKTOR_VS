@@ -580,7 +580,7 @@ namespace vdb::adapters
 
     auto UrlBuilder::add_param(const std::string &key, bool value) -> UrlBuilder &
     {
-        return add_param(key, value ? "true" : "false");
+        return add_param(key, std::string(value ? "true" : "false"));
     }
 
     auto UrlBuilder::add_path(const std::string &segment) -> UrlBuilder &
