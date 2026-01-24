@@ -3,6 +3,7 @@
 // ============================================================================
 
 #include "vdb/adapters/sqlite_adapter.hpp"
+#include <algorithm>
 #include <fstream>
 #include <sstream>
 

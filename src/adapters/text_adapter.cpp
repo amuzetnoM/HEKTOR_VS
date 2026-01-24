@@ -3,6 +3,7 @@
 // ============================================================================
 
 #include "vdb/adapters/text_adapter.hpp"
+#include <algorithm>
 #include <fstream>
 #include <sstream>
 #include <regex>

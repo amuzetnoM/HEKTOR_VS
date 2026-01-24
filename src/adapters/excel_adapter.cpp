@@ -4,6 +4,7 @@
 // ============================================================================
 
 #include "vdb/adapters/excel_adapter.hpp"
+#include <algorithm>
 #include <fstream>
 #include <sstream>
 

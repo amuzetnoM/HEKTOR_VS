@@ -4,6 +4,7 @@
 
 #include "vdb/adapters/xml_adapter.hpp"
 #include "vdb/logging.hpp"
+#include <algorithm>
 #include <fstream>
 #include <sstream>
 #include <regex>
