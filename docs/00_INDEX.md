@@ -1,3 +1,12 @@
+---
+title: Index
+description: "Comprehensive documentation index for Hektor Vector Database"
+version: 4.1.5
+last_updated: 2026-01-24
+sidebar_position: 0
+category: Index
+---
+
 # Documentation Index
 
 > **Hektor Vector Database** - Comprehensive Documentation

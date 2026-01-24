@@ -1,4 +1,14 @@
-# Hybrid Search in Vector Databases: BM25 Meets HNSW
+---
+title: BM25 Meets HNSW
+description: "Hybrid Search in Vector Databases"
+version: 4.1.5
+last_updated: 2026-01-24
+sidebar_position: 1
+category: Introduction
+---
+
+# BM25 Meets HNSW
+> Hybrid Search in Vector Databases
 
 **ARTIFACT VIRTUAL Technical Article Series**  
 *Author: Ali A. Shakil*  

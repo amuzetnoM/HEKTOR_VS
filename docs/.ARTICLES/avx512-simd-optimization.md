@@ -1,6 +1,16 @@
-# AVX-512 SIMD Optimization for Vector Similarity Search
+---
+title: AVX-512 SIMD
+description: Similarity Search Optimization using AVX-512 SIMD Instructions
+version: 4.1.5
+last_updated: 2026-01-24
+sidebar_position: 1
+category: Introduction
+---
 
-**ARTIFACT VIRTUAL Technical Article Series**  
+# AVX-512 SIMD
+> Similarity Search Optimization
+
+**AV Technical Articles Series**  
 *Author: Ali A. Shakil*  
 *Published: January 24, 2026*
 

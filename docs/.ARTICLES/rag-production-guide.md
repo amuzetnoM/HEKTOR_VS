@@ -1,4 +1,14 @@
-# Retrieval-Augmented Generation: From Theory to Production
+---
+title: Retrieval-Augmented Generation
+description: "From Theory to Production"
+version: 4.1.5
+last_updated: 2026-01-24
+sidebar_position: 1
+category: Introduction
+---
+
+# RAG Comprehensive
+> From Theory to Production
 
 **ARTIFACT VIRTUAL Technical Article Series**  
 *Author: Ali A. Shakil*  

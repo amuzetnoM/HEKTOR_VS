@@ -1,4 +1,14 @@
-# HDR Display Standards for Vector Database Quantization
+---
+title: HDR1000
+description: "Overview of HDR1000 Display Standards and Their Application to Vector Quantization"
+version: 4.1.5
+last_updated: 2026-01-24
+sidebar_position: 1
+category: Introduction
+---
+
+# HDR Display Standards
+> Quantization Standards for Vector Database
 
 **ARTIFACT VIRTUAL Technical Article Series**  
 *Author: Ali A. Shakil*  

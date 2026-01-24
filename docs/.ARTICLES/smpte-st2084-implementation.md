@@ -1,4 +1,15 @@
-# SMPTE ST 2084 Perceptual Quantizer: Technical Implementation Guide
+---
+title: SMPTE ST 2084 
+description: "Perceptual Quantizer: Technical Implementation Guide"
+version: 4.1.5
+last_updated: 2026-01-24
+sidebar_position: 1
+category: Introduction
+---
+
+# Perceptual Quantization
+> Technical Implementation Guide <br>
+> SMPTE ST 2084
 
 **ARTIFACT VIRTUAL Technical Article Series**  
 *Author: Ali A. Shakil*  
