@@ -1,8 +1,9 @@
 import React, { useState, useEffect } from 'react';
 import { useTheme } from './lib/theme-system';
 import VectorSpace3D from './components/3d/VectorSpace3D';
+import { PerceptualQuantizationPanel } from './components/quantization';
 
-type ViewMode = 'dashboard' | 'search' | 'ingest' | 'analytics' | '3d';
+type ViewMode = 'dashboard' | 'search' | 'ingest' | 'analytics' | '3d' | 'quantization';
 
 function App() {
   const { currentTheme, setTheme, availableThemes } = useTheme();
@@ -211,10 +212,10 @@ function App() {
                 <p>Multi-geometry: Euclidean, Hyperbolic, Parabolic</p>
               </div>
 
-              <div className="feature-card">
+              <div className="feature-card" style={{ cursor: 'pointer' }} onClick={() => setViewMode('quantization')}>
                 <div style={{ fontSize: '32px', marginBottom: '10px' }}>🎨</div>
                 <h3>Perceptual Quantization</h3>
-                <p>HDR-aware compression with 8-32x reduction</p>
+                <p>HDR-aware compression with Dolby PQ (ST 2084) & HLG</p>
               </div>
 
               <div className="feature-card" style={{ cursor: 'pointer' }} onClick={() => setViewMode('analytics')}>
@@ -228,6 +229,45 @@ function App() {
                 <h3>AI Assistant</h3>
                 <p>Contextual optimization and intelligent suggestions</p>
               </div>
+            </div>
+          </div>
+        ) : viewMode === 'quantization' ? (
+          <div style={{ height: '100%', display: 'flex', flexDirection: 'column' }}>
+            <div style={{ 
+              display: 'flex', 
+              justifyContent: 'space-between', 
+              alignItems: 'center',
+              padding: '10px 12px',
+              borderBottom: '1px solid rgba(255,255,255,0.1)',
+            }}>
+              <button 
+                onClick={() => setViewMode('dashboard')}
+                className="demo-button"
+                style={{ background: 'transparent', border: '1px solid var(--border)' }}
+              >
+                ← Back to Dashboard
+              </button>
+              <h2 style={{ margin: 0, fontSize: '16px' }}>
+                ⭐ Perceptual Quantization Studio
+              </h2>
+              <div style={{ fontSize: '11px', opacity: 0.6 }}>
+                SMPTE ST 2084 | Dolby Vision | HDR10 | Netflix Ready
+              </div>
+            </div>
+            <div style={{ flex: 1, minHeight: 0 }}>
+              <PerceptualQuantizationPanel
+                vectors={demoVectors.map((v, i) => ({
+                  id: v.id,
+                  values: [...v.position, Math.random(), Math.random(), Math.random(), Math.random(), Math.random()],
+                }))}
+                onQuantize={async (config) => {
+                  console.log('Quantizing with config:', config);
+                  await new Promise(resolve => setTimeout(resolve, 1000));
+                }}
+                onExport={(format) => {
+                  console.log('Exporting as:', format);
+                }}
+              />
             </div>
           </div>
         ) : viewMode === '3d' ? (
