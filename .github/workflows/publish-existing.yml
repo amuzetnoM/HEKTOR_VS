@@ -1,0 +1,35 @@
+name: Publish Existing Artifacts
+
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  id-token: write
+
+jobs:
+  publish:
+    name: Publish to PyPI
+    runs-on: ubuntu-latest
+    environment:
+      name: pypi
+      url: https://pypi.org/project/hektor-vdb/
+    
+    steps:
+    - name: Download artifacts from run 21328582497
+      uses: actions/download-artifact@v4
+      with:
+        run-id: 21328582497
+        github-token: ${{ secrets.GITHUB_TOKEN }}
+        path: dist
+        merge-multiple: true
+        
+    - name: List files
+      run: find dist -type f -name "*.whl" -o -name "*.tar.gz" | head -30
+        
+    - name: Publish to PyPI
+      uses: pypa/gh-action-pypi-publish@release/v1
+      with:
+        packages-dir: dist/
+        skip-existing: true
+        verbose: true
