@@ -126,7 +126,7 @@ jobs:
         CIBW_MANYLINUX_AARCH64_IMAGE: manylinux_2_28
         
         # Platform-specific architectures
-        CIBW_ARCHS_LINUX: x86_64 aarch64
+        CIBW_ARCHS_LINUX: x86_64
         CIBW_ARCHS_WINDOWS: AMD64
         CIBW_ARCHS_MACOS: x86_64 arm64
         
