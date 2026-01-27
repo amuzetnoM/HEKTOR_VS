@@ -10,7 +10,7 @@ A High-Performance C++23 vector database with SIMD-optimized similarity search, 
 <p align="center">
 
 <!-- Version -->
-[![Version](https://img.shields.io/badge/version-4.1.1-blue?style=for-the-badge&logo=semver&logoColor=white)](#)
+[![Version](https://img.shields.io/badge/version-4.1.7-blue?style=for-the-badge&logo=semver&logoColor=white)](#)
 [![PyPI](https://img.shields.io/badge/PyPI-hektor--vdb-3775A9?style=for-the-badge&logo=pypi&logoColor=white)](https://pypi.org/project/hektor-vdb/)
 
 <!-- Build Status -->
@@ -216,17 +216,20 @@ python verify-installation.py
 ### Installation via pip (Easiest)
 
 ```bash
-# Install from source (requires CMake and C++ compiler)
 pip install hektor-vdb
 
 # Or install with ML dependencies
 pip install hektor-vdb[ml]
 ```
 
-**Requirements:**
-- Python 3.10+
-- CMake 3.20+
-- C++23 compatible compiler (GCC 13+, Clang 16+, MSVC 2022 17.3+)
+**Pre-built wheels available for:**
+
+| Platform | Python Versions |
+|----------|-----------------|
+| Linux x86_64 | 3.10, 3.11, 3.12, 3.13 |
+| macOS x86_64 | 3.10, 3.11, 3.12, 3.13 |
+| macOS arm64 | 3.10, 3.11, 3.12, 3.13 |
+| Windows AMD64 | 3.10, 3.11, 3.12, 3.13 |
 
 ### Automated Setup from Source
 
