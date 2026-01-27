@@ -1,0 +1,192 @@
+{
+  "test_name": "Billion-Scale Vector Benchmark",
+  "version": "1.0.0",
+  "timestamp": 1769535320.013652,
+  "config": {
+    "target_vectors": 1000000,
+    "dimension": 512,
+    "batch_size": 10000,
+    "num_queries": 1000,
+    "checkpoint_interval": 100000,
+    "enable_profiling": true,
+    "db_path": "./test_db_billion",
+    "output_file": "reports/run_20260127_172948/database/billion_scale_demo.json",
+    "test_mode": "demo"
+  },
+  "results": {
+    "insertion": {
+      "total_vectors": 1000000,
+      "total_time_sec": 24.315359354019165,
+      "avg_throughput": 41126.26860415726,
+      "checkpoints": [
+        {
+          "vectors_inserted": 100000,
+          "elapsed_time_sec": 2.1814777851104736,
+          "throughput_vectors_per_sec": 45840.48514385208,
+          "memory_rss_gb": 0.094635009765625,
+          "memory_vms_gb": 0.3405303955078125,
+          "timestamp": 1769535297.5972502,
+          "search_performance": {
+            "mean_ms": 0.26373025400090455,
+            "p50_ms": 0.2634600000419596,
+            "p95_ms": 0.26444344999276836,
+            "p99_ms": 0.27780721001306574,
+            "qps": 3791.753069014866
+          }
+        },
+        {
+          "vectors_inserted": 200000,
+          "elapsed_time_sec": 4.627516269683838,
+          "throughput_vectors_per_sec": 43219.729190420425,
+          "memory_rss_gb": 0.09593582153320312,
+          "memory_vms_gb": 0.3405303955078125,
+          "timestamp": 1769535300.0432634,
+          "search_performance": {
+            "mean_ms": 0.26363242599910564,
+            "p50_ms": 0.26339099997585436,
+            "p95_ms": 0.2643120000129784,
+            "p99_ms": 0.274832269971057,
+            "qps": 3793.160102404825
+          }
+        },
+        {
+          "vectors_inserted": 300000,
+          "elapsed_time_sec": 7.05238676071167,
+          "throughput_vectors_per_sec": 42538.79008327763,
+          "memory_rss_gb": 0.09593582153320312,
+          "memory_vms_gb": 0.3405303955078125,
+          "timestamp": 1769535302.468123,
+          "search_performance": {
+            "mean_ms": 0.2636818170001334,
+            "p50_ms": 0.26288999998769214,
+            "p95_ms": 0.27369554998415424,
+            "p99_ms": 0.2798797500162209,
+            "qps": 3792.4495946548113
+          }
+        },
+        {
+          "vectors_inserted": 400000,
+          "elapsed_time_sec": 9.474858283996582,
+          "throughput_vectors_per_sec": 42216.99027157125,
+          "memory_rss_gb": 0.09594345092773438,
+          "memory_vms_gb": 0.3405303955078125,
+          "timestamp": 1769535304.8905983,
+          "search_performance": {
+            "mean_ms": 0.26317285000089896,
+            "p50_ms": 0.2629500000068674,
+            "p95_ms": 0.2641820000235384,
+            "p99_ms": 0.2787265099937031,
+            "qps": 3799.784058258989
+          }
+        },
+        {
+          "vectors_inserted": 500000,
+          "elapsed_time_sec": 11.89896559715271,
+          "throughput_vectors_per_sec": 42020.45933468742,
+          "memory_rss_gb": 0.09594345092773438,
+          "memory_vms_gb": 0.3405303955078125,
+          "timestamp": 1769535307.3146913,
+          "search_performance": {
+            "mean_ms": 0.2633707570006436,
+            "p50_ms": 0.2630805000194414,
+            "p95_ms": 0.26410199996291794,
+            "p99_ms": 0.2728504500493045,
+            "qps": 3796.928753170407
+          }
+        },
+        {
+          "vectors_inserted": 600000,
+          "elapsed_time_sec": 14.319459438323975,
+          "throughput_vectors_per_sec": 41901.02305078544,
+          "memory_rss_gb": 0.095947265625,
+          "memory_vms_gb": 0.3405303955078125,
+          "timestamp": 1769535309.735196,
+          "search_performance": {
+            "mean_ms": 0.2630345500014073,
+            "p50_ms": 0.26299949999497585,
+            "p95_ms": 0.26389105002806446,
+            "p99_ms": 0.2666819199674819,
+            "qps": 3801.7819331895744
+          }
+        },
+        {
+          "vectors_inserted": 700000,
+          "elapsed_time_sec": 16.73934841156006,
+          "throughput_vectors_per_sec": 41817.63726935665,
+          "memory_rss_gb": 0.095947265625,
+          "memory_vms_gb": 0.3405303955078125,
+          "timestamp": 1769535312.1550822,
+          "search_performance": {
+            "mean_ms": 0.2633329319993436,
+            "p50_ms": 0.26307999996788567,
+            "p95_ms": 0.26398104998861527,
+            "p99_ms": 0.2734662200271032,
+            "qps": 3797.474141982715
+          }
+        },
+        {
+          "vectors_inserted": 800000,
+          "elapsed_time_sec": 19.17646050453186,
+          "throughput_vectors_per_sec": 41717.8133478251,
+          "memory_rss_gb": 0.095947265625,
+          "memory_vms_gb": 0.3405303955078125,
+          "timestamp": 1769535314.5921938,
+          "search_performance": {
+            "mean_ms": 0.2633789799991746,
+            "p50_ms": 0.26317999999037056,
+            "p95_ms": 0.2640510500441451,
+            "p99_ms": 0.2700536000088505,
+            "qps": 3796.810208632192
+          }
+        },
+        {
+          "vectors_inserted": 900000,
+          "elapsed_time_sec": 21.604722261428833,
+          "throughput_vectors_per_sec": 41657.559357140206,
+          "memory_rss_gb": 0.095947265625,
+          "memory_vms_gb": 0.3405303955078125,
+          "timestamp": 1769535317.0204418,
+          "search_performance": {
+            "mean_ms": 0.2634395109990919,
+            "p50_ms": 0.2632100000710125,
+            "p95_ms": 0.2642120000473369,
+            "p99_ms": 0.27195778999498543,
+            "qps": 3795.9378082942426
+          }
+        },
+        {
+          "vectors_inserted": 1000000,
+          "elapsed_time_sec": 24.02778196334839,
+          "throughput_vectors_per_sec": 41618.48986000392,
+          "memory_rss_gb": 0.095947265625,
+          "memory_vms_gb": 0.3405303955078125,
+          "timestamp": 1769535319.4435444,
+          "search_performance": {
+            "mean_ms": 0.2631512959999327,
+            "p50_ms": 0.2628390000154468,
+            "p95_ms": 0.2639115000476977,
+            "p99_ms": 0.28237658004627514,
+            "qps": 3800.0952881503413
+          }
+        }
+      ]
+    },
+    "final_benchmark": {
+      "search_performance": {
+        "mean_ms": 0.2625685730013174,
+        "p50_ms": 0.26261350001277606,
+        "p95_ms": 0.2636814999789294,
+        "p99_ms": 0.2691922100098054,
+        "qps": 3808.5289056850784
+      },
+      "memory_usage_gb": 0.039333343505859375,
+      "memory_per_vector_bytes": 42.233856
+    }
+  },
+  "status": "completed",
+  "assessment": {
+    "scale": "PARTIAL_COMPLETION",
+    "search_latency": "EXCELLENT",
+    "memory_efficiency": "EXCELLENT"
+  }
+}

@@ -1,0 +1,40 @@
+{
+  "test_name": "1M Vector Stress Test",
+  "version": "1.0.0",
+  "timestamp": 1769535080.0312521,
+  "config": {
+    "num_vectors": 1000000,
+    "dimension": 512,
+    "num_threads": 8,
+    "duration_seconds": 60,
+    "warmup_seconds": 30,
+    "insert_ratio": 0.1,
+    "search_ratio": 0.85,
+    "delete_ratio": 0.05,
+    "batch_size": 100,
+    "k": 10,
+    "enable_profiling": true,
+    "db_path": "./test_db_1m",
+    "output_file": "/home/runner/work/HEKTOR_VS/HEKTOR_VS/benchmark/reports/run_20260127_172948/database/1m_stress_test.json",
+    "hnsw_m": 16,
+    "hnsw_ef_construction": 200,
+    "hnsw_ef_search": 50
+  },
+  "results": {
+    "operations_completed": 639890,
+    "operations_failed": 0,
+    "throughput_ops_per_sec": 10646.856156407177,
+    "latency_ms": {
+      "mean": 0.28831952994886445,
+      "p50": 0.28870799999936025,
+      "p75": 0.3223399999967569,
+      "p90": 0.3655259999959526,
+      "p95": 0.4022390000102405,
+      "p99": 0.49928699996826253,
+      "p99.9": 0.65165099999831
+    },
+    "memory_usage_mb": [
+      25.676194190979004
+    ]
+  }
+}

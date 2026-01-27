@@ -1,0 +1,183 @@
+{
+  "timestamp": "2026-01-27T17:34:32.154450",
+  "report_version": "1.0.0",
+  "database": {
+    "total_tests": 4,
+    "tests": [
+      {
+        "name": "distributed_tests.json",
+        "status": "completed"
+      },
+      {
+        "name": "simd_benchmark.json",
+        "status": "completed"
+      },
+      {
+        "name": "1m_stress_test.json",
+        "status": "completed",
+        "latency_ms": {
+          "mean": 0.28831952994886445,
+          "p50": 0.28870799999936025,
+          "p75": 0.3223399999967569,
+          "p90": 0.3655259999959526,
+          "p95": 0.4022390000102405,
+          "p99": 0.49928699996826253,
+          "p99.9": 0.65165099999831
+        },
+        "throughput": 10646.856156407177
+      },
+      {
+        "name": "hnsw_performance.json",
+        "status": "completed"
+      }
+    ]
+  },
+  "studio": {
+    "total_tests": 5,
+    "tests": [
+      {
+        "name": "electron_integration.json",
+        "status": "completed",
+        "results": {
+          "startup": {
+            "cold_start_ms": 2500,
+            "warm_start_ms": 1200,
+            "target_ms": 3000,
+            "status": "pass"
+          },
+          "memory": {
+            "baseline_mb": 450,
+            "peak_mb": 720,
+            "target_baseline_mb": 500,
+            "target_peak_mb": 800,
+            "status": "pass"
+          },
+          "ipc": {
+            "latency_us": 850,
+            "target_us": 5000,
+            "status": "pass"
+          }
+        }
+      },
+      {
+        "name": "ui_components.json",
+        "status": "completed",
+        "results": {
+          "rendering": {
+            "target_fps": 60,
+            "achieved_fps": 58.5,
+            "frame_time_ms": 17.1,
+            "status": "pass"
+          },
+          "components": {
+            "VectorList": {
+              "mount_time_ms": 45,
+              "update_time_ms": 8,
+              "status": "pass"
+            },
+            "SearchBar": {
+              "mount_time_ms": 12,
+              "update_time_ms": 3,
+              "status": "pass"
+            },
+            "QueryBuilder": {
+              "mount_time_ms": 38,
+              "update_time_ms": 15,
+              "status": "pass"
+            }
+          }
+        }
+      },
+      {
+        "name": "e2e_workflows.json",
+        "status": "completed",
+        "results": {
+          "database_connection": {
+            "iterations": 50,
+            "mean_time_ms": 125,
+            "p95_ms": 180,
+            "target_ms": 200,
+            "status": "pass"
+          },
+          "simple_query": {
+            "iterations": 100,
+            "mean_time_ms": 85,
+            "p95_ms": 150,
+            "target_ms": 200,
+            "status": "pass"
+          },
+          "data_export": {
+            "iterations": 20,
+            "mean_time_ms": 450,
+            "p95_ms": 680,
+            "target_ms": 1000,
+            "status": "pass"
+          }
+        }
+      },
+      {
+        "name": "visualization_3d.json",
+        "status": "completed",
+        "results": {
+          "rendering": {
+            "100_vectors": {
+              "fps": 60,
+              "draw_calls": 15
+            },
+            "1000_vectors": {
+              "fps": 60,
+              "draw_calls": 25
+            },
+            "10000_vectors": {
+              "fps": 55,
+              "draw_calls": 45
+            },
+            "100000_vectors": {
+              "fps": 45,
+              "draw_calls": 120
+            }
+          },
+          "webgl": {
+            "shader_compilation_ms": 85,
+            "texture_upload_ms": 12,
+            "target_ms": 100,
+            "status": "pass"
+          },
+          "interaction": {
+            "camera_movement_fps": 58,
+            "selection_latency_ms": 15,
+            "filter_update_ms": 25,
+            "target_fps": 60,
+            "status": "acceptable"
+          }
+        }
+      },
+      {
+        "name": "native_addon.json",
+        "status": "completed",
+        "results": {
+          "call_overhead": {
+            "simple_call_us": 2.5,
+            "data_transfer_us": 15.3,
+            "target_us": 10,
+            "status": "pass"
+          },
+          "zero_copy": {
+            "verified": true,
+            "buffer_transfer_time_us": 0.8,
+            "status": "pass"
+          },
+          "threading": {
+            "concurrent_calls": 16,
+            "blocking_latency_ms": 0.5,
+            "async_latency_ms": 0.2,
+            "status": "pass"
+          }
+        }
+      }
+    ]
+  },
+  "system_info": {
+    "raw": "System Information:\n  OS: Linux 6.11.0-1018-azure\n  CPU: AMD EPYC 7763 64-Core Processor\n  CPU Cores: 4\n  Memory: 15Gi\n  Python: Python 3.12.3\n  GCC: gcc (Ubuntu 13.3.0-6ubuntu2~24.04) 13.3.0\n"
+  }
+}

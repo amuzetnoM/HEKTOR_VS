@@ -1,0 +1,7 @@
+System Information:
+  OS: Linux 6.11.0-1018-azure
+  CPU: AMD EPYC 7763 64-Core Processor
+  CPU Cores: 4
+  Memory: 15Gi
+  Python: Python 3.12.3
+  GCC: gcc (Ubuntu 13.3.0-6ubuntu2~24.04) 13.3.0

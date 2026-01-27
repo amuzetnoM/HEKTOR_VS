@@ -1,0 +1,193 @@
+# HEKTOR Studio Benchmark Configuration
+# Version: 1.0.0
+# Date: 2026-01-24
+
+# Vector dataset sizes for UI testing
+vector_counts:
+  - 100      # Minimal - UI validation
+  - 1000     # Small - Typical dev dataset
+  - 10000    # Medium - Production preview
+  - 100000   # Large - Stress test
+  - 1000000  # Extra large - Maximum scale (optional)
+
+# Test duration
+test_duration_sec: 60
+warmup_sec: 10
+
+# Frame rate targets
+target_fps:
+  - 60   # Standard smooth
+  - 120  # High refresh rate displays
+
+# Electron integration tests
+electron:
+  startup:
+    cold_start_iterations: 10
+    warm_start_iterations: 20
+    measure_memory: true
+    measure_cpu: true
+  
+  ipc:
+    message_sizes: [1, 10, 100, 1000, 10000]  # KB
+    message_count: 10000
+    concurrent_channels: [1, 2, 4, 8]
+  
+  memory:
+    baseline_threshold_mb: 500
+    peak_threshold_mb: 800
+    monitor_interval_ms: 100
+    track_gc: true
+
+# Native addon performance
+native_addon:
+  call_overhead:
+    simple_calls: 100000   # Empty function calls
+    data_transfer: 10000   # With data transfer
+    callback_depth: [1, 2, 4, 8]
+  
+  zero_copy:
+    verify: true
+    buffer_sizes: [1, 10, 100, 1000, 10000]  # KB
+  
+  threading:
+    concurrent_calls: [1, 2, 4, 8, 16]
+    blocking_calls: true
+    async_calls: true
+
+# UI component benchmarks
+ui:
+  rendering:
+    enable_profiling: true
+    component_types:
+      - "VectorList"
+      - "SearchBar"
+      - "QueryBuilder"
+      - "ResultsTable"
+      - "3DVisualization"
+    
+    mount_iterations: 100
+    update_iterations: 1000
+  
+  interaction:
+    input_lag_ms: 16  # Target < 1 frame @ 60fps
+    scroll_performance: true
+    resize_performance: true
+    drag_drop_performance: true
+
+# End-to-end workflow tests
+e2e:
+  workflows:
+    - name: "database_connection"
+      steps:
+        - "launch_app"
+        - "connect_database"
+        - "verify_connection"
+      iterations: 50
+    
+    - name: "simple_query"
+      steps:
+        - "enter_query"
+        - "execute_search"
+        - "render_results"
+      iterations: 100
+    
+    - name: "complex_query_with_filters"
+      steps:
+        - "open_query_builder"
+        - "add_filters"
+        - "execute_search"
+        - "visualize_results"
+      iterations: 50
+    
+    - name: "data_export"
+      steps:
+        - "select_results"
+        - "choose_format"
+        - "export_data"
+      iterations: 20
+  
+  capture_screenshots: false
+  record_traces: true
+
+# 3D visualization performance
+visualization:
+  enable_3d: true
+  
+  rendering:
+    vector_counts: [100, 1000, 10000, 100000]
+    dimensions: 3  # Always 3D for rendering
+    point_sizes: [1, 2, 4, 8]
+    enable_labels: [true, false]
+    enable_connections: [true, false]
+  
+  interaction:
+    camera_movements: 1000    # Pan/zoom/rotate operations
+    selection_operations: 100 # Point selection
+    filter_updates: 50        # Dynamic filtering
+  
+  webgl:
+    shader_compilation: true
+    texture_uploads: true
+    buffer_updates: true
+    draw_calls_per_frame: true
+  
+  lod:
+    enable: true
+    levels: [1, 2, 3, 4]
+    distance_thresholds: [10, 50, 100, 500]
+  
+  culling:
+    frustum_culling: true
+    occlusion_culling: false  # Not implemented yet
+    distance_culling: true
+
+# Performance thresholds
+thresholds:
+  startup_time_ms:
+    excellent: 2000
+    acceptable: 3000
+    critical: 5000
+  
+  memory_usage_mb:
+    excellent: 500
+    acceptable: 800
+    critical: 1000
+  
+  query_latency_ms:
+    excellent: 100
+    acceptable: 200
+    critical: 500
+  
+  ui_fps:
+    excellent: 60
+    acceptable: 45
+    critical: 30
+  
+  ipc_latency_ms:
+    excellent: 1
+    acceptable: 5
+    critical: 10
+
+# Profiling
+profiling:
+  enable_cpu: true
+  enable_memory: true
+  enable_gpu: true
+  enable_network: false
+  
+  sampling_interval_ms: 100
+  flame_graph: true
+  timeline_trace: true
+
+# Export settings
+export:
+  format: "json"  # json, html
+  include_raw_data: true
+  include_screenshots: false
+  include_traces: true
+  include_flame_graphs: true
+
+# Reproducibility
+random_seed: 42
+deterministic: true
+headless: false  # Set to true for CI/CD

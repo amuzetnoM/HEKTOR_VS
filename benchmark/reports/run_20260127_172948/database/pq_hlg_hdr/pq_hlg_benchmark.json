@@ -1,0 +1,139 @@
+{
+  "test_name": "PQ/HLG HDR Benchmark",
+  "version": "1.0.0",
+  "timestamp": 1769535325.876549,
+  "config": {
+    "test_scales": [
+      100,
+      1000,
+      10000,
+      100000
+    ],
+    "num_samples": 10000,
+    "luminance_range": [
+      0.0,
+      10000.0
+    ],
+    "checkpoint_interval": 1000,
+    "enable_visualization": true,
+    "output_dir": "reports/run_20260127_172948/database/pq_hlg_hdr",
+    "output_file": "pq_hlg_benchmark.json"
+  },
+  "pq_accuracy": {
+    "1 nit (dark)": {
+      "input_nits": 1.0,
+      "encoded_signal": 0.14994573210018022,
+      "decoded_nits": 1.0000000000000029,
+      "error_percent": 2.886579864025407e-13
+    },
+    "10 nits (dim)": {
+      "input_nits": 10.0,
+      "encoded_signal": 0.29969909242098597,
+      "decoded_nits": 9.999999999999952,
+      "error_percent": 4.796163466380676e-13
+    },
+    "100 nits (SDR peak)": {
+      "input_nits": 100.0,
+      "encoded_signal": 0.508078421517399,
+      "decoded_nits": 100.00000000000524,
+      "error_percent": 5.243805389909539e-12
+    },
+    "200 nits (bright SDR)": {
+      "input_nits": 200.0,
+      "encoded_signal": 0.5791332452435196,
+      "decoded_nits": 199.99999999999037,
+      "error_percent": 4.817479748453479e-12
+    },
+    "400 nits (HDR start)": {
+      "input_nits": 400.0,
+      "encoded_signal": 0.6525785975630672,
+      "decoded_nits": 400.00000000000966,
+      "error_percent": 2.4158453015843406e-12
+    },
+    "1000 nits (HDR10)": {
+      "input_nits": 1000.0,
+      "encoded_signal": 0.751827096247041,
+      "decoded_nits": 1000.0000000000201,
+      "error_percent": 2.0122570276726036e-12
+    },
+    "4000 nits (HDR10+ peak)": {
+      "input_nits": 4000.0,
+      "encoded_signal": 0.9025723933109373,
+      "decoded_nits": 3999.9999999999154,
+      "error_percent": 2.1145751816220583e-12
+    },
+    "10000 nits (max)": {
+      "input_nits": 10000.0,
+      "encoded_signal": 1.0,
+      "decoded_nits": 10000.0,
+      "error_percent": 0.0
+    },
+    "max_error_percent": 5.243805389909539e-12,
+    "status": "PASS"
+  },
+  "pq_performance": {
+    "100_samples": {
+      "encode_time_ms": 0.28494000002865505,
+      "decode_time_ms": 0.30048899998291745,
+      "encode_throughput_samples_per_sec": 350951.0773845142,
+      "decode_throughput_samples_per_sec": 332790.8842110191
+    },
+    "1000_samples": {
+      "encode_time_ms": 2.749779999930979,
+      "decode_time_ms": 2.9321189999791386,
+      "encode_throughput_samples_per_sec": 363665.45688204165,
+      "decode_throughput_samples_per_sec": 341050.27797545557
+    },
+    "10000_samples": {
+      "encode_time_ms": 27.47411599989391,
+      "decode_time_ms": 29.142461999981606,
+      "encode_throughput_samples_per_sec": 363978.9538647436,
+      "decode_throughput_samples_per_sec": 343141.90750274673
+    },
+    "100000_samples": {
+      "encode_time_ms": 275.83969800002706,
+      "decode_time_ms": 290.8381150000423,
+      "encode_throughput_samples_per_sec": 362529.39923096274,
+      "decode_throughput_samples_per_sec": 343833.8884846144
+    }
+  },
+  "hlg_accuracy": {
+    "Black (0.0)": {
+      "input": 0.0,
+      "encoded": 0.0,
+      "decoded": 0.0,
+      "error_percent": 0.0
+    },
+    "Transition (1/12)": {
+      "input": 0.08333333333333333,
+      "encoded": 0.5,
+      "decoded": 0.08333333333333333,
+      "error_percent": 0.0
+    },
+    "Mid gray (0.18)": {
+      "input": 0.18,
+      "encoded": 0.6723581325980925,
+      "decoded": 0.18000000000000002,
+      "error_percent": 1.5419764230904952e-14
+    },
+    "Reference (0.5)": {
+      "input": 0.5,
+      "encoded": 0.8716434713446153,
+      "decoded": 0.5000000000000002,
+      "error_percent": 4.440892098500626e-14
+    },
+    "Peak white (1.0)": {
+      "input": 1.0,
+      "encoded": 0.9999999955365686,
+      "decoded": 0.9999999999999999,
+      "error_percent": 1.1102230246251565e-14
+    },
+    "max_error_percent": 4.440892098500626e-14,
+    "status": "PASS"
+  },
+  "visualizations": [
+    "reports/run_20260127_172948/database/pq_hlg_hdr/pq_curve_analysis.png",
+    "reports/run_20260127_172948/database/pq_hlg_hdr/hlg_curve_analysis.png",
+    "reports/run_20260127_172948/database/pq_hlg_hdr/pq_vs_hlg_comparison.png"
+  ]
+}

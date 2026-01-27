@@ -1,0 +1,66 @@
+# Benchmark artifacts and generated files
+
+# Test databases
+test_db*/
+*.db
+*.hnsw
+*.index
+
+# Generated data
+data/vectors/
+data/fixtures/generated/
+
+# Reports - Keep generated results for tracking
+# reports/*/ are kept
+# *.json are kept for benchmark results
+# *.html are kept for reports
+*.csv
+*.parquet
+
+# Logs - Keep benchmark logs for tracking
+# *.log files in reports/ are kept
+
+# Profiling data
+*.prof
+*.perf
+*.trace
+
+# Memory dumps
+*.mem
+*.heap
+
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+env/
+venv/
+.pytest_cache/
+
+# C++
+*.o
+*.a
+*.so
+*.out
+*.exe
+build/
+cmake-build-*/
+
+# OS
+.DS_Store
+Thumbs.db
+*.swp
+*.swo
+*~
+
+# IDE
+.vscode/
+.idea/
+*.code-workspace
+
+# Temporary files
+temp/
+tmp/
+*.tmp

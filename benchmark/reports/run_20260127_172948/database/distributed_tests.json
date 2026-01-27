@@ -1,0 +1,5 @@
+{
+  "test_name": "Distributed System Tests",
+  "status": "skipped",
+  "note": "Requires multi-node distributed setup"
+}

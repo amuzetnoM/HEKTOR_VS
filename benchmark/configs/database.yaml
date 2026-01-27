@@ -1,0 +1,92 @@
+# HEKTOR Database Benchmark Configuration
+# Version: 1.0.0
+# Date: 2026-01-24
+
+# Vector dataset configurations
+vector_counts:
+  - 1000      # 1K - Quick validation
+  - 10000     # 10K - Small scale
+  - 100000    # 100K - Medium scale
+  - 1000000   # 1M - Large scale (primary stress test)
+  - 10000000  # 10M - Extra large scale (optional)
+
+# Vector dimensions to test
+dimensions:
+  - 128   # Lightweight embeddings
+  - 384   # MiniLM-L6-v2 default
+  - 512   # CLIP default / unified space
+  - 768   # BERT-base
+  - 1024  # BERT-large / custom
+
+# Distance metrics
+metrics:
+  - cosine       # Default for semantic similarity
+  - l2           # Euclidean distance
+  - dot_product  # Inner product
+
+# HNSW index parameters
+hnsw:
+  m_values: [8, 16, 32, 64]           # Connections per layer
+  ef_construction: [100, 200, 400]    # Build-time search width
+  ef_search: [50, 100, 200, 400]      # Query-time search width
+
+# Stress test configuration
+stress_tests:
+  concurrent_threads: [1, 2, 4, 8, 16, 32]
+  duration_seconds: 300  # 5 minutes per test
+  warmup_seconds: 30
+  operations:
+    insert_ratio: 0.1   # 10% inserts
+    search_ratio: 0.85  # 85% searches
+    delete_ratio: 0.05  # 5% deletes
+
+# Memory profiling
+memory:
+  enable_profiling: true
+  heap_profile_interval_mb: 100
+  track_allocations: true
+  check_leaks: true
+
+# Latency benchmarks
+latency:
+  percentiles: [50, 75, 90, 95, 99, 99.9, 99.99]
+  warmup_queries: 1000
+  benchmark_queries: 10000
+  batch_sizes: [1, 10, 50, 100]
+
+# Throughput benchmarks
+throughput:
+  target_qps: [100, 500, 1000, 5000, 10000]
+  duration_seconds: 60
+  concurrent_clients: [1, 4, 8, 16, 32]
+
+# Recall accuracy tests
+recall:
+  ground_truth_method: "brute_force"
+  k_values: [1, 5, 10, 20, 50, 100]
+  num_queries: 1000
+
+# SIMD optimization tests
+simd:
+  implementations: ["scalar", "sse4", "avx2", "avx512"]
+  batch_sizes: [1, 4, 8, 16, 32, 64, 128]
+  vector_pairs: 1000000  # 1M pairs for timing
+
+# Distributed system tests (if enabled)
+distributed:
+  enabled: false
+  num_nodes: [1, 2, 4, 8]
+  replication_modes: ["async", "sync", "semi_sync"]
+  shard_strategies: ["hash", "range", "consistent"]
+  network_latency_ms: [0, 1, 5, 10, 50]  # Simulated latency
+
+# Export settings
+export:
+  format: "json"  # json, csv, parquet
+  include_raw_data: true
+  include_statistics: true
+  include_visualizations: true
+
+# Reproducibility
+random_seed: 42
+deterministic: true
