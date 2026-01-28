@@ -5,7 +5,7 @@
 Preferred: Open a private GitHub Security Advisory for this repository (recommended).
 If you cannot use that, email: support@artifactvirtual.com.
 
-PGP contact (replace with actual fingerprint and public key):
+### PGP contact information:
 
 - **PGP fingerprint:** A8A5 E9C1 220D BB9D 7239 934B 82AC 16D6 186E B013
 
@@ -43,19 +43,8 @@ L2Z1naIWabD32peknSXErlxyoY7KR8rxZ4mv33O8p0g5XB6BPwzNIs7myGxo
 -----END PGP PUBLIC KEY BLOCK-----
 ```
 
-**Verification:** Pending — please verify locally with:
+## Vulnerability Information
 
-```
-# Show fingerprint locally
-gpg --fingerprint "Ali A. Shakil <support@artifactvirtual.com>"
-
-# Or compute/fetch fingerprint from the public key file
-gpg --with-colons --import-options show-only --import publickey.asc
-```
-
-Once verified, replace this line with: `Verified on YYYY-MM-DD by <name>`.
-
-When reporting, please include:
 When reporting, please include:
 - A clear description and impact (e.g., RCE, auth bypass).
 - Steps to reproduce a minimal test case or PoC.
@@ -92,3 +81,8 @@ Good-faith security research is welcomed. We will not pursue legal action agains
 We will publish a fixed release and release notes detailing the issue and mitigation, and credit researchers as agreed.
 
 Thank you for helping secure Hektor. If you have questions, contact: security@hektor.example.com
+
+---
+
+**Verification:** 
+> `Verified on 2026/01/22 by <Ali A. Shakil>`.
