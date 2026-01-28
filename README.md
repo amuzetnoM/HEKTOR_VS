@@ -16,10 +16,10 @@ A High-Performance C++23 vector database with SIMD-optimized similarity search, 
 [![Version](https://img.shields.io/badge/version-4.1.7-blue?style=for-the-badge&logo=semver&logoColor=white)](#)
 [![PyPI](https://img.shields.io/badge/PyPI-hektor--vdb-3775A9?style=for-the-badge&logo=pypi&logoColor=white)](https://pypi.org/project/hektor-vdb/)
 
-<!-- Build Status -->
-[![Build](https://img.shields.io/badge/build-passing-brightgreen?style=for-the-badge&logo=cmake&logoColor=white)](https://github.com/amuzetnoM/hektor)
+<!-- Security -->
 [![Tests](https://img.shields.io/badge/tests-passing-success?style=for-the-badge&logo=pytest&logoColor=white)](https://github.com/amuzetnoM/hektor)
 [![Coverage](https://img.shields.io/badge/coverage-85%25-green?style=for-the-badge&logo=codecov&logoColor=white)](https://github.com/amuzetnoM/hektor)
+[![CI/CD](https://img.shields.io/badge/CI/CD-Passing-blue?style=for-the-badge&logo=githubactions&logoColor=white)](https://github.com/amuzetnoM/hektor)
 
 <!-- Tech Stack -->
 [![C++](https://img.shields.io/badge/C%2B%2B-23-00599C?style=for-the-badge&logo=c%2B%2B&logoColor=white)](https://isocpp.org/)
@@ -37,9 +37,8 @@ A High-Performance C++23 vector database with SIMD-optimized similarity search, 
 [![License](https://img.shields.io/badge/license-MIT-green?style=for-the-badge)](LICENSE)
 [![Platform](https://img.shields.io/badge/platform-Windows%20%7C%20Linux-lightgrey?style=for-the-badge)](#)
 
-</p>
-
----
+<!-- Build Status -->
+[![Build](https://img.shields.io/badge/build-passing-brightgreen?style=for-the-badge&logo=cmake&logoColor=white)](https://github.com/amuzetnoM/hektor)
 
 **Pre-built wheels available for:**
 
@@ -50,6 +49,7 @@ A High-Performance C++23 vector database with SIMD-optimized similarity search, 
 | <img src="https://img.shields.io/badge/macOS-arm64-000000?style=for-the-badge&logo=apple&logoColor=white" alt="" /> | [Python 3.10](https://pypi.org/project/hektor-vdb/#files) · [Python 3.11](https://pypi.org/project/hektor-vdb/#files) · [Python 3.12](https://pypi.org/project/hektor-vdb/#files) · [Python 3.13](https://pypi.org/project/hektor-vdb/#files) |
 | <img src="https://img.shields.io/badge/Windows-AMD64-0078D6?style=for-the-badge&logo=windows&logoColor=white" alt="" /> | [Python 3.10](https://pypi.org/project/hektor-vdb/#files) · [Python 3.11](https://pypi.org/project/hektor-vdb/#files) · [Python 3.12](https://pypi.org/project/hektor-vdb/#files) · [Python 3.13](https://pypi.org/project/hektor-vdb/#files) |
 
+</p>
 
 ## FEATURE GRID
 
@@ -663,7 +663,7 @@ isort scripts/ bindings/python/
 ## Project Structure
 
 ```
-hektor/
+vector_database/
 +-- CMakeLists.txt          # Build configuration
 +-- README.md               # This file
 +-- LICENSE                 # MIT License
