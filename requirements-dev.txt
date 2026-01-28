@@ -28,5 +28,5 @@ seaborn>=0.13.0
 conan>=2.0.0
 
 # Model conversion (ONNX export)
-torch>=2.1.0
-onnx>=1.15.0
+torch>=2.6.0
+onnx>=1.17.0

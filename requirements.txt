@@ -9,9 +9,9 @@ pybind11>=2.11.0,<3.0.0
 onnxruntime>=1.19.0
 
 # API/Server
-fastapi>=0.109.0
-uvicorn>=0.27.0
-pydantic>=2.6.0
+fastapi>=0.115.0
+uvicorn>=0.32.0
+pydantic>=2.10.0
 
 # Testing
 pytest>=8.3.0
