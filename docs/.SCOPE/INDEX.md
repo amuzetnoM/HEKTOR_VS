@@ -1,13 +1,11 @@
 ---
-title: "Hektor v4.0.0 Documentation Master Index"
+title: "Hektor v4.17 Documentation Master Index"
 version: "4.1.7"
 date: "2026-01-22"
 status: "Complete"
 ---
 
-# Hektor v4.1.7 Documentation Master Index
-
-## 📚 Documentation Overview
+## 📚 Scope Overview
 
 Comprehensive professional documentation for Hektor Vector Database v4.1.7, totaling **32 documents** across 5 major categories.
 
