@@ -1,17 +1,16 @@
-# .studio Directory
+#  VECTOR STUDIO
 
 ## Purpose
 
-The `.studio` directory serves as HEKTOR's **centralized technical hub**, containing machine-readable, exhaustive system specifications designed for rapid system understanding by developers, AI systems, and automated tools.
+This directory serves as the Studio's **centralized technical hub**, containing machine-readable, exhaustive system specifications designed for rapid system understanding by developers, AI systems, and automated tools.
 
 ## Contents
 
 ### system_map.md (2,864 lines)
-
-This is the **authoritative technical specification** for HEKTOR v4.0.0, providing a comprehensive blueprint of the entire system.
+> This is the **authoritative technical specification** for HEKTOR v4.1.7, providing a comprehensive blueprint of the entire system.
 
 **Last Updated**: 2026-01-04  
-**Version**: 4.0.0  
+**Version**: 4.1.7  
 **Status**: EXHAUSTIVE, MACHINE-READABLE
 
 ## Document Structure
