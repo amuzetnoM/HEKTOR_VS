@@ -217,7 +217,7 @@ int main() {
     
     // Resource attributes
     config.resource_attributes = {
-        {"service.namespace", "vector-database"},
+        {"service.namespace", "hektor"},
         {"deployment.environment", "production"},
         {"host.name", "vector-node-01"}
     };

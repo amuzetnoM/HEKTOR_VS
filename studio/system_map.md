@@ -1479,7 +1479,7 @@ FUNCTION: create_llm_engine() -> unique_ptr<LLMEngine>
 
 ```
 COMMAND: hektor init <path> [OPTIONS]
-  DESCRIPTION: Initialize_new_vector_database
+  DESCRIPTION: Initialize_new_hektor_database
   OPTIONS:
     --dimension DIM      Vector_dimension (default: 512)
     --metric METRIC      cosine|euclidean|dot (default: cosine)
@@ -1923,7 +1923,7 @@ OPTIONAL_DEPENDENCIES:
 # §11 FILE_MAP
 
 ```
-c:\workspace\vector_database\
+c:\workspace\hektor\
 ├── include/vdb/
 │   ├── core.hpp              # Core_types_and_constants
 │   ├── database.hpp          # VectorDatabase_class

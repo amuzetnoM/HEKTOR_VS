@@ -4,4 +4,4 @@ metadata:
   name: vector-studio
   labels:
     name: vector-studio
-    app: vector-database
+    app: hektor

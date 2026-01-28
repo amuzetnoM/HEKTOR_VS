@@ -33,7 +33,7 @@ category: "Setup"
 
 ```powershell
 # Clone and enter directory
-cd vector_database
+cd hektor
 
 # Install dependencies
 python scripts/setup.py --auto-install

@@ -663,7 +663,7 @@ isort scripts/ bindings/python/
 ## Project Structure
 
 ```
-vector_database/
+hektor/
 +-- CMakeLists.txt          # Build configuration
 +-- README.md               # This file
 +-- LICENSE                 # MIT License

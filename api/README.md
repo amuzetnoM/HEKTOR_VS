@@ -416,6 +416,6 @@ MIT License - see ../LICENSE for details
 
 ## Support
 
-- **Issues**: https://github.com/yourusername/vector_database/issues
-- **Docs**: https://github.com/yourusername/vector_database/docs
+- **Issues**: https://github.com/amuzetnoM/hektor/issues
+- **Docs**: https://github.com/amuzetnoM/hektor/tree/main/docs
 - **Discord**: https://discord.gg/vector-studio
