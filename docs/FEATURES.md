@@ -1,8 +1,8 @@
-# Hektor Vector Database - Comprehensive Feature Reference
+# FEATURE REFERENCE SHEET
 
-**Version**: 4.1.0  
+**Version**: 4.1.  
 **Author**: Ali A. Shakil / ARTIFACT VIRTUAL  
-**Last Updated**: 2026-01-24
+**Last Updated**: 2026-01-30
 
 ---
 

@@ -1,4 +1,6 @@
-# HEKTOR Vector Database - Comprehensive Benchmark Report
+# Benchmark Report
+>  HEKTOR Vector Database
+
 ## Executive Performance Analysis & Technical Walkthrough
 
 **Report Date:** January 27, 2026  
