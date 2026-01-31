@@ -212,7 +212,7 @@ Result<void> MemoryMappedFile::open_write(const fs::path& path, size_t initial_s
     path_ = path;
     writable_ = true;
     capacity_ = initial_size;
-    size_ = 0;
+    size_ = initial_size;  // FIXED: size should match capacity for newly created files
     
     // Create parent directories if needed
     if (path.has_parent_path()) {
