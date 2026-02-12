@@ -33,6 +33,9 @@ public:
     /// Open file for reading
     [[nodiscard]] Result<void> open_read(const fs::path& path);
     
+    /// Open existing file for read/write (preserves contents, no truncation)
+    [[nodiscard]] Result<void> open_readwrite(const fs::path& path);
+    
     /// Open file for read/write (creates if not exists)
     [[nodiscard]] Result<void> open_write(const fs::path& path, size_t initial_size = 0);
     

@@ -209,6 +209,92 @@ Result<void> MemoryMappedFile::open_read(const fs::path& path) {
     return {};
 }
 
+Result<void> MemoryMappedFile::open_readwrite(const fs::path& path) {
+    close();
+    path_ = path;
+    writable_ = true;
+    
+    if (!fs::exists(path)) {
+        return std::unexpected(Error{ErrorCode::IoError, "File does not exist: " + path.string()});
+    }
+    
+    size_ = fs::file_size(path);
+    capacity_ = size_;
+    
+    if (size_ == 0) {
+        return {};  // Empty file, nothing to map
+    }
+    
+#ifdef VDB_PLATFORM_WINDOWS
+    file_handle_ = CreateFileW(
+        path.wstring().c_str(),
+        GENERIC_READ | GENERIC_WRITE,
+        0,
+        nullptr,
+        OPEN_EXISTING,
+        FILE_ATTRIBUTE_NORMAL,
+        nullptr
+    );
+    
+    if (file_handle_ == INVALID_HANDLE_VALUE) {
+        return std::unexpected(Error{ErrorCode::IoError, "Failed to open file for read-write: " + path.string()});
+    }
+    
+    mapping_handle_ = CreateFileMappingW(
+        file_handle_,
+        nullptr,
+        PAGE_READWRITE,
+        0, 0,
+        nullptr
+    );
+    
+    if (mapping_handle_ == nullptr) {
+        CloseHandle(file_handle_);
+        file_handle_ = INVALID_HANDLE_VALUE;
+        return std::unexpected(Error{ErrorCode::IoError, "Failed to create file mapping"});
+    }
+    
+    data_ = static_cast<uint8_t*>(MapViewOfFile(
+        mapping_handle_,
+        FILE_MAP_ALL_ACCESS,
+        0, 0, 0
+    ));
+    
+    if (data_ == nullptr) {
+        CloseHandle(mapping_handle_);
+        CloseHandle(file_handle_);
+        mapping_handle_ = nullptr;
+        file_handle_ = INVALID_HANDLE_VALUE;
+        return std::unexpected(Error{ErrorCode::IoError, "Failed to map view of file"});
+    }
+#else
+    fd_ = open(path.c_str(), O_RDWR);
+    if (fd_ < 0) {
+        return std::unexpected(Error{ErrorCode::IoError, "Failed to open file for read-write: " + path.string()});
+    }
+    
+    data_ = static_cast<uint8_t*>(mmap(
+        nullptr,
+        size_,
+        PROT_READ | PROT_WRITE,
+        MAP_SHARED,
+        fd_,
+        0
+    ));
+    
+    if (data_ == MAP_FAILED) {
+        data_ = nullptr;
+        ::close(fd_);
+        fd_ = -1;
+        return std::unexpected(Error{ErrorCode::IoError, "Failed to mmap file for read-write"});
+    }
+    
+    madvise(data_, size_, MADV_SEQUENTIAL);
+#endif
+    
+    return {};
+}
+
 Result<void> MemoryMappedFile::open_write(const fs::path& path, size_t initial_size) {
     close();
     path_ = path;
@@ -473,8 +559,14 @@ Result<void> VectorStore::init() {
     fs::path vectors_path = config_.path / "vectors.bin";
     
     if (fs::exists(vectors_path)) {
-        // Open existing file
-        auto result = vectors_file_.open_read(vectors_path);
+        // Open existing file in read-write mode so vectors can be added/modified.
+        // Using open_read() here would create a read-only mapping, causing a
+        // segfault when add_vector() later writes to the mmap region. This was
+        // the root cause of the double-init SIGSEGV: create_gold_standard_db()
+        // calls init() internally (creating files with open_write), then if the
+        // user calls init() again, it finds existing files and used to reopen
+        // them read-only.
+        auto result = vectors_file_.open_readwrite(vectors_path);
         if (!result) return std::unexpected(result.error());
         
         // Validate header

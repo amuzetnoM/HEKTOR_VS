@@ -108,6 +108,11 @@ VectorDatabase& VectorDatabase::operator=(VectorDatabase&& other) noexcept {
 }
 
 Result<void> VectorDatabase::init() {
+    // Idempotent: skip if already initialized
+    if (ready_) {
+        return {};
+    }
+    
     // Create directories
     auto dir_result = paths_.ensure_dirs();
     if (!dir_result) {
