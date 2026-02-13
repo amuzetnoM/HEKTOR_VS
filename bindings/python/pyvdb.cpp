@@ -586,16 +586,14 @@ PYBIND11_MODULE(pyvdb, m)
             if (!result) {
                 throw std::runtime_error(result.error().message);
             }
-        }, py::arg("path"), "Save index to file");
-        // Note: load() disabled in Python bindings due to incomplete type issues with Impl
-        // Users should create a new engine and add documents instead
-        // .def_static("load", [](const std::string& path) {
-        //     auto result = BM25Engine::load(path);
-        //     if (!result) {
-        //         throw std::runtime_error(result.error().message);
-        //     }
-        //     return std::make_shared<BM25Engine>(std::move(*result));
-        // }, py::arg("path"), "Load index from file");
+        }, py::arg("path"), "Save index to file")
+        .def_static("load", [](const std::string& path) {
+            auto result = BM25Engine::load_shared(path);
+            if (!result) {
+                throw std::runtime_error(result.error().message);
+            }
+            return *result;
+        }, py::arg("path"), "Load index from file");
     
     // FusionMethod enum
     py::enum_<FusionMethod>(m, "FusionMethod")
