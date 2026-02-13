@@ -429,6 +429,15 @@ Result<BM25Engine> BM25Engine::load(const std::string& path) {
     return engine;
 }
 
+Result<std::shared_ptr<BM25Engine>> BM25Engine::load_shared(const std::string& path) {
+    auto result = load(path);
+    if (!result) {
+        return std::unexpected(result.error());
+    }
+    // Move into heap allocation — Impl is complete here, so move ctor works
+    return std::shared_ptr<BM25Engine>(new BM25Engine(std::move(*result)));
+}
+
 // ============================================================================
 // KeywordExtractor Implementation
 // ============================================================================

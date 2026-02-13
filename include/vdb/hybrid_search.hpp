@@ -82,6 +82,9 @@ public:
     Result<void> save(const std::string& path) const;
     static Result<BM25Engine> load(const std::string& path);
     
+    /// Load from file, returning shared_ptr (safe across pImpl boundary)
+    static Result<std::shared_ptr<BM25Engine>> load_shared(const std::string& path);
+    
 private:
     struct Impl;
     std::unique_ptr<Impl> impl_;
