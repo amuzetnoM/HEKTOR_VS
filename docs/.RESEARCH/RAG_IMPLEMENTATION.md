@@ -604,7 +604,7 @@ Evaluated on Natural Questions dataset:
 
 1. **Match chunk size to embedding model**
    - MiniLM: 256-384 tokens optimal
-   - OpenAI: Up to 8192 tokens
+   - Large models (e.g., Nomic, NV-Embed): Up to 8192 tokens
 
 2. **Use overlap for context continuity**
    - 10-20% overlap is typical

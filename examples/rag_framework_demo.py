@@ -189,10 +189,10 @@ texts = langchain.as_retriever("gold prices", k=4)
 
 # Use with LangChain RetrievalQA
 from langchain.chains import RetrievalQA
-from langchain.llms import OpenAI
+from langchain_community.llms import Ollama
 
 qa = RetrievalQA.from_chain_type(
- llm=OpenAI(),
+ llm=Ollama(model="llama3"),
  chain_type="stuff",
  retriever=langchain.as_retriever()
 )

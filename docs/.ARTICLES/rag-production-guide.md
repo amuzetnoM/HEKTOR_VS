@@ -169,8 +169,8 @@ struct EnrichedChunk {
 
 | Model | Dim | MTEB Score | Speed | License |
 |-------|-----|------------|-------|---------|
-| OpenAI text-embedding-3-large | 3072 | 64.6 | API | Commercial |
-| OpenAI text-embedding-3-small | 1536 | 62.3 | API | Commercial |
+| Cloud embedding (3072d, API) | 3072 | 64.6 | API | Commercial |
+| Cloud embedding (1536d, API) | 1536 | 62.3 | API | Commercial |
 | Cohere embed-v3 | 1024 | 64.5 | API | Commercial |
 | **E5-large-v2** | 1024 | 62.0 | Local | MIT |
 | **BGE-large-en-v1.5** | 1024 | 63.6 | Local | MIT |

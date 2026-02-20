@@ -74,7 +74,7 @@ This survey provides a comprehensive overview of the current state of research a
 **2020-Present: Scale and Multimodality**
 - **2021**: Radford et al. - CLIP (vision-language)
 - **2022**: Ramesh et al. - DALL-E 2
-- **2023**: OpenAI - GPT-4, multimodal
+- **2023**: GPT-4 era — multimodal capabilities emerge across providers
 - **2024**: Vector databases become mainstream (Pinecone, Weaviate, Milvus)
 - **2026**: 10B+ vector deployments common
 
@@ -588,7 +588,7 @@ Greedy routing finds paths of length:
 | **Faiss** | Flat, IVF, HNSW, PQ | L2, IP, Cosine | C++, Python | Meta, Instagram |
 | **Annoy** | Random projection trees | Angular, Euclidean | C++, Python | Spotify |
 | **NMSLIB** | HNSW, SW-graph | Any metric | C++, Python | Amazon |
-| **Pinecone** | Proprietary (HNSW-based) | Cosine, Euclidean, Dot | Cloud API | OpenAI, Databricks |
+| **Pinecone** | Proprietary (HNSW-based) | Cosine, Euclidean, Dot | Cloud API | Various cloud providers |
 | **Weaviate** | HNSW | Cosine, Euclidean | Go | Reddit, Zapier |
 | **Milvus** | IVF, HNSW, DiskANN | L2, IP, Hamming | C++, Go, Python | eBay, Walmart |
 | **Qdrant** | HNSW | Cosine, Euclidean, Dot | Rust | Midjourney |
@@ -835,17 +835,19 @@ Goal: Push frontier up and right
 2. GPU gives 5-10× speedup
 3. Regular retraining (weekly) improves quality
 
-#### OpenAI (ChatGPT Retrieval)
+#### Cloud-Based Chat Retrieval (Legacy Reference)
 
 **Scale**:
-- Document embeddings for GPT memory
-- d = 1536 (Ada-002 model)
+- Document embeddings for chat memory
+- d = 1536 (typical cloud embedding dimension)
 - Variable query volume
 
 **Solution**:
 - **Pinecone** (managed service)
 - Hybrid search (dense + sparse)
 - Metadata filtering
+
+> **HEKTOR approach**: Local-first with built-in HNSW + BM25 hybrid — no cloud dependency.
 
 **Architecture**:
 ```

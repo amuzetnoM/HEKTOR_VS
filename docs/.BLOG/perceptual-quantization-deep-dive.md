@@ -110,7 +110,7 @@ By using the **same math**, Hektor gains:
 
 We tested on the MTEB benchmark suite (text embeddings) and LAION-5B (image embeddings):
 
-### MTEB (OpenAI text-embedding-3-large)
+### MTEB (3072d cloud embeddings)
 
 | Method | Compression | Recall@10 |
 |--------|-------------|-----------|

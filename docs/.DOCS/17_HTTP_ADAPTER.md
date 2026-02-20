@@ -108,7 +108,7 @@ config.default_headers["Authorization"] = "Bearer sk-xxx";
 config.default_headers["Accept"] = "application/json";
 
 HTTPAdapter adapter(config);
-auto result = adapter.parse("https://api.openai.com/v1/models");
+auto result = adapter.parse("https://api.example.com/v1/models");
 ```
 
 ### Example: Base URL with Relative Paths

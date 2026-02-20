@@ -102,7 +102,7 @@ audience: "Product Teams, Sales, Marketing, Executives"
 
 **Product Features**
 - ✅ Hybrid search (vector + keyword)
-- ✅ Built-in vectorization modules (OpenAI, Cohere, HuggingFace)
+- ✅ Built-in vectorization modules (various cloud and local providers)
 - ✅ GraphQL and REST APIs
 - ✅ HNSW indexing
 - ✅ Rotational quantization (4x memory reduction)

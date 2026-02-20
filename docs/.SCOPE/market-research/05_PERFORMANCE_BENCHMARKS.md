@@ -675,7 +675,7 @@ Benchmark scripts and datasets available at:
 
 **Cost per 1M RAG Queries:**
 - **Hektor (self-hosted):** $12
-- Pinecone + OpenAI: $2,400
+- Pinecone + cloud embeddings: $2,400
 - **Savings:** 99.5%
 
 ## Real-World Production Benchmarks

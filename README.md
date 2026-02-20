@@ -654,7 +654,7 @@ This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
 
 - [HNSW Paper](https://arxiv.org/abs/1603.09320) - Malkov and Yashunin
 - [Sentence-Transformers](https://www.sbert.net/) - MiniLM models
-- [OpenAI CLIP](https://openai.com/research/clip) - Vision-language models
+- [Open CLIP](https://github.com/mlfoundations/open_clip) - Vision-language models (local-first)
 - [ONNX Runtime](https://onnxruntime.ai/) - Cross-platform inference
 
 ---

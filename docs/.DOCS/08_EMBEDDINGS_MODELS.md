@@ -223,7 +223,7 @@ Default image encoder using CLIP's vision transformer.
 
 | Property | Value |
 |----------|-------|
-| **Full Name** | openai/clip-vit-base-patch32 |
+| **Full Name** | clip-vit-base-patch32 (via open_clip / HuggingFace) |
 | **Architecture** | Vision Transformer |
 | **Patch Size** | 32×32 |
 | **Input Size** | 224×224 |

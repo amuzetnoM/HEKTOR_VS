@@ -5,7 +5,7 @@ Downloads and caches ONNX models for text and image embeddings.
 
 Models:
 - Text: sentence-transformers/all-MiniLM-L6-v2 (384-dim → projected to 512)
-- Image: openai/clip-vit-base-patch32 (512-dim native)
+- Image: laion/CLIP-ViT-B-32-laion2B-s34B-b79K (512-dim native, open-source CLIP alternative)
 """
 
 import argparse
@@ -32,10 +32,10 @@ MODELS = {
         "description": "Semantic text embeddings (MiniLM-L6-v2)"
     },
     "image": {
-        "repo_id": "openai/clip-vit-base-patch32",
+        "repo_id": "laion/CLIP-ViT-B-32-laion2B-s34B-b79K",
         "onnx_file": "visual_model.onnx",
         "dimension": 512,
-        "description": "CLIP ViT-B/32 visual encoder"
+        "description": "CLIP ViT-B/32 visual encoder (LAION open-source)"
     }
 }
 

@@ -202,7 +202,7 @@ public:
 
 ### 4.1 The Embedding Distribution Problem
 
-Neural network embeddings (from models like OpenAI's text-embedding-3-large, CLIP, etc.) exhibit non-uniform distributions:
+Neural network embeddings (from models like CLIP, BGE, E5, etc.) exhibit non-uniform distributions:
 
 - **Long-tailed**: Most values cluster near zero
 - **Sparse**: Many dimensions have very small magnitudes

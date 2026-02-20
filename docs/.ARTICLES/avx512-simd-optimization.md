@@ -30,7 +30,7 @@ Every vector search operation requires computing distances between the query vec
 - **Cosine**: $\cos(\theta) = \frac{x \cdot y}{\|x\| \|y\|}$
 - **Inner Product**: $d(x, y) = \sum_{i=1}^{n} x_i \cdot y_i$
 
-For 1536-dimensional vectors (OpenAI embeddings), each distance computation requires 1536 multiplications, 1536 additions, and additional operations. Without SIMD, this dominates query time.
+For 1536-dimensional vectors (typical cloud embeddings), each distance computation requires 1536 multiplications, 1536 additions, and additional operations. Without SIMD, this dominates query time.
 
 ## 2. AVX-512 Fundamentals
 

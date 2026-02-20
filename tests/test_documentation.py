@@ -188,7 +188,7 @@ def test_consistent_repository_urls():
         "pytorch/pytorch",
         "huggingface/transformers",
         "facebookresearch/faiss",
-        "openai/CLIP",
+        "laion/CLIP-ViT-B-32-laion2B-s34B-b79K",
         # Add other legitimate external repository references
     }
     

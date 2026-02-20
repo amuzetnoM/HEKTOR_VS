@@ -227,8 +227,7 @@ Advances in neural information processing systems, 33, 1877-1901.
 **Venue**: NeurIPS 2020  
 **Citations**: ~15,000+  
 
-**API**: OpenAI API (text-davinci-003, gpt-3.5-turbo)  
-**Open variants**: GPT-J, GPT-NeoX
+**Open variants**: GPT-J, GPT-NeoX (locally runnable)
 
 **Abstract**: Demonstrates that large language models can perform few-shot learning across diverse tasks.
 
@@ -251,7 +250,7 @@ In International conference on machine learning (pp. 8748-8763). PMLR.
 **Venue**: ICML 2021  
 **Citations**: ~8,000  
 
-**Code**: https://github.com/openai/CLIP  
+**Code**: https://github.com/mlfoundations/open_clip (community fork, locally runnable)  
 **Models**: ViT-B/32, ViT-L/14, RN50, RN101
 
 **Abstract**: Trains vision and language encoders jointly on 400M (image, text) pairs using contrastive learning.
@@ -273,8 +272,7 @@ arXiv preprint arXiv:2204.06125.
 **Type**: Preprint  
 **Citations**: ~2,000  
 
-**API**: OpenAI API (DALL-E 2)  
-**Open alternatives**: Stable Diffusion, Midjourney
+**Open alternatives**: Stable Diffusion (locally runnable), Midjourney
 
 **Abstract**: Generates high-quality images from text using CLIP embeddings and diffusion models.
 
